@@ -1,0 +1,4 @@
+﻿  winAPI_Test.cpp
+d:\바탕화면\winapi project\winapi_test\winapi_test\winapi_test.cpp(301): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+  winAPI_Test.vcxproj -> D:\바탕화면\winAPI Project\winAPI_Test\Debug\winAPI_Test.exe
+  winAPI_Test.vcxproj -> D:\바탕화면\winAPI Project\winAPI_Test\Debug\winAPI_Test.pdb (Full PDB)

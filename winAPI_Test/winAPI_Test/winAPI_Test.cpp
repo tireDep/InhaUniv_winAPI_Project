@@ -121,10 +121,195 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+
+#include <iostream>
+
+using namespace std;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static POINT draw[4] =
+	{
+		{100,100},{200,100},{200,200},{100,200}
+	};
+	
+	static bool isPause = false;
+	
+	static int moveSpeed = 10;
+	static int jumpHeight = 50;
+
+	static int downSpeed = 20;
+
+	// static bool isFocus = false;
+	static float focusPower = 0;
+
+	// static int i = 0;
+
     switch (message)
     {
+	case WM_CREATE:
+		AllocConsole();
+		freopen("CONOUT$", "wt", stdout);
+
+		SetTimer(hWnd, 0, 25, NULL);	// 플레이어 이동 및 제어
+		break;
+
+	case WM_TIMER:
+
+		// if(wParam == 1)
+		// {
+		// 	while (draw[2].y < 500)
+		// 	{
+		// 		draw[i].y += moveSpeed;
+		// 		if (i < 5) i++;
+		// 		else i = 0;
+		// 	}
+		// }
+
+		// Player Control
+
+		// [0x8000] : 작동시 누르고 있다.
+		// [0x0001] : 그 전에 눌렀었다.
+		// [0x8001] : 두 경우 다 발생 함.
+		// [0x0000] : 두 경우 다 발생 안함.
+
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
+		{
+			if (isPause == false)
+				isPause = true;
+			else
+				isPause = false;
+		}
+
+		if (!isPause)	// 일시정지가 아니고, 갈 수 있는 방향일 경우 && 갈 수 있는 상황인 경우
+		{
+			// todo : 이동 가능 판별 (지형 판별)
+
+			//if (!isFocus)
+			//{
+				if (GetAsyncKeyState(VK_DOWN) & 0x8001)
+				{
+					for (int i = 0; i < 4; i++)
+						draw[i].y += moveSpeed;
+				}
+				if (GetAsyncKeyState(VK_RIGHT) & 0x8001)
+				{
+					for (int i = 0; i < 4; i++)
+						draw[i].x += moveSpeed;
+				}
+				if (GetAsyncKeyState(VK_LEFT) & 0x8001)
+				{
+					for (int i = 0; i < 4; i++)
+						draw[i].x -= moveSpeed;
+				}
+				// 플레이어 이동
+
+				// 점프 하는 동안에 점프 못하게 막아야 함
+				// 바닥에 닿았을 경우 리셋 & 바로 점프 x
+				static int tempJumpPower = 100;
+
+				static bool isJumping = false;
+
+				if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE) & 0x0001))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
+				{
+					// for (int i = 0; i < 4; i++)
+					// 	draw[i].y -= moveSpeed * jumpHeight;
+					// 기본 점프
+					isJumping = true;
+				}
+				else if (isJumping)
+				{
+					if (tempJumpPower > 0)
+					{
+						tempJumpPower -= 10;
+						for (int i = 0; i < 4; i++)
+							draw[i].y -= downSpeed;
+						// draw[i].y -= tempJumpPower;	// 땅바닥 근처에서 천천히 떨어짐
+					}
+					else
+					{
+						isJumping = false;
+						// tempJumpPower = 100;
+					}
+
+					cout << tempJumpPower << endl;
+				}
+				else
+				{
+					if (draw[2].y < 650)	// 지면에 닿지 않았을 경우 => 수치 수정 예정 
+					{
+						for (int i = 0; i < 4; i++)
+							draw[i].y += downSpeed;
+					}
+					else
+					{
+						isJumping = false;
+						tempJumpPower = 100;	// 지면에 닿을 경우 => 점프 가능
+					}
+					// todo : 땅에 닿지 않은 경우 닿을 때까지 처리해야 함
+				}
+				// 점프
+			//}
+			
+			if (((GetAsyncKeyState(0x41) & 0x8001) || (GetAsyncKeyState(0x61) & 0x8001))&& focusPower <= 5) // 임시 사이즈
+			{
+				moveSpeed = 0;
+				downSpeed = 0;
+				// 포커스 모드시 이동 x
+				// 1안 : 속도 제거
+				// 2안 : boolean 변수로 제어
+				//isFocus = true;
+
+				focusPower += 2.5;
+				// todo : 플레이어보다 작아지면 강제로 풀려야 함
+			}
+			else
+			{
+				moveSpeed = 10;
+				downSpeed = 20;
+				// 포커스 모드시 이동 x
+				// 1안 : 속도 제거
+				// 2안 : boolean 변수로 제어
+
+				//isFocus = false;
+
+				if (focusPower > 0)
+					focusPower -= 1.5;
+
+				else if (focusPower < 0)
+					focusPower = 0;
+			}
+			// focus
+		}
+
+		// Player Control
+
+		InvalidateRect(hWnd, NULL, true);
+		break;
+
+
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
+
+		int tempSize = 100;
+		POINT tempCenter;
+		tempCenter.x = (draw[0].x + draw[1].x) / 2;
+		tempCenter.y = (draw[0].y + draw[2].y) / 2;
+		
+		tempSize -= focusPower;
+
+		// cout << focusPower << endl;
+		Ellipse(hdc, tempCenter.x - tempSize, tempCenter.y - tempSize, tempCenter.x + tempSize, tempCenter.y + tempSize);
+		// Ellipse(hdc, draw[0].x - 100, draw[0].y - 100, draw[2].x + 100, draw[2].y + 100);
+
+		Polygon(hdc, draw, 4);
+
+		EndPaint(hWnd, &ps);
+	}
+	break;
+
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -142,15 +327,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
-            EndPaint(hWnd, &ps);
-        }
-        break;
+
     case WM_DESTROY:
+		FreeConsole();
+		
+		KillTimer(hWnd,0);
+
         PostQuitMessage(0);
         break;
     default:
