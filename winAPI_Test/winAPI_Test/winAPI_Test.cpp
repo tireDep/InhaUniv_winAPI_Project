@@ -147,8 +147,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	static int downSpeed = 20;
 
-	// static bool isFocus = false;
+	static bool isFocus = false;
 	static float focusPower = 0;
+	static POINT focusPos[4] =
+	{
+		{150, 150}, {160, 150}, {160, 160}, {150, 160}
+	};
 
 	// static int i = 0;
 
@@ -194,19 +198,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			// todo : 이동 가능 판별 (지형 판별)
 
-			//if (!isFocus)
-			//{
-				if (GetAsyncKeyState(VK_DOWN) & 0x8001)
+			if (!isFocus)
+			{
+				if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 				{
 					for (int i = 0; i < 4; i++)
 						draw[i].y += moveSpeed;
 				}
-				if (GetAsyncKeyState(VK_RIGHT) & 0x8001)
+				if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 				{
 					for (int i = 0; i < 4; i++)
 						draw[i].x += moveSpeed;
 				}
-				if (GetAsyncKeyState(VK_LEFT) & 0x8001)
+				if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 				{
 					for (int i = 0; i < 4; i++)
 						draw[i].x -= moveSpeed;
@@ -219,7 +223,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				static bool isJumping = false;
 
-				if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE) & 0x0001))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
+				if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE) & 0x8000))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
 				{
 					// for (int i = 0; i < 4; i++)
 					// 	draw[i].y -= moveSpeed * jumpHeight;
@@ -258,18 +262,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					// todo : 땅에 닿지 않은 경우 닿을 때까지 처리해야 함
 				}
 				// 점프
-			//}
+			}
+			else
+			{
+				if (GetAsyncKeyState(VK_UP) & 0x8000)
+				{
+					for (int i = 0; i < 4; i++)
+						focusPos[i].y -= 10;
+				}
+				if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+				{
+					for (int i = 0; i < 4; i++)
+						focusPos[i].y += 10;
+				}
+				if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+				{
+					for (int i = 0; i < 4; i++)
+						focusPos[i].x -= 10;
+				}
+				if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+				{
+					for (int i = 0; i < 4; i++)
+						focusPos[i].x += 10;
+				}
+			}
 			
-			if (((GetAsyncKeyState(0x41) & 0x8001) || (GetAsyncKeyState(0x61) & 0x8001))&& focusPower <= 5) // 임시 사이즈
+			static bool isCharing = false;
+			if (((GetAsyncKeyState(0x41) & 0x8000) || (GetAsyncKeyState(0x61) & 0x8000)) && !isCharing)
 			{
 				moveSpeed = 0;
 				downSpeed = 0;
 				// 포커스 모드시 이동 x
 				// 1안 : 속도 제거
 				// 2안 : boolean 변수로 제어
-				//isFocus = true;
 
-				focusPower += 2.5;
+				if (focusPower <= 150)
+				{
+					isFocus = true;
+					focusPower += 2.5;
+				}
+				else
+				{
+					isFocus = false;
+					isCharing = true;
+				}
 				// todo : 플레이어보다 작아지면 강제로 풀려야 함
 			}
 			else
@@ -280,7 +316,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				// 1안 : 속도 제거
 				// 2안 : boolean 변수로 제어
 
-				//isFocus = false;
+				isFocus = false;
+				if (focusPower < 100)
+					isCharing = false;
+				else
+					isCharing = true;
 
 				if (focusPower > 0)
 					focusPower -= 1.5;
@@ -302,7 +342,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 
-		int tempSize = 100;
+		int tempSize = 150;
 		POINT tempCenter;
 		tempCenter.x = (draw[0].x + draw[1].x) / 2;
 		tempCenter.y = (draw[0].y + draw[2].y) / 2;
@@ -314,6 +354,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Ellipse(hdc, draw[0].x - 100, draw[0].y - 100, draw[2].x + 100, draw[2].y + 100);
 
 		Polygon(hdc, draw, 4);
+
+		if (isFocus == true)
+			Polygon(hdc, focusPos, 4);
+			// Ellipse(hdc, tempCenter.x - 10 - focusPos.x, tempCenter.y - 10 - focusPos.y, tempCenter.x + 10 + focusPos.x, tempCenter.y + 10 + focusPos.y);
 
 		DrawBitmap(hWnd, hdc);
 
