@@ -126,13 +126,20 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 using namespace std;
 
+HBITMAP hBackImage;
+BITMAP bitBack;
+
+static POINT draw[4] =
+{
+	{ 100,100 },{ 200,100 },{ 200,200 },{ 100,200 }
+};
+
+void CreateBitmap();
+void DrawBitmap(HWND hWnd, HDC hdc);
+void DeleteBitmap();
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static POINT draw[4] =
-	{
-		{100,100},{200,100},{200,200},{100,200}
-	};
-	
 	static bool isPause = false;
 	
 	static int moveSpeed = 10;
@@ -152,6 +159,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		freopen("CONOUT$", "wt", stdout);
 
 		SetTimer(hWnd, 0, 25, NULL);	// 플레이어 이동 및 제어
+
+		CreateBitmap();
 		break;
 
 	case WM_TIMER:
@@ -306,6 +315,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		Polygon(hdc, draw, 4);
 
+		DrawBitmap(hWnd, hdc);
+
 		EndPaint(hWnd, &ps);
 	}
 	break;
@@ -332,6 +343,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		FreeConsole();
 		
 		KillTimer(hWnd,0);
+		DeleteBitmap();
 
         PostQuitMessage(0);
         break;
@@ -359,4 +371,41 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void CreateBitmap()
+{
+	hBackImage = (HBITMAP)LoadImage(NULL, TEXT("../Image/tt32.bmp"),
+		IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+
+	GetObject(hBackImage, sizeof(BITMAP), &bitBack);
+}
+
+void DrawBitmap(HWND hWnd, HDC hdc)
+{
+	HDC hMemDC;	// back Buffer
+	HBITMAP hOldBitmap;
+	int bx, by;
+
+	hMemDC = CreateCompatibleDC(hdc);
+	hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBackImage);
+	bx = bitBack.bmWidth;
+	by = bitBack.bmHeight;
+
+	for (int i = 0; i < 500; i+=100)
+	{
+		BitBlt(hdc, i,0, bx, by, hMemDC, 0, 0, SRCCOPY);
+	}
+	// 맵 테스트 출력
+
+	BitBlt(hdc, draw[0].x, draw[0].y, bx, by, hMemDC, 0, 0, SRCCOPY);
+	// 플레이어 테스트 출력
+
+	SelectObject(hMemDC, hOldBitmap);
+	DeleteDC(hMemDC);
+}
+
+void DeleteBitmap()
+{
+	DeleteObject(hBackImage);
 }
