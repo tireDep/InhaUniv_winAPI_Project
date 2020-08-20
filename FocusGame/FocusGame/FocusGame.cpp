@@ -128,12 +128,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+
+// struct saveMap
+// {
+// 	POINT first;
+// 	POINT second;
+// 	POINT third;
+// 	POINT forth;
+// };
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	GameManager *gameManger = GameManager::GetInstance();
 	
 	Player *player = Player::GetInstance();
-	// ¾À ³ª´²Áö°í »ý¼º?
+	
+	//static vector<saveMap> map;
 
     switch (message)
     {
@@ -168,6 +178,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HDC hdc = BeginPaint(hWnd, &ps);
 
 		player->DrawPlayer(hdc);
+
+		POINT tempMap[4];
+		for (int i = 0; i < gameManger->GetScreenSize().right; i += 16)
+		{
+			Rectangle(hdc, i, 0, 16 +i, 16);
+			Rectangle(hdc, i, 576, 16 + i, 576+16);
+		}
+
+		for (int i = 0; i < gameManger->GetScreenSize().bottom; i += 16)
+		{
+			Rectangle(hdc, 0, i, 16, 16 + i);
+			Rectangle(hdc, 784, i, 784+16, 16 + i);
+		}
+
+		// map.push_back({ {100,100},{200,100},{200,200},{100,200} });
+		// 
+		// for (int i = 0; i < map.size(); i++)
+		// {
+		// 	tempMap[0] = map[i].first;
+		// 	tempMap[1] = map[i].second;
+		// 	tempMap[2] = map[i].third;
+		// 	tempMap[3] = map[i].forth;
+		// 	
+		// 	Polygon(hdc, tempMap, 4);
+		// }
 
 		EndPaint(hWnd, &ps);
 	}
