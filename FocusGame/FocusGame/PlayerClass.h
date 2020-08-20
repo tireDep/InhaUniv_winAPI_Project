@@ -12,7 +12,7 @@ enum state
 
 enum playerSet
 {
-	ePlayerSize = 16, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
+	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250
 	// ※ : 수치는 조정 가능..
 };
