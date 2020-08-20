@@ -221,7 +221,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				// 점프 하는 동안에 점프 못하게 막아야 함
 				// 바닥에 닿았을 경우 리셋 & 바로 점프 x
+				// static int tempJumpPower = 115;
+				// static int tempGravity = 250;
+
 				static int tempJumpPower = 100;
+				static int tempGravity = 250;
 
 				static bool isJumping = false;
 
@@ -237,10 +241,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if (tempJumpPower > 0)
 					{
-						tempJumpPower -= 10;
+						tempJumpPower -= tempGravity * 0.1;
 						for (int i = 0; i < 4; i++)
-							draw[i].y -= downSpeed;
-						// draw[i].y -= tempJumpPower;	// 땅바닥 근처에서 천천히 떨어짐
+							//draw[i].y -= downSpeed;
+							draw[i].y -= tempJumpPower;
 					}
 					else
 					{
@@ -254,13 +258,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if (draw[2].y < 575)	// 지면에 닿지 않았을 경우 => 수치 수정 예정 
 					{
+						// tempJumpPower += tempGravity * 0.1;
 						for (int i = 0; i < 4; i++)
-							draw[i].y += downSpeed;
+							draw[i].y += tempGravity * 0.1;
 					}
 					else
 					{
 						isJumping = false;
-						tempJumpPower = 100;	// 지면에 닿을 경우 => 점프 가능
+						tempJumpPower = 95;	// 지면에 닿을 경우 => 점프 가능
 					}
 					// todo : 땅에 닿지 않은 경우 닿을 때까지 처리해야 함
 				}
@@ -450,9 +455,9 @@ void DrawBitmap(HWND hWnd, HDC hdc)
 	//	BitBlt(hdc, i, 576, bx, by, hMemDC, 0, 0, SRCCOPY);
 	}
 
-	for (int i = 0; i < 560; i += 16)
+	for (int i = 0; i < 560; i += 32)
 	{
-	//	BitBlt(hdc, 0, i + 16, bx, by, hMemDC, 0, 0, SRCCOPY);
+		BitBlt(hdc, 0, i + 16, bx, by, hMemDC, 0, 0, SRCCOPY);
 	//	BitBlt(hdc, 784, i + 16, bx, by, hMemDC, 0, 0, SRCCOPY);
 	}
 	// 맵 테스트 출력
