@@ -98,7 +98,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, 816, 651, nullptr, nullptr, hInstance, nullptr);
+   //640 * 480
+   // 816 * 656
 
    if (!hWnd)
    {
@@ -131,7 +133,7 @@ BITMAP bitBack;
 
 static POINT draw[4] =
 {
-	{ 100,100 },{ 200,100 },{ 200,200 },{ 100,200 }
+	{ 100,100 },{ 116,100 },{ 116,116 },{ 100,116 }
 };
 
 void CreateBitmap();
@@ -223,7 +225,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				static bool isJumping = false;
 
-				if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE) & 0x8000))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
+				// if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE) & 0x8000))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
+				if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE)))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
 				{
 					// for (int i = 0; i < 4; i++)
 					// 	draw[i].y -= moveSpeed * jumpHeight;
@@ -249,7 +252,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				else
 				{
-					if (draw[2].y < 650)	// 지면에 닿지 않았을 경우 => 수치 수정 예정 
+					if (draw[2].y < 575)	// 지면에 닿지 않았을 경우 => 수치 수정 예정 
 					{
 						for (int i = 0; i < 4; i++)
 							draw[i].y += downSpeed;
@@ -353,13 +356,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Ellipse(hdc, tempCenter.x - tempSize, tempCenter.y - tempSize, tempCenter.x + tempSize, tempCenter.y + tempSize);
 		// Ellipse(hdc, draw[0].x - 100, draw[0].y - 100, draw[2].x + 100, draw[2].y + 100);
 
+		DrawBitmap(hWnd, hdc);
+
 		Polygon(hdc, draw, 4);
+
+		
 
 		if (isFocus == true)
 			Polygon(hdc, focusPos, 4);
 			// Ellipse(hdc, tempCenter.x - 10 - focusPos.x, tempCenter.y - 10 - focusPos.y, tempCenter.x + 10 + focusPos.x, tempCenter.y + 10 + focusPos.y);
 
-		DrawBitmap(hWnd, hdc);
+		
 
 		EndPaint(hWnd, &ps);
 	}
@@ -419,7 +426,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void CreateBitmap()
 {
-	hBackImage = (HBITMAP)LoadImage(NULL, TEXT("../Image/tt32.bmp"),
+	hBackImage = (HBITMAP)LoadImage(NULL, TEXT("../Image/ttt.bmp"),
 		IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 
 	GetObject(hBackImage, sizeof(BITMAP), &bitBack);
@@ -436,13 +443,21 @@ void DrawBitmap(HWND hWnd, HDC hdc)
 	bx = bitBack.bmWidth;
 	by = bitBack.bmHeight;
 
-	for (int i = 0; i < 500; i+=100)
+	// 맵 테스트 출력
+	for (int i = 0; i < 800; i+=16)
 	{
-		BitBlt(hdc, i,0, bx, by, hMemDC, 0, 0, SRCCOPY);
+	//	BitBlt(hdc, i, 0, bx, by, hMemDC, 0, 0, SRCCOPY);
+	//	BitBlt(hdc, i, 576, bx, by, hMemDC, 0, 0, SRCCOPY);
+	}
+
+	for (int i = 0; i < 560; i += 16)
+	{
+	//	BitBlt(hdc, 0, i + 16, bx, by, hMemDC, 0, 0, SRCCOPY);
+	//	BitBlt(hdc, 784, i + 16, bx, by, hMemDC, 0, 0, SRCCOPY);
 	}
 	// 맵 테스트 출력
 
-	BitBlt(hdc, draw[0].x, draw[0].y, bx, by, hMemDC, 0, 0, SRCCOPY);
+	//BitBlt(hdc, draw[0].x, draw[0].y, bx, by, hMemDC, 0, 0, SRCCOPY);
 	// 플레이어 테스트 출력
 
 	SelectObject(hMemDC, hOldBitmap);
