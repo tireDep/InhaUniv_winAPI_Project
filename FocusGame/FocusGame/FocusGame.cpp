@@ -4,6 +4,13 @@
 #include "stdafx.h"
 #include "FocusGame.h"
 
+// >> --------------------------
+#include "PlayerClass.h"
+#include "GameManger.h"
+
+using namespace std;
+// << --------------------------
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -123,8 +130,49 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	GameManager *gameManger = GameManager::GetInstance();
+	
+	Player *player = Player::GetInstance();
+	// ¾À ³ª´²Áö°í »ý¼º?
+
     switch (message)
     {
+	case WM_CREATE:
+		AllocConsole();
+		freopen("CONOUT$", "wt", stdout);
+
+		SetTimer(hWnd, 0, 25, NULL);
+
+		gameManger->CalcScreenSize(hWnd);
+		break;
+
+	case WM_TIMER:
+		if (!gameManger->GetIsPause())
+		{
+			player->Update();
+		}
+		InvalidateRect(hWnd, NULL, false);
+		break;
+
+	case WM_CHAR:
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
+		{
+			gameManger->SetIsPause();
+		}
+		InvalidateRect(hWnd, NULL, false);
+		break;
+
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
+
+		player->DrawPlayer(hdc);
+
+		EndPaint(hWnd, &ps);
+	}
+	break;
+
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -142,15 +190,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
-            EndPaint(hWnd, &ps);
-        }
-        break;
+   
     case WM_DESTROY:
+		FreeConsole();
+
+		KillTimer(hWnd, 0);
+
         PostQuitMessage(0);
         break;
     default:

@@ -1,6 +1,6 @@
 ﻿  winAPI_Test.cpp
-d:\바탕화면\winapi project\winapi_test\winapi_test\winapi_test.cpp(244): warning C4244: '-=': conversion from 'double' to 'int', possible loss of data
-d:\바탕화면\winapi project\winapi_test\winapi_test\winapi_test.cpp(263): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
-d:\바탕화면\winapi project\winapi_test\winapi_test\winapi_test.cpp(358): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
-  winAPI_Test.vcxproj -> D:\바탕화면\winApi Project\winAPI_Test\Debug\winAPI_Test.exe
-  winAPI_Test.vcxproj -> D:\바탕화면\winApi Project\winAPI_Test\Debug\winAPI_Test.pdb (Full PDB)
+d:\바탕화면\winapi project\winapi_test\winapi_test\winapi_test.cpp(246): warning C4244: '-=': conversion from 'double' to 'int', possible loss of data
+d:\바탕화면\winapi project\winapi_test\winapi_test\winapi_test.cpp(256): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+d:\바탕화면\winapi project\winapi_test\winapi_test\winapi_test.cpp(372): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+  winAPI_Test.vcxproj -> D:\바탕화면\winAPI Project\winAPI_Test\Debug\winAPI_Test.exe
+  winAPI_Test.vcxproj -> D:\바탕화면\winAPI Project\winAPI_Test\Debug\winAPI_Test.pdb (Full PDB)
