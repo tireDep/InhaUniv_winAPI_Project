@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "ObjectClass.h"
 #include "GameManger.h"
 
 using namespace std;
@@ -15,12 +16,12 @@ enum playerSet
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
 
-	eGravity = 250, eJumpPower = 115
+	eGravity = 300, eJumpPower = 100
 	// ※ : 수치는 조정 가능..
 	// 정해지지 않은 값들
 };
 
-class Player
+class Player : public Object
 {
 private:
 	GameManager *gameManger = GameManager::GetInstance();
@@ -49,7 +50,7 @@ public:
 	void Gravity();
 	bool CheckBtmGround();
 
-	void DrawPlayer(HDC hdc);
+	void DrawObject(HDC hdc);
 
 	void MovePlayer();
 
@@ -96,6 +97,7 @@ void Player::Update()
 {
 	Gravity();
 	MovePlayer();
+	// 충돌판정(벽, 장애물 등)
 }
 
 void Player::Gravity()
@@ -115,7 +117,7 @@ bool Player::CheckBtmGround()
 {
 	// todo : 바닥과의 충돌 판정이 필요함!
 	// 맵정보가 인자로 필요함
-	if (playerPos[2].y < 575)	// 임시 판정
+	if (playerPos[2].y < 550)	// 임시 판정
 	{
 		isBtmGround = false;
 		return true;
@@ -127,7 +129,7 @@ bool Player::CheckBtmGround()
 	}
 }
 
-void Player::DrawPlayer(HDC hdc)
+void Player::DrawObject(HDC hdc)
 {
 	Rectangle(hdc, 0, 0, 800, 800);
 	// 테스트용
