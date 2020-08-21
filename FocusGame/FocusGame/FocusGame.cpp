@@ -161,6 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			player->Update();
 		}
+
 		InvalidateRect(hWnd, NULL, false);
 		break;
 
@@ -169,6 +170,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			gameManger->SetIsPause();
 		}
+
 		InvalidateRect(hWnd, NULL, false);
 		break;
 
@@ -179,18 +181,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		player->DrawPlayer(hdc);
 
-		POINT tempMap[4];
-		for (int i = 0; i < gameManger->GetScreenSize().right; i += 16)
-		{
-			Rectangle(hdc, i, 0, 16 +i, 16);
-			Rectangle(hdc, i, 576, 16 + i, 576+16);
-		}
-
-		for (int i = 0; i < gameManger->GetScreenSize().bottom; i += 16)
-		{
-			Rectangle(hdc, 0, i, 16, 16 + i);
-			Rectangle(hdc, 784, i, 784+16, 16 + i);
-		}
+		//POINT tempMap[4];
+		//for (int i = 0; i < gameManger->GetScreenSize().right; i += 16)
+		//{
+		//	Rectangle(hdc, i, 0, 16 +i, 16);
+		//	Rectangle(hdc, i, 576, 16 + i, 576+16);
+		//}
+		//
+		//for (int i = 0; i < gameManger->GetScreenSize().bottom; i += 16)
+		//{
+		//	Rectangle(hdc, 0, i, 16, 16 + i);
+		//	Rectangle(hdc, 784, i, 784+16, 16 + i);
+		//}
 
 		// map.push_back({ {100,100},{200,100},{200,200},{100,200} });
 		// 

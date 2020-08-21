@@ -7,7 +7,7 @@ using namespace std;
 enum state
 {
 	eIdle = 0, eMoveL = 10, eMoveR = 15, eMoveDown = 20, 
-	eJump = 50, eDrop = 100, eFocus = 150
+	eJump = 50, eFall = 100, eFocus = 150
 };
 
 enum playerSet
@@ -15,8 +15,9 @@ enum playerSet
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
 
-	eGravity = 175, eJumpPower = 75
+	eGravity = 250, eJumpPower = 115
 	// ※ : 수치는 조정 가능..
+	// 정해지지 않은 값들
 };
 
 class Player
@@ -33,8 +34,10 @@ private:
 	int focusGauge;
 	// 포커스 lv 필요?
 
-	bool isJump;
-	int jumpPower;
+	bool isJump;	// 점프 중 판별
+	int jumpPower;	// 점프하는 힘
+
+	bool isBtmGround;
 
 	Player();
 	~Player();
@@ -43,6 +46,9 @@ public:
 	static Player* GetInstance();
 
 	void Update();
+	void Gravity();
+	bool CheckBtmGround();
+
 	void DrawPlayer(HDC hdc);
 
 	void MovePlayer();
@@ -65,7 +71,9 @@ Player::Player()
 	focusGauge = eFocusLv1;
 	isJump = false;
 	jumpPower = 0;
-	// ※ : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
+
+	isBtmGround = false;
+	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
 	
 	CalcCenterPos();
 
@@ -86,16 +94,47 @@ Player* Player::GetInstance()
 
 void Player::Update()
 {
+	Gravity();
 	MovePlayer();
+}
+
+void Player::Gravity()
+{
+	// 플레이어는 포커스 상태가 아니거나, 점프중이 아닌경우 계속 중력의 영향을 받음
+	if (playerState != eFocus || playerState != eJump)
+	{
+		if(CheckBtmGround())
+		{
+			for (int i = 0; i < 4; i++)
+				playerPos[i].y += eGravity * 0.1;
+		}
+	}
+}
+
+bool Player::CheckBtmGround()
+{
+	// todo : 바닥과의 충돌 판정이 필요함!
+	// 맵정보가 인자로 필요함
+	if (playerPos[2].y < 575)	// 임시 판정
+	{
+		isBtmGround = false;
+		return true;
+	}
+	else
+	{
+		isBtmGround = true;
+		return false;
+	}
 }
 
 void Player::DrawPlayer(HDC hdc)
 {
 	Rectangle(hdc, 0, 0, 800, 800);
+	// 테스트용
 
 	if(playerState == eFocus)
 		Polygon(hdc, focusPos, 4);
-	// 반투명한 이미지로 대체
+	// todo : 반투명한 이미지로 대체
 
 	Polygon(hdc, playerPos, 4);
 	
@@ -108,6 +147,7 @@ void Player::MovePlayer()
 	// todo : 이동 가능 판별 (지형 판별)
 	if (playerState != eFocus)
 	{
+		// 플레이어 이동
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
 			for (int i = 0; i < 4; i++)
@@ -124,40 +164,16 @@ void Player::MovePlayer()
 				playerPos[i].x -= eMoveSpeed;
 		}
 		// 플레이어 이동
-
-		//// 점프 하는 동안에 점프 못하게 막아야 함
-		//// 바닥에 닿았을 경우 리셋 & 바로 점프 x
-		//// static int tempJumpPower = 115;
-		//// static int tempGravity = 250;
-
-	
-		//if (GetKeyState(VK_SPACE) < 0)
-		//{
-		//	// 누르고 있음
-		//	printf("push\n");
-
-		//	isJump = true;
-		//}
-		//else
-		//{
-		//	isJump = false;
-		//	playerState = eIdle;
-		//	jumpPower = eJumpPower;	// 지면에 닿을 경우 => 점프 가능
-
-		//							// 누르고 있는 상황이 x
-		//	printf("didt push\n");
-		//}
-
-
-		if (!isJump && ((GetAsyncKeyState(VK_SPACE))) || (GetAsyncKeyState(VK_UP)))
+		
+		// 점프
+		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) || (GetAsyncKeyState(VK_UP) & 0x8000)) )
 		{
 			isJump = true;
 			playerState = eJump;
 			jumpPower = eJumpPower;
 		}
-		else if (playerState == eJump && isJump)
+		else if (isJump && playerState == eJump)
 		{
-			isJump = true;
 			if (jumpPower > 0)
 			{
 				jumpPower -= eGravity * 0.1;
@@ -166,29 +182,32 @@ void Player::MovePlayer()
 			}
 			else
 			{
-				playerState = eDrop;
+				// todo : 윗부분 충돌 판정 필요할 듯?
+				playerState = eFall;
 			}
 		}
 		else
 		{
-			isJump = true;
-			if (playerPos[2].y < 575)	// 지면에 닿지 않았을 경우 => 수치 수정 예정 
+			//// 점프 하는 동안에 점프 못하게 막아야 함
+			//// 바닥에 닿았을 경우 리셋 & 바로 점프 x
+			if ( ((GetKeyState(VK_SPACE) < 0) || (GetKeyState(VK_UP) < 0)) )
 			{
-				// tempJumpPower += tempGravity * 0.1;
-				for (int i = 0; i < 4; i++)
-					playerPos[i].y += eGravity * 0.1;
+				// jump키를 누르고 있는 상황
+				//printf("push\n");
+				isJump = true;
 			}
-			else
+			else if(isBtmGround)
 			{
+				// jump키를 누르고 있지 x, 지면에 닿음 -> 변수 초기화
+				// n번 점프 방지
+				// printf("didt push\n");
 				isJump = false;
 				playerState = eIdle;
-				jumpPower = eJumpPower;	// 지면에 닿을 경우 => 점프 가능
-
+				jumpPower = eJumpPower;	
 			}
-			// todo : 땅에 닿지 않은 경우 닿을 때까지 처리해야 함
-		}
+		}	// else_jump
 		// 점프
-	//}
+	}
 	//	else
 	//	{
 	//		if (GetAsyncKeyState(VK_UP) & 0x8000)
@@ -256,7 +275,7 @@ void Player::MovePlayer()
 		//}
 		//// focus
 		// Player Control
-	}
+	//}
 }
 
 void Player::SetPos(POINT pos[], int xPos, int yPos, int addNum)
