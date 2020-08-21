@@ -54,21 +54,6 @@ public:
 
 Player::Player()
 {
-	// gameManger = GameManager::GetInstance();
-	// // playerSet
-	// playerPos[0].x = eWindowWidth / 2 - ePlayerSize;
-	// playerPos[0].y = eWindowHeight/ 2 - ePlayerSize;
-	// 
-	// playerPos[1].x = eWindowWidth / 2 + ePlayerSize;
-	// playerPos[1].y = eWindowHeight / 2 - ePlayerSize;
-	// 
-	// playerPos[2].x = eWindowWidth / 2 + ePlayerSize;
-	// playerPos[2].y = eWindowHeight / 2 + ePlayerSize;
-	// 
-	// playerPos[3].x = eWindowWidth / 2 - ePlayerSize;
-	// playerPos[3].y = eWindowHeight / 2 + ePlayerSize;
-	// // playerSet
-
 	if(gameManger->GetScreenSize().right != 0)
 		SetPos(playerPos, gameManger->GetScreenSize().right / 2, gameManger->GetScreenSize().bottom / 2, ePlayerSize);
 	else
@@ -84,36 +69,7 @@ Player::Player()
 	
 	CalcCenterPos();
 
-	// // focusSet
-	// focusPos[0].x = centerPos.x - focusGauge;
-	// focusPos[0].y = centerPos.y - focusGauge;
-	// 
-	// focusPos[1].x = centerPos.x + focusGauge;
-	// focusPos[1].y = centerPos.y - focusGauge;
-	// 
-	// focusPos[2].x = centerPos.x + focusGauge;
-	// focusPos[2].y = centerPos.y + focusGauge;
-	// 
-	// focusPos[3].x = centerPos.x - focusGauge;
-	// focusPos[3].y = centerPos.y + focusGauge;
-	// // focusSet
-
 	SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
-
-	// // focusMoveSet
-	// fMovePos[0].x = centerPos.x - efMoveSize;
-	// fMovePos[0].y = centerPos.y - efMoveSize;
-	// 
-	// fMovePos[1].x = centerPos.x + efMoveSize;
-	// fMovePos[1].y = centerPos.y - efMoveSize;
-	// 
-	// fMovePos[2].x = centerPos.x + efMoveSize;
-	// fMovePos[2].y = centerPos.y + efMoveSize;
-	// 
-	// fMovePos[3].x = centerPos.x - efMoveSize;
-	// fMovePos[3].y = centerPos.y + efMoveSize;
-	// // focusMoveSet
-
 	SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
 }
 
@@ -174,36 +130,32 @@ void Player::MovePlayer()
 		//// static int tempJumpPower = 115;
 		//// static int tempGravity = 250;
 
-		// if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE) & 0x8000))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
-
-		printf("%d\n", playerState);
-
-		if ((playerState != eDrop && playerState != eJump) && (GetAsyncKeyState(VK_SPACE) & 0x0001))
-			isJump = false;
-		else
-			isJump = true;
-
-		// if ((GetAsyncKeyState(VK_SPACE) != 0) && (GetAsyncKeyState(VK_SPACE) & 0x8001))
-		//if ((GetAsyncKeyState(VK_SPACE) & 0x8000) && (GetAsyncKeyState(VK_SPACE) & 0x8001))
+	
+		//if (GetKeyState(VK_SPACE) < 0)
 		//{
-		//	printf("push?\n");
-		//	isJump = false;
-		//}
-		//	
-		//else
-		//{
-		//	printf("isJumpTrue\n");
+		//	// 누르고 있음
+		//	printf("push\n");
+
 		//	isJump = true;
 		//}
-			
+		//else
+		//{
+		//	isJump = false;
+		//	playerState = eIdle;
+		//	jumpPower = eJumpPower;	// 지면에 닿을 경우 => 점프 가능
 
-		if (!isJump)// && ((GetAsyncKeyState(VK_SPACE))) || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
+		//							// 누르고 있는 상황이 x
+		//	printf("didt push\n");
+		//}
+
+
+		if (!isJump && ((GetAsyncKeyState(VK_SPACE))) || (GetAsyncKeyState(VK_UP)))
 		{
-			isJump = false;
+			isJump = true;
 			playerState = eJump;
 			jumpPower = eJumpPower;
 		}
-		else if (playerState == eJump)
+		else if (playerState == eJump && isJump)
 		{
 			isJump = true;
 			if (jumpPower > 0)
@@ -228,8 +180,10 @@ void Player::MovePlayer()
 			}
 			else
 			{
+				isJump = false;
 				playerState = eIdle;
 				jumpPower = eJumpPower;	// 지면에 닿을 경우 => 점프 가능
+
 			}
 			// todo : 땅에 닿지 않은 경우 닿을 때까지 처리해야 함
 		}
