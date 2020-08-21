@@ -13,7 +13,9 @@ enum state
 enum playerSet
 {
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
-	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250
+	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
+
+	eGravity = 175, eJumpPower = 75
 	// ※ : 수치는 조정 가능..
 };
 
@@ -27,9 +29,12 @@ private:
 	POINT fMovePos[4];
 	POINT centerPos;
 
-	int state;	// 현재 상태 플래그
+	int playerState;	// 현재 상태 플래그
 	int focusGauge;
 	// 포커스 lv 필요?
+
+	bool isJump;
+	int jumpPower;
 
 	Player();
 	~Player();
@@ -70,8 +75,11 @@ Player::Player()
 		SetPos(playerPos, 800 / 2, 592 / 2, ePlayerSize);
 
 	cout << gameManger->GetSceneNum() << endl;
-	state = eIdle;
+
+	playerState = eIdle;
 	focusGauge = eFocusLv1;
+	isJump = false;
+	jumpPower = 0;
 	// ※ : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
 	
 	CalcCenterPos();
@@ -127,21 +135,22 @@ void Player::Update()
 
 void Player::DrawPlayer(HDC hdc)
 {
-	if(state==eFocus)
+	Rectangle(hdc, 0, 0, 800, 800);
+
+	if(playerState == eFocus)
 		Polygon(hdc, focusPos, 4);
 	// 반투명한 이미지로 대체
 
 	Polygon(hdc, playerPos, 4);
 	
-	if (state == eFocus)
+	if (playerState == eFocus)
 		Polygon(hdc, fMovePos, 4);
 }
 
 void Player::MovePlayer()
 {
 	// todo : 이동 가능 판별 (지형 판별)
-
-	if (state != eFocus)
+	if (playerState != eFocus)
 	{
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
@@ -165,52 +174,66 @@ void Player::MovePlayer()
 		//// static int tempJumpPower = 115;
 		//// static int tempGravity = 250;
 
-		//static int tempJumpPower = 100;
-		//static int tempGravity = 250;
+		// if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE) & 0x8000))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
 
-		//static bool isJumping = false;
+		printf("%d\n", playerState);
 
-		//// if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE) & 0x8000))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
-		//if (tempJumpPower > 0 && !isJumping && ((GetAsyncKeyState(VK_SPACE)))) //  || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
+		if ((playerState != eDrop && playerState != eJump) && (GetAsyncKeyState(VK_SPACE) & 0x0001))
+			isJump = false;
+		else
+			isJump = true;
+
+		// if ((GetAsyncKeyState(VK_SPACE) != 0) && (GetAsyncKeyState(VK_SPACE) & 0x8001))
+		//if ((GetAsyncKeyState(VK_SPACE) & 0x8000) && (GetAsyncKeyState(VK_SPACE) & 0x8001))
 		//{
-		//	// for (int i = 0; i < 4; i++)
-		//	// 	draw[i].y -= moveSpeed * jumpHeight;
-		//	// 기본 점프
-		//	isJumping = true;
+		//	printf("push?\n");
+		//	isJump = false;
 		//}
-		//else if (isJumping)
-		//{
-		//	if (tempJumpPower > 0)
-		//	{
-		//		tempJumpPower -= tempGravity * 0.1;
-		//		for (int i = 0; i < 4; i++)
-		//			//draw[i].y -= downSpeed;
-		//			draw[i].y -= tempJumpPower;
-		//	}
-		//	else
-		//	{
-		//		isJumping = false;
-		//		// tempJumpPower = 100;
-		//	}
-
-		//	cout << tempJumpPower << endl;
-		//}
+		//	
 		//else
 		//{
-		//	if (draw[2].y < 575)	// 지면에 닿지 않았을 경우 => 수치 수정 예정 
-		//	{
-		//		// tempJumpPower += tempGravity * 0.1;
-		//		for (int i = 0; i < 4; i++)
-		//			draw[i].y += tempGravity * 0.1;
-		//	}
-		//	else
-		//	{
-		//		isJumping = false;
-		//		tempJumpPower = 95;	// 지면에 닿을 경우 => 점프 가능
-		//	}
-		//	// todo : 땅에 닿지 않은 경우 닿을 때까지 처리해야 함
+		//	printf("isJumpTrue\n");
+		//	isJump = true;
 		//}
-		//// 점프
+			
+
+		if (!isJump)// && ((GetAsyncKeyState(VK_SPACE))) || (GetAsyncKeyState(VK_UP) & 0x0001))// && true)
+		{
+			isJump = false;
+			playerState = eJump;
+			jumpPower = eJumpPower;
+		}
+		else if (playerState == eJump)
+		{
+			isJump = true;
+			if (jumpPower > 0)
+			{
+				jumpPower -= eGravity * 0.1;
+				for (int i = 0; i < 4; i++)
+					playerPos[i].y -= jumpPower;
+			}
+			else
+			{
+				playerState = eDrop;
+			}
+		}
+		else
+		{
+			isJump = true;
+			if (playerPos[2].y < 575)	// 지면에 닿지 않았을 경우 => 수치 수정 예정 
+			{
+				// tempJumpPower += tempGravity * 0.1;
+				for (int i = 0; i < 4; i++)
+					playerPos[i].y += eGravity * 0.1;
+			}
+			else
+			{
+				playerState = eIdle;
+				jumpPower = eJumpPower;	// 지면에 닿을 경우 => 점프 가능
+			}
+			// todo : 땅에 닿지 않은 경우 닿을 때까지 처리해야 함
+		}
+		// 점프
 	//}
 	//	else
 	//	{
