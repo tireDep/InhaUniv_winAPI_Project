@@ -216,8 +216,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		for (int i = 0; i<object.size(); i++)
 			object[0]->DrawObject(memDc);
 
-		printf("%d\n", object.size());
-
 		for (int i = 0; i < tempMap.size(); i++)
 			Rectangle(memDc, tempMap[i].left, tempMap[i].top, tempMap[i].right, tempMap[i].bottom);
 

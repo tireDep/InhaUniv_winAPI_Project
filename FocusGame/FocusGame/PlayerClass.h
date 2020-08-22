@@ -8,7 +8,7 @@ using namespace std;
 enum state
 {
 	eIdle = 0, eMoveL = 10, eMoveR = 15, eMoveDown = 20, 
-	eJump = 50, eFall = 100, eFocus = 150
+	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 10
 };
 
 enum playerSet
@@ -16,7 +16,7 @@ enum playerSet
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
 
-	eGravity = 300, eJumpPower = 100
+	eGravity = 300, eJumpPower = 150
 	// ※ : 수치는 조정 가능..
 	// 정해지지 않은 값들
 };
@@ -31,9 +31,12 @@ private:
 	POINT fMovePos[4];
 	POINT centerPos;
 
+	int moveSpeed;
+	int gravity;
+
 	int playerState;	// 현재 상태 플래그
 	int focusGauge;
-	// 포커스 lv 필요?
+	int focusLv;
 
 	bool isJump;	// 점프 중 판별
 	int jumpPower;	// 점프하는 힘
@@ -69,11 +72,16 @@ Player::Player()
 	cout << gameManger->GetSceneNum() << endl;
 
 	playerState = eIdle;
-	focusGauge = eFocusLv1;
 	isJump = false;
 	jumpPower = 0;
 
 	isBtmGround = false;
+
+	moveSpeed = eMoveSpeed;
+	gravity = eGravity;
+
+	focusGauge = eFocusLv1;
+	focusLv = eFocusLv1;
 	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
 	
 	CalcCenterPos();
@@ -108,7 +116,7 @@ void Player::Gravity()
 		if(CheckBtmGround())
 		{
 			for (int i = 0; i < 4; i++)
-				playerPos[i].y += eGravity * 0.1;
+				playerPos[i].y += gravity * 0.1;
 		}
 	}
 }
@@ -146,6 +154,7 @@ void Player::DrawObject(HDC hdc)
 
 void Player::MovePlayer()
 {
+	static bool isCharing = false;
 	// todo : 이동 가능 판별 (지형 판별)
 	if (playerState != eFocus)
 	{
@@ -209,75 +218,111 @@ void Player::MovePlayer()
 			}
 		}	// else_jump
 		// 점프
+
+		// 포커스
+		if (((GetAsyncKeyState(0x41) & 0x8000)) && !isCharing)
+		{
+			moveSpeed = 0;
+			jumpPower = 0;
+			gravity = 0;
+
+			playerState = eFocus;
+		}
+
+		else
+		{
+			moveSpeed = eMoveSpeed;
+			// jumpPower = eJumpPower;
+			gravity = eGravity;
+
+			if (focusGauge <= focusLv)
+			{
+				focusGauge += 1.5;
+
+				{
+					focusPos[0].x -= 1.5;
+					focusPos[0].y -= 1.5;
+
+					focusPos[1].x += 1.5;
+					focusPos[1].y -= 1.5;
+
+					focusPos[2].x += 1.5;
+					focusPos[2].y += 1.5;
+
+					focusPos[3].x -= 1.5;
+					focusPos[3].y += 1.5;
+				}
+			}
+			else
+				focusGauge = focusLv;
+
+			if (focusGauge <= eSmallFocus || GetKeyState(0x41) < 0)	// 계속 누르고 있으면 포커스 모드 실행 x
+				isCharing = true;
+			else
+				isCharing = false;
+
+			printf("-----fGauge : %d\n", focusGauge);
+		}
+
+		printf("fGauge : %d\n", focusGauge);
+		// 포커스
 	}
-	//	else
-	//	{
-	//		if (GetAsyncKeyState(VK_UP) & 0x8000)
-	//		{
-	//			for (int i = 0; i < 4; i++)
-	//				focusPos[i].y -= 10;
-	//		}
-	//		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-	//		{
-	//			for (int i = 0; i < 4; i++)
-	//				focusPos[i].y += 10;
-	//		}
-	//		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-	//		{
-	//			for (int i = 0; i < 4; i++)
-	//				focusPos[i].x -= 10;
-	//		}
-	//		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-	//		{
-	//			for (int i = 0; i < 4; i++)
-	//				focusPos[i].x += 10;
-	//		}
-	//	}
 
-		//static bool isCharing = false;
-		//if (((GetAsyncKeyState(0x41) & 0x8000) || (GetAsyncKeyState(0x61) & 0x8000)) && !isCharing)
-		//{
-		//	moveSpeed = 0;
-		//	downSpeed = 0;
-		//	// 포커스 모드시 이동 x
-		//	// 1안 : 속도 제거
-		//	// 2안 : boolean 변수로 제어
+	else
+	{
+		if ( ((GetAsyncKeyState(0x41) & 0x8000) || (GetAsyncKeyState(0x61) & 0x8000)) )
+		{
+			if (focusGauge >= 0)
+			{
+				focusGauge -= 1.5;
+				
+				focusPos[0].x += 1.5;
+				focusPos[0].y += 1.5;
 
-		//	if (focusPower <= 150)
-		//	{
-		//		isFocus = true;
-		//		focusPower += 2.5;
-		//	}
-		//	else
-		//	{
-		//		isFocus = false;
-		//		isCharing = true;
-		//	}
-		//	// todo : 플레이어보다 작아지면 강제로 풀려야 함
-		//}
-		//else
-		//{
-		//	moveSpeed = 10;
-		//	downSpeed = 20;
-		//	// 포커스 모드시 이동 x
-		//	// 1안 : 속도 제거
-		//	// 2안 : boolean 변수로 제어
+				focusPos[1].x -= 1.5;
+				focusPos[1].y += 1.5;
 
-		//	isFocus = false;
-		//	if (focusPower < 100)
-		//		isCharing = false;
-		//	else
-		//		isCharing = true;
+				focusPos[2].x -= 1.5;
+				focusPos[2].y -= 1.5;
 
-		//	if (focusPower > 0)
-		//		focusPower -= 1.5;
+				focusPos[3].x += 1.5;
+				focusPos[3].y -= 1.5;
+			}
+			else
+			{
+				isCharing = true;
+				playerState = eIdle;
+			}
+		}
+		else
+			playerState = eIdle;
 
-		//	else if (focusPower < 0)
-		//		focusPower = 0;
-		//}
-		//// focus
+
+		if (GetAsyncKeyState(VK_UP) & 0x8000)
+		{
+			for (int i = 0; i < 4; i++)
+				fMovePos[i].y -= 10;
+		}
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		{
+			for (int i = 0; i < 4; i++)
+				fMovePos[i].y += 10;
+		}
+		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+		{
+			for (int i = 0; i < 4; i++)
+				fMovePos[i].x -= 10;
+		}
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+		{
+			for (int i = 0; i < 4; i++)
+				fMovePos[i].x += 10;
+		}
+	}
+
+	
+	
 		// Player Control
-	//}
 }
 
 void Player::SetPos(POINT pos[], int xPos, int yPos, int addNum)
