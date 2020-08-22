@@ -8,7 +8,7 @@ using namespace std;
 enum state
 {
 	eIdle = 0, eMoveL = 10, eMoveR = 15, eMoveDown = 20, 
-	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 5
+	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 10
 };
 
 enum playerSet
@@ -30,6 +30,9 @@ private:
 	POINT focusPos[4];	// 포커스 위치
 	POINT fMovePos[4];
 	POINT centerPos;
+	POINT fCenterPos;
+
+	POINT lastMove;
 
 	int moveSpeed;
 	int gravity;
@@ -58,9 +61,9 @@ public:
 	void MovePlayer();
 
 	void SetPos(POINT pos[], int xPos, int yPos, int addNum);
-	void SetPos(POINT pos[], int xPos, int yPos, int addX, int addY);
 
 	void CalcCenterPos();
+	void CalcFCenterPos();
 };
 
 Player::Player()
@@ -81,8 +84,8 @@ Player::Player()
 	moveSpeed = eMoveSpeed;
 	gravity = eGravity;
 
-	focusGauge = eFocusLv1;
-	focusLv = eFocusLv1;
+	focusGauge = eFocusLv3;
+	focusLv = eFocusLv3;
 	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
 	
 	CalcCenterPos();
@@ -155,6 +158,83 @@ void Player::MovePlayer()
 	static bool isCharing = false;
 	// todo : 이동 가능 판별 (지형 판별)
 
+	// 수평이동 포물선!
+	// test
+	POINT speed;
+	float v;
+
+	static float time;
+
+	if (lastMove.x != 0)
+	{
+		speed.x = lastMove.x - fCenterPos.x;
+		speed.y = lastMove.y - fCenterPos.y;
+
+		v = sqrt((pow(speed.x, 2) + pow(speed.y, 2)));
+		//printf("tt : %d %d\n", lastMove.x, lastMove.y);
+		printf("speed : %d %d, v : %f\n", speed.x, speed.y, v);
+		// 속력 계산
+
+		POINT calcV;
+		calcV.x = v;
+		calcV.y = gravity * time;
+
+		float objV = sqrt(pow(calcV.x, 2) + pow(calcV.y, 2));
+
+		POINT pos;
+		pos.x = calcV.x * time;
+		pos.y = 0.5 * gravity * time * time;
+
+		if (speed.x > 0)
+		{
+			playerPos[0].x -= pos.x;
+			playerPos[0].y += pos.y;
+
+			playerPos[1].x -= pos.x;
+			playerPos[1].y += pos.y;
+
+			playerPos[2].x -= pos.x;
+			playerPos[2].y += pos.y;
+
+			playerPos[3].x -= pos.x;
+			playerPos[3].y += pos.y;
+		}
+		else if (speed.x < 0)
+		{
+			playerPos[0].x += pos.x;
+			playerPos[0].y += pos.y;
+
+			playerPos[1].x += pos.x;
+			playerPos[1].y += pos.y;
+
+			playerPos[2].x += pos.x;
+			playerPos[2].y += pos.y;
+
+			playerPos[3].x += pos.x;
+			playerPos[3].y += pos.y;
+		}
+		else if (speed.x == 0)
+		{
+			playerPos[0].y += pos.y;
+
+			playerPos[1].y += pos.y;
+
+			playerPos[2].y += pos.y;
+
+			playerPos[3].y += pos.y;
+		}
+
+		if (playerPos[2].y > 550)
+			lastMove.x = 0;
+
+		time += 0.1;
+	}
+	else
+		time = 0;
+
+	// test
+	
+
 	if (playerState != eFocus)
 	{
 		// 플레이어 이동
@@ -176,7 +256,8 @@ void Player::MovePlayer()
 		// 플레이어 이동
 		
 		// 점프
-		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) || (GetAsyncKeyState(VK_UP) & 0x8000)) )
+		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) || (GetAsyncKeyState(VK_UP) & 0x8000)) 
+			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;
 			playerState = eJump;
@@ -243,10 +324,7 @@ void Player::MovePlayer()
 
 			CalcCenterPos();
 			SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
-			printf("-----fGauge : %d\n", focusGauge);
 		}
-
-		printf("fGauge : %d\n", focusGauge);
 		// 포커스
 	}
 
@@ -262,11 +340,25 @@ void Player::MovePlayer()
 			else
 			{
 				isCharing = true;
+
+				// lastMove.x = centerPos.x; 
+				// lastMove.y = centerPos.y;
+				// 
+				// SetPos(playerPos, fCenterPos.x, fCenterPos.y, ePlayerSize);
+				// 게이지가 다 달면 이동하지 x
 				playerState = eIdle;
 			}
 		}
 		else
+		{
+			CalcCenterPos();
+			lastMove.x = centerPos.x;
+			lastMove.y = centerPos.y;
+
+			CalcFCenterPos();
+			SetPos(playerPos, fCenterPos.x, fCenterPos.y, ePlayerSize);
 			playerState = eIdle;
+		}
 
 
 		// 포커스 내부에서만 이동가능해야 함
@@ -290,10 +382,8 @@ void Player::MovePlayer()
 			for (int i = 0; i < 4; i++)
 				fMovePos[i].x += 10;
 		}
+		CalcFCenterPos();
 	}
-
-	
-	
 		// Player Control
 }
 
@@ -335,4 +425,10 @@ inline void Player::CalcCenterPos()
 {
 	centerPos.x = (playerPos[0].x + playerPos[1].x) / 2;
 	centerPos.y = (playerPos[0].y + playerPos[2].y) / 2;
+}
+
+inline void Player::CalcFCenterPos()
+{
+	fCenterPos.x = (fMovePos[0].x + fMovePos[1].x) / 2;
+	fCenterPos.y = (fMovePos[0].y + fMovePos[2].y) / 2;
 }
