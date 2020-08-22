@@ -8,7 +8,7 @@ using namespace std;
 enum state
 {
 	eIdle = 0, eMoveL = 10, eMoveR = 15, eMoveDown = 20, 
-	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 10
+	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 5
 };
 
 enum playerSet
@@ -58,16 +58,17 @@ public:
 	void MovePlayer();
 
 	void SetPos(POINT pos[], int xPos, int yPos, int addNum);
+	void SetPos(POINT pos[], int xPos, int yPos, int addX, int addY);
 
 	void CalcCenterPos();
 };
 
 Player::Player()
 {
-	if(gameManger->GetScreenSize().right != 0)
-		SetPos(playerPos, gameManger->GetScreenSize().right / 2, gameManger->GetScreenSize().bottom / 2, ePlayerSize);
-	else
-		SetPos(playerPos, 800 / 2, 592 / 2, ePlayerSize);
+	//if(gameManger->GetScreenSize().right != 0)
+	//	SetPos(playerPos, gameManger->GetScreenSize().right / 2, gameManger->GetScreenSize().bottom / 2, ePlayerSize);
+	//else
+	SetPos(playerPos, 800 / 2, 592 / 2, ePlayerSize);
 
 	cout << gameManger->GetSceneNum() << endl;
 
@@ -139,10 +140,7 @@ bool Player::CheckBtmGround()
 
 void Player::DrawObject(HDC hdc)
 {
-	Rectangle(hdc, 0, 0, 800, 800);
-	// 테스트용
-
-	if(playerState == eFocus)
+	//if(playerState == eFocus)
 		Polygon(hdc, focusPos, 4);
 	// todo : 반투명한 이미지로 대체
 
@@ -156,6 +154,7 @@ void Player::MovePlayer()
 {
 	static bool isCharing = false;
 	// todo : 이동 가능 판별 (지형 판별)
+
 	if (playerState != eFocus)
 	{
 		// 플레이어 이동
@@ -202,16 +201,10 @@ void Player::MovePlayer()
 			//// 점프 하는 동안에 점프 못하게 막아야 함
 			//// 바닥에 닿았을 경우 리셋 & 바로 점프 x
 			if ( ((GetKeyState(VK_SPACE) < 0) || (GetKeyState(VK_UP) < 0)) )
-			{
-				// jump키를 누르고 있는 상황
-				//printf("push\n");
-				isJump = true;
-			}
+				isJump = true;	// jump키를 누르고 있는 상황
 			else if(isBtmGround)
 			{
-				// jump키를 누르고 있지 x, 지면에 닿음 -> 변수 초기화
-				// n번 점프 방지
-				// printf("didt push\n");
+				// jump키를 누르고 있지 x, 지면에 닿음 -> 변수 초기화, n번 점프 방지
 				isJump = false;
 				playerState = eIdle;
 				jumpPower = eJumpPower;	
@@ -227,40 +220,29 @@ void Player::MovePlayer()
 			gravity = 0;
 
 			playerState = eFocus;
+			CalcCenterPos();
+			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
 		}
 
 		else
 		{
 			moveSpeed = eMoveSpeed;
-			// jumpPower = eJumpPower;
 			gravity = eGravity;
 
-			if (focusGauge <= focusLv)
+			if (focusGauge < focusLv)
 			{
 				focusGauge += 1.5;
-
-				{
-					focusPos[0].x -= 1.5;
-					focusPos[0].y -= 1.5;
-
-					focusPos[1].x += 1.5;
-					focusPos[1].y -= 1.5;
-
-					focusPos[2].x += 1.5;
-					focusPos[2].y += 1.5;
-
-					focusPos[3].x -= 1.5;
-					focusPos[3].y += 1.5;
-				}
 			}
-			else
-				focusGauge = focusLv;
+			//else
+			//	focusGauge = focusLv;
 
 			if (focusGauge <= eSmallFocus || GetKeyState(0x41) < 0)	// 계속 누르고 있으면 포커스 모드 실행 x
 				isCharing = true;
 			else
 				isCharing = false;
 
+			CalcCenterPos();
+			SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
 			printf("-----fGauge : %d\n", focusGauge);
 		}
 
@@ -272,21 +254,10 @@ void Player::MovePlayer()
 	{
 		if ( ((GetAsyncKeyState(0x41) & 0x8000) || (GetAsyncKeyState(0x61) & 0x8000)) )
 		{
-			if (focusGauge >= 0)
+			if (focusGauge > eSmallFocus)
 			{
 				focusGauge -= 1.5;
-				
-				focusPos[0].x += 1.5;
-				focusPos[0].y += 1.5;
-
-				focusPos[1].x -= 1.5;
-				focusPos[1].y += 1.5;
-
-				focusPos[2].x -= 1.5;
-				focusPos[2].y -= 1.5;
-
-				focusPos[3].x += 1.5;
-				focusPos[3].y -= 1.5;
+				SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
 			}
 			else
 			{
@@ -298,6 +269,7 @@ void Player::MovePlayer()
 			playerState = eIdle;
 
 
+		// 포커스 내부에서만 이동가능해야 함
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
 			for (int i = 0; i < 4; i++)
