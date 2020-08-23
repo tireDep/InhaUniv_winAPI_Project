@@ -16,7 +16,7 @@ enum playerSet
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
 
-	eGravity = 300, eJumpPower = 150
+	eGravity = 250, eJumpPower = 150
 	// ※ : 수치는 조정 가능..
 	// 정해지지 않은 값들
 };
@@ -160,12 +160,88 @@ void Player::MovePlayer()
 
 	// 수평이동 포물선!
 	// test
+	// POINT speed;
+	// float v;
+	// 
+	// static float time;
+	// 
+	// if (lastMove.x != 0)
+	// {
+	// 	speed.x = lastMove.x - fCenterPos.x;
+	// 	speed.y = lastMove.y - fCenterPos.y;
+	// 
+	// 	v = sqrt((pow(speed.x, 2) + pow(speed.y, 2)));
+	// 	//printf("tt : %d %d\n", lastMove.x, lastMove.y);
+	// 	printf("speed : %d %d, v : %f\n", speed.x, speed.y, v);
+	// 	// 속력 계산
+	// 
+	// 	POINT calcV;
+	// 	calcV.x = v;
+	// 	calcV.y = gravity * time;
+	// 
+	// 	float objV = sqrt(pow(calcV.x, 2) + pow(calcV.y, 2));
+	// 
+	// 	POINT pos;
+	// 	pos.x = calcV.x * time;
+	// 	pos.y = 0.5 * gravity * time * time;
+	// 
+	// 	if (speed.x > 0)
+	// 	{
+	// 		playerPos[0].x -= pos.x;
+	// 		playerPos[0].y += pos.y;
+	// 
+	// 		playerPos[1].x -= pos.x;
+	// 		playerPos[1].y += pos.y;
+	// 
+	// 		playerPos[2].x -= pos.x;
+	// 		playerPos[2].y += pos.y;
+	// 
+	// 		playerPos[3].x -= pos.x;
+	// 		playerPos[3].y += pos.y;
+	// 	}
+	// 	else if (speed.x < 0)
+	// 	{
+	// 		playerPos[0].x += pos.x;
+	// 		playerPos[0].y += pos.y;
+	// 
+	// 		playerPos[1].x += pos.x;
+	// 		playerPos[1].y += pos.y;
+	// 
+	// 		playerPos[2].x += pos.x;
+	// 		playerPos[2].y += pos.y;
+	// 
+	// 		playerPos[3].x += pos.x;
+	// 		playerPos[3].y += pos.y;
+	// 	}
+	// 	else if (speed.x == 0)
+	// 	{
+	// 		playerPos[0].y += pos.y;
+	// 
+	// 		playerPos[1].y += pos.y;
+	// 
+	// 		playerPos[2].y += pos.y;
+	// 
+	// 		playerPos[3].y += pos.y;
+	// 	}
+	// 
+	// 	if (playerPos[2].y > 550)
+	// 		lastMove.x = 0;
+	// 
+	// 	time = 0.1;
+	// }
+	// else
+	// 	time = 0;
+	// 
+	// test
+	
+	// test2
 	POINT speed;
 	float v;
 
-	static float time;
+	int degree = 120; // 120
+	float time = 0.05;
 
-	if (lastMove.x != 0)
+	if (lastMove.x != 0 && playerState !=eFocus)
 	{
 		speed.x = lastMove.x - fCenterPos.x;
 		speed.y = lastMove.y - fCenterPos.y;
@@ -175,15 +251,16 @@ void Player::MovePlayer()
 		printf("speed : %d %d, v : %f\n", speed.x, speed.y, v);
 		// 속력 계산
 
+		float halfG = gravity;
 		POINT calcV;
-		calcV.x = v;
-		calcV.y = gravity * time;
+		calcV.x = v * cos(degree);
+		calcV.y = v * sin(degree) - halfG * time;
 
-		float objV = sqrt(pow(calcV.x, 2) + pow(calcV.y, 2));
+		float finV = sqrt(pow(calcV.x, 2) + pow(calcV.y, 2));
 
 		POINT pos;
-		pos.x = calcV.x * time;
-		pos.y = 0.5 * gravity * time * time;
+		pos.x = v * cos(degree)*time;
+		pos.y = v *sin(degree)*time - (0.5*halfG*pow(time, 2));
 
 		if (speed.x > 0)
 		{
@@ -225,15 +302,15 @@ void Player::MovePlayer()
 		}
 
 		if (playerPos[2].y > 550)
+		{
 			lastMove.x = 0;
-
-		time += 0.1;
+			playerState = eIdle;
+		}
+		else
+			playerState = eFall;
 	}
-	else
-		time = 0;
 
-	// test
-	
+	// test2
 
 	if (playerState != eFocus)
 	{
@@ -257,7 +334,7 @@ void Player::MovePlayer()
 		
 		// 점프
 		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) || (GetAsyncKeyState(VK_UP) & 0x8000)) 
-			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
+			 && GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;
 			playerState = eJump;
@@ -334,7 +411,7 @@ void Player::MovePlayer()
 		{
 			if (focusGauge > eSmallFocus)
 			{
-				focusGauge -= 1.5;
+				focusGauge -= 0.5;
 				SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
 			}
 			else
