@@ -7,7 +7,7 @@ using namespace std;
 
 enum state
 {
-	eIdle = 0, eMoveL = 10, eMoveR = 15, eMoveDown = 20, 
+	eIdle = 0, eMoveLeft = 10, eMoveRight = 15, eMoveDown = 20, eMoveUp = 25,
 	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 10
 };
 
@@ -34,6 +34,7 @@ private:
 
 	POINT lastMove;
 
+	int moveDirection;
 	int moveSpeed;
 	int gravity;
 
@@ -60,6 +61,8 @@ public:
 
 	void MovePlayer();
 
+	void MoveFocusPos(int direction, int moveVal);
+
 	void SetPos(POINT pos[], int xPos, int yPos, int addNum);
 
 	void CalcCenterPos();
@@ -73,20 +76,20 @@ Player::Player()
 	//else
 	SetPos(playerPos, 800 / 2, 592 / 2, ePlayerSize);
 
-	cout << gameManger->GetSceneNum() << endl;
-
 	playerState = eIdle;
 	isJump = false;
 	jumpPower = 0;
 
 	isBtmGround = false;
 
+	moveDirection = eIdle;
 	moveSpeed = eMoveSpeed;
 	gravity = eGravity;
 
 	focusGauge = eFocusLv3;
 	focusLv = eFocusLv3;
 	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
+
 	
 	CalcCenterPos();
 
@@ -238,7 +241,7 @@ void Player::MovePlayer()
 	POINT speed;
 	float v;
 
-	int degree = 120; // 120
+	int degree = 120;
 	float time = 0.05;
 
 	if (lastMove.x != 0 && playerState !=eFocus)
@@ -248,10 +251,10 @@ void Player::MovePlayer()
 
 		v = sqrt((pow(speed.x, 2) + pow(speed.y, 2)));
 		//printf("tt : %d %d\n", lastMove.x, lastMove.y);
-		printf("speed : %d %d, v : %f\n", speed.x, speed.y, v);
+		//printf("speed : %d %d, v : %f\n", speed.x, speed.y, v);
 		// 속력 계산
 
-		float halfG = gravity;
+		float halfG = gravity * 0.5;
 		POINT calcV;
 		calcV.x = v * cos(degree);
 		calcV.y = v * sin(degree) - halfG * time;
@@ -301,7 +304,7 @@ void Player::MovePlayer()
 			playerPos[3].y += pos.y;
 		}
 
-		if (playerPos[2].y > 550)
+		if (playerPos[2].y > 550)	// 충돌처리 판정 필요
 		{
 			lastMove.x = 0;
 			playerState = eIdle;
@@ -417,13 +420,8 @@ void Player::MovePlayer()
 			else
 			{
 				isCharing = true;
-
-				// lastMove.x = centerPos.x; 
-				// lastMove.y = centerPos.y;
-				// 
-				// SetPos(playerPos, fCenterPos.x, fCenterPos.y, ePlayerSize);
-				// 게이지가 다 달면 이동하지 x
 				playerState = eIdle;
+				// 게이지가 다 달면 이동하지 x
 			}
 		}
 		else
@@ -439,29 +437,78 @@ void Player::MovePlayer()
 
 
 		// 포커스 내부에서만 이동가능해야 함
+		POINT checkCenter;
+		checkCenter.x = (fMovePos[0].x + fMovePos[2].x) / 2;
+		checkCenter.y = (fMovePos[0].y + fMovePos[2].y) / 2;
+
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
-			for (int i = 0; i < 4; i++)
-				fMovePos[i].y -= 10;
+			moveDirection = eMoveUp;
+			if (checkCenter.y > focusPos[0].y)
+				MoveFocusPos(moveDirection, -1);
+			else
+				MoveFocusPos(moveDirection, 1);
 		}
+
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
-			for (int i = 0; i < 4; i++)
-				fMovePos[i].y += 10;
+			moveDirection = eMoveDown;
+			if (checkCenter.y < focusPos[2].y)
+				MoveFocusPos(moveDirection, 1);
+			else
+				MoveFocusPos(moveDirection, -1);
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
-			for (int i = 0; i < 4; i++)
-				fMovePos[i].x -= 10;
+			moveDirection = eMoveLeft;
+			if (checkCenter.x > focusPos[0].x)
+				MoveFocusPos(moveDirection, -1);
+			else
+				MoveFocusPos(moveDirection, 1);
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
-			for (int i = 0; i < 4; i++)
-				fMovePos[i].x += 10;
+			moveDirection = eMoveRight;
+			if (checkCenter.x < focusPos[2].x)
+				MoveFocusPos(moveDirection, 1);
+			else
+				MoveFocusPos(moveDirection, -1);
 		}
+
+		if (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0)
+		{
+			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
+			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);	
+		}
+
 		CalcFCenterPos();
 	}
 		// Player Control
+}
+
+void Player::MoveFocusPos(int direction, int moveVal)
+{
+	if ((direction == eMoveUp && moveVal == -1) || (direction == eMoveDown && moveVal == 1))
+	{
+		for (int i = 0; i < 4; i++)
+			fMovePos[i].y += eMoveSpeed * moveVal;
+	}
+	else if (direction == eMoveUp || direction == eMoveDown)
+	{
+		for (int i = 0; i < 4; i++)
+			fMovePos[i].y += moveVal;
+	}
+
+	if ((direction == eMoveLeft && moveVal == -1) || (direction == eMoveRight && moveVal == 1))
+	{
+		for (int i = 0; i < 4; i++)
+			fMovePos[i].x += eMoveSpeed * moveVal;
+	}
+	else if (direction == eMoveLeft || direction == eMoveRight)
+	{
+		for (int i = 0; i < 4; i++)
+			fMovePos[i].x += moveVal;
+	}
 }
 
 void Player::SetPos(POINT pos[], int xPos, int yPos, int addNum)
