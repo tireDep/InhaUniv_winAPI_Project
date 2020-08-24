@@ -173,12 +173,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			tempMap.push_back({ 0, i, 16, 16 + i });
 			tempMap.push_back({ 784, i, 784 + 16, 16 + i });
 		}
+
+
+		tempMap.push_back({ 500, 484,516,500 });
+		tempMap.push_back({ 500, 500,516,516 });
+		tempMap.push_back({ 500, 516,516,532 });
+		tempMap.push_back({ 500, 532,516,548 });
+		tempMap.push_back({ 500, 548,516,564 });
 		break;
 
 	case WM_TIMER:
 		if (!gameManger->GetIsPause())
 		{
 			// player->Update();
+			gameManger->SetNowMap(tempMap);
 			for(int i=0;i<object.size();i++)
 				object[0]->Update();
 		}

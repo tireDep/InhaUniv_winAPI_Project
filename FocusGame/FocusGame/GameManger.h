@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 
+using namespace std;
+
 enum BaicsWindowSize
 {
 	eWindowWidth = 816, eWindowHeight = 651
@@ -15,6 +17,7 @@ class GameManager
 {
 private:
 	RECT screenSize;
+	vector<RECT> nowMap;
 
 	int nowScene;
 	bool isPause;
@@ -33,10 +36,14 @@ public:
 	void SetIsPause();
 	void SetIsPlayerLive(bool live);
 
+	void SetNowMap(vector<RECT> map);
+
 	int GetSceneNum();
 	bool GetIsPause();
 	bool GetIsPlayerLive();
 	RECT GetScreenSize();
+
+	vector<RECT> GetMap();
 };
 
 GameManager::GameManager()
@@ -80,6 +87,11 @@ inline void GameManager::SetIsPlayerLive(bool live)
 	isPlayerLive = live;
 }
 
+void GameManager::SetNowMap(vector<RECT> map)
+{
+	nowMap = map;
+}
+
 inline int GameManager::GetSceneNum()
 {
 	return nowScene;
@@ -98,4 +110,9 @@ inline bool GameManager::GetIsPlayerLive()
 RECT GameManager::GetScreenSize()
 {
 	return screenSize;
+}
+
+inline vector<RECT> GameManager::GetMap()
+{
+	return nowMap;
 }

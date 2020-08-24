@@ -16,7 +16,7 @@ enum playerSet
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
 
-	eGravity = 250, eJumpPower = 150
+	eGravity = 200, eJumpPower = 85
 	// ※ : 수치는 조정 가능..
 	// 정해지지 않은 값들
 };
@@ -55,7 +55,9 @@ public:
 
 	void Update();
 	void Gravity();
-	bool CheckBtmGround();
+	
+	bool CheckBtmGround(int &lengthDiff);
+	bool CheckUpGround(int &lengthDiff);
 
 	void DrawObject(HDC hdc);
 
@@ -118,30 +120,83 @@ void Player::Update()
 void Player::Gravity()
 {
 	// 플레이어는 포커스 상태가 아니거나, 점프중이 아닌경우 계속 중력의 영향을 받음
+	int diffNum = 0;
 	if (playerState != eFocus || playerState != eJump)
 	{
-		if(CheckBtmGround())
+		for (int i = 0; i < 4; i++)
+			playerPos[i].y += gravity * 0.1;
+
+		if (CheckBtmGround(diffNum))
 		{
 			for (int i = 0; i < 4; i++)
-				playerPos[i].y += gravity * 0.1;
+				playerPos[i].y += diffNum;
+		}
+		else
+		{
+			for (int i = 0; i < 4; i++)
+				playerPos[i].y -= diffNum;
 		}
 	}
 }
 
-bool Player::CheckBtmGround()
+bool Player::CheckBtmGround(int &lengthDiff)
 {
 	// todo : 바닥과의 충돌 판정이 필요함!
 	// 맵정보가 인자로 필요함
-	if (playerPos[2].y < 550)	// 임시 판정
+	// 장애물인지 벽돌인지 판별 필요함!
+
+	RECT temp;
+	vector<RECT> checkBtm = gameManger->GetMap();
+	RECT checkRect;
+
+	checkRect.left = playerPos[0].x;
+	checkRect.top = playerPos[0].y;
+	checkRect.right = playerPos[2].x;
+	checkRect.bottom= playerPos[2].y;
+
+	for (int i = 0; i < checkBtm.size(); i++)
 	{
-		isBtmGround = false;
-		return true;
+		if (IntersectRect(&temp, &checkBtm[i], &checkRect))
+		{
+			isBtmGround = true;
+			lengthDiff = checkRect.bottom - checkBtm[i].top;
+			//printf("%d\n", lengthDiff);
+
+			return false;
+		}
+		else
+			isBtmGround = false;
 	}
-	else
+
+	return true;
+}
+
+inline bool Player::CheckUpGround(int & lengthDiff)
+{
+	RECT temp;
+	vector<RECT> checkBtm = gameManger->GetMap();
+	RECT checkRect;
+
+	checkRect.left = playerPos[0].x;
+	checkRect.top = playerPos[0].y;
+	checkRect.right = playerPos[2].x;
+	checkRect.bottom = playerPos[2].y;
+
+	for (int i = 0; i < checkBtm.size(); i++)
 	{
-		isBtmGround = true;
-		return false;
+		if (IntersectRect(&temp, &checkBtm[i], &checkRect))
+		{
+			isBtmGround = true;
+			lengthDiff =  checkBtm[i].bottom - checkRect.top;
+			printf("%d\n", lengthDiff);
+
+			return false;
+		}
+		else
+			isBtmGround = false;
 	}
+
+	return true;
 }
 
 void Player::DrawObject(HDC hdc)
@@ -304,7 +359,8 @@ void Player::MovePlayer()
 			playerPos[3].y += pos.y;
 		}
 
-		if (playerPos[2].y > 550)	// 충돌처리 판정 필요
+		int temp = 0;
+		if (CheckBtmGround(temp))	// 충돌처리 판정 필요
 		{
 			lastMove.x = 0;
 			playerState = eIdle;
@@ -322,6 +378,18 @@ void Player::MovePlayer()
 		{
 			for (int i = 0; i < 4; i++)
 				playerPos[i].y += eMoveSpeed;
+			
+			int diffNum;
+			if (CheckBtmGround(diffNum))
+			{
+				for (int i = 0; i < 4; i++)
+					playerPos[i].y += diffNum;
+			}
+			else
+			{
+				for (int i = 0; i < 4; i++)
+					playerPos[i].y -= diffNum;
+			}
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
@@ -355,6 +423,17 @@ void Player::MovePlayer()
 			{
 				// todo : 윗부분 충돌 판정 필요할 듯?
 				playerState = eFall;
+			}
+
+			int temp;
+			if (!CheckUpGround(temp))
+			{
+				playerState = eFall;
+
+				jumpPower = 0;
+				for (int i = 0; i < 4; i++)
+					playerPos[i].y += temp;
+				printf("------------------------------------------------------e456");
 			}
 		}
 		else
@@ -437,6 +516,7 @@ void Player::MovePlayer()
 
 
 		// 포커스 내부에서만 이동가능해야 함
+		// todo : 이동좌표가 맵 밖인지 && 맵인지 판별 필요(이동 x)
 		POINT checkCenter;
 		checkCenter.x = (fMovePos[0].x + fMovePos[2].x) / 2;
 		checkCenter.y = (fMovePos[0].y + fMovePos[2].y) / 2;
