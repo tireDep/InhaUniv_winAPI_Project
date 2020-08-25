@@ -19,4 +19,6 @@ public:
 	static Map* GetInstance();
 	void Update();
 	void DrawObject(HDC hdc);
+
+	vector<MapTile> GetMapPos();
 };

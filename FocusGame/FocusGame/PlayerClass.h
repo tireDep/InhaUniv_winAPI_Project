@@ -16,7 +16,7 @@ enum playerSet
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
 
-	eGravity = 200, eJumpPower = 85
+	eGravity = 250, eJumpPower = 150
 	// ※ : 수치는 조정 가능..
 	// 정해지지 않은 값들
 };
@@ -58,6 +58,7 @@ public:
 	
 	bool CheckBtmGround(int &lengthDiff);
 	bool CheckUpGround(int &lengthDiff);
+	bool CollisionMap(POINT pos[], int direction, int &lengthDiff);
 
 	void DrawObject(HDC hdc);
 

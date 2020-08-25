@@ -148,7 +148,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	if (object.size() == 0)
 	{
 		object.push_back(player);
-
 		object.push_back(map);
 	}
 
@@ -167,7 +166,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (!gameManger->GetIsPause())
 		{
 			// player->Update();
-			// gameManger->SetNowMap(tempMap);
+			gameManger->SetNowMap(map->GetMapPos());
 			for(int i=0;i<object.size();i++)
 				object[0]->Update();
 		}

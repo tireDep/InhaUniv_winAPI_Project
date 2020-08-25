@@ -77,31 +77,33 @@ bool Player::CheckBtmGround(int &lengthDiff)
 	//// 맵정보가 인자로 필요함
 	//// 장애물인지 벽돌인지 판별 필요함!
 
-	//RECT temp;
-	//vector<MapTile> checkBtm = gameManger->GetMap();
-	//RECT checkRect;
+	RECT temp;
+	vector<MapTile> checkBtm = gameManger->GetMap();
+	RECT checkRect;
 
-	//checkRect.left = playerPos[0].x;
-	//checkRect.top = playerPos[0].y;
-	//checkRect.right = playerPos[2].x;
-	//checkRect.bottom = playerPos[2].y;
+	checkRect.left = playerPos[0].x;
+	checkRect.top = playerPos[0].y;
+	checkRect.right = playerPos[2].x;
+	checkRect.bottom = playerPos[2].y;
 
-	//for (int i = 0; i < checkBtm.size(); i++)
-	//{
-	//	if (IntersectRect(&temp, &checkBtm[i], &checkRect))
-	//	{
-	//		isBtmGround = true;
-	//		lengthDiff = checkRect.bottom - checkBtm[i].top;
-	//		//printf("%d\n", lengthDiff);
+	for (int i = 0; i < checkBtm.size(); i++)
+	{
+		if (IntersectRect(&temp, &checkBtm[i].pos, &checkRect))
+		{
+			if (checkBtm[i].type == eMapBlock)	// 블록과 충돌할 경우 정지
+			{
+				isBtmGround = true;
+				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
+				return false;
+			}
+			//else
+			//	isBtmGround = false;
+		}
+		else
+			isBtmGround = false;
+	}
+	 return true;
 
-	//		return false;
-	//	}
-	//	else
-	//		isBtmGround = false;
-	//}
-	// return true;
-
-	return true;
 }
 
 inline bool Player::CheckUpGround(int & lengthDiff)
@@ -134,6 +136,56 @@ inline bool Player::CheckUpGround(int & lengthDiff)
 	return true;
 }
 
+bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
+{
+	RECT areaRect;
+	vector<MapTile> checkBtm = gameManger->GetMap();
+	
+	RECT checkRect;
+	checkRect.left = pos[0].x;
+	checkRect.top = pos[0].y;
+	checkRect.right = pos[2].x;
+	checkRect.bottom = pos[2].y;
+
+	if (direction == eMoveRight)
+	{
+		for (int i = 0; i < checkBtm.size(); i++)
+		{
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect))
+			{
+				lengthDiff = checkBtm[i].pos.left - checkRect.right;
+				return false;
+			}
+		}
+			return true;
+	}
+	if (direction == eMoveLeft)
+	{
+		for (int i = 0; i < checkBtm.size(); i++)
+		{
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect))
+			{
+				lengthDiff = checkBtm[i].pos.right - checkRect.left;
+				return false;
+			}
+		}
+		return true;
+	}
+	if (direction == eMoveUp)
+	{
+		for (int i = 0; i < checkBtm.size(); i++)
+		{
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect))
+			{
+				lengthDiff = checkBtm[i].pos.bottom - checkRect.top;
+				return false;
+			}
+		}
+		return true;
+	}
+
+}
+
 void Player::DrawObject(HDC hdc)
 {
 	//if(playerState == eFocus)
@@ -151,83 +203,6 @@ void Player::MovePlayer()
 	static bool isCharing = false;
 	// todo : 이동 가능 판별 (지형 판별)
 
-	// 수평이동 포물선!
-	// test
-	// POINT speed;
-	// float v;
-	// 
-	// static float time;
-	// 
-	// if (lastMove.x != 0)
-	// {
-	// 	speed.x = lastMove.x - fCenterPos.x;
-	// 	speed.y = lastMove.y - fCenterPos.y;
-	// 
-	// 	v = sqrt((pow(speed.x, 2) + pow(speed.y, 2)));
-	// 	//printf("tt : %d %d\n", lastMove.x, lastMove.y);
-	// 	printf("speed : %d %d, v : %f\n", speed.x, speed.y, v);
-	// 	// 속력 계산
-	// 
-	// 	POINT calcV;
-	// 	calcV.x = v;
-	// 	calcV.y = gravity * time;
-	// 
-	// 	float objV = sqrt(pow(calcV.x, 2) + pow(calcV.y, 2));
-	// 
-	// 	POINT pos;
-	// 	pos.x = calcV.x * time;
-	// 	pos.y = 0.5 * gravity * time * time;
-	// 
-	// 	if (speed.x > 0)
-	// 	{
-	// 		playerPos[0].x -= pos.x;
-	// 		playerPos[0].y += pos.y;
-	// 
-	// 		playerPos[1].x -= pos.x;
-	// 		playerPos[1].y += pos.y;
-	// 
-	// 		playerPos[2].x -= pos.x;
-	// 		playerPos[2].y += pos.y;
-	// 
-	// 		playerPos[3].x -= pos.x;
-	// 		playerPos[3].y += pos.y;
-	// 	}
-	// 	else if (speed.x < 0)
-	// 	{
-	// 		playerPos[0].x += pos.x;
-	// 		playerPos[0].y += pos.y;
-	// 
-	// 		playerPos[1].x += pos.x;
-	// 		playerPos[1].y += pos.y;
-	// 
-	// 		playerPos[2].x += pos.x;
-	// 		playerPos[2].y += pos.y;
-	// 
-	// 		playerPos[3].x += pos.x;
-	// 		playerPos[3].y += pos.y;
-	// 	}
-	// 	else if (speed.x == 0)
-	// 	{
-	// 		playerPos[0].y += pos.y;
-	// 
-	// 		playerPos[1].y += pos.y;
-	// 
-	// 		playerPos[2].y += pos.y;
-	// 
-	// 		playerPos[3].y += pos.y;
-	// 	}
-	// 
-	// 	if (playerPos[2].y > 550)
-	// 		lastMove.x = 0;
-	// 
-	// 	time = 0.1;
-	// }
-	// else
-	// 	time = 0;
-	// 
-	// test
-
-	// test2
 	POINT speed;
 	float v;
 
@@ -255,6 +230,8 @@ void Player::MovePlayer()
 		pos.x = v * cos(degree)*time;
 		pos.y = v *sin(degree)*time - (0.5*halfG*pow(time, 2));
 
+
+		printf("%d\n", speed.y);
 		if (speed.x > 0)
 		{
 			playerPos[0].x -= pos.x;
@@ -283,7 +260,7 @@ void Player::MovePlayer()
 			playerPos[3].x += pos.x;
 			playerPos[3].y += pos.y;
 		}
-		else if (speed.x == 0)
+		if (speed.x == 0)
 		{
 			playerPos[0].y += pos.y;
 
@@ -293,18 +270,37 @@ void Player::MovePlayer()
 
 			playerPos[3].y += pos.y;
 		}
-
-		int temp = 0;
-		if (CheckBtmGround(temp))	// 충돌처리 판정 필요
+		else if (speed.y == 0)
 		{
+			playerPos[0].x += pos.x;
+
+			playerPos[1].x += pos.x;
+
+			playerPos[2].x += pos.x;
+
+			playerPos[3].x += pos.x;
+		}
+
+		int diffNum = 0;
+		if (CheckBtmGround(diffNum))	// 충돌처리 판정 필요
+		{
+			if (CollisionMap(playerPos,eMoveUp,diffNum) || CollisionMap(playerPos, eMoveDown, diffNum)
+				|| CollisionMap(playerPos, eMoveDown, diffNum) || CollisionMap(playerPos, eMoveUp, diffNum))// (CheckBtmGround(diffNum))
+			{
+				for (int i = 0; i < 4; i++)
+					playerPos[i].y += diffNum;
+			}
+			else
+			{
+				for (int i = 0; i < 4; i++)
+					playerPos[i].y -= diffNum;
+			}
 			lastMove.x = 0;
 			playerState = eIdle;
 		}
 		else
 			playerState = eFall;
 	}
-
-	// test2
 
 	if (playerState != eFocus)
 	{
@@ -330,11 +326,36 @@ void Player::MovePlayer()
 		{
 			for (int i = 0; i < 4; i++)
 				playerPos[i].x += eMoveSpeed;
+
+			int diffNum = 0;
+			if (CollisionMap(playerPos, eMoveRight, diffNum))
+			{
+				for (int i = 0; i < 4; i++)
+					playerPos[i].x -= diffNum;
+			}
+			else
+			{
+				for (int i = 0; i < 4; i++)
+					playerPos[i].x += diffNum;
+			}
+
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			for (int i = 0; i < 4; i++)
 				playerPos[i].x -= eMoveSpeed;
+
+			int diffNum = 0;
+			if (CollisionMap(playerPos, eMoveLeft, diffNum))
+			{
+				for (int i = 0; i < 4; i++)
+					playerPos[i].x -= diffNum;
+			}
+			else
+			{
+				for (int i = 0; i < 4; i++)
+					playerPos[i].x += diffNum;
+			}
 		}
 		// 플레이어 이동
 
@@ -360,16 +381,18 @@ void Player::MovePlayer()
 				playerState = eFall;
 			}
 
-			int temp;
-			if (!CheckUpGround(temp))
-			{
-				playerState = eFall;
-
-				jumpPower = 0;
-				for (int i = 0; i < 4; i++)
-					playerPos[i].y += temp;
-				printf("------------------------------------------------------e456");
-			}
+			//int diffNum = 0;
+			//if (CollisionMap(eMoveUp, diffNum))
+			//{
+			//	printf("-------------------------------------testsetstasdf456879\n");
+			//	printf("%d\n", diffNum);
+			//	playerState = eFall;
+			//
+			//	for (int i = 0; i < 4; i++)
+			//		playerPos[i].y += diffNum;
+			//
+			//	jumpPower = 0;
+			//}
 		}
 		else
 		{
@@ -448,7 +471,6 @@ void Player::MovePlayer()
 			SetPos(playerPos, fCenterPos.x, fCenterPos.y, ePlayerSize);
 			playerState = eIdle;
 		}
-
 
 		// 포커스 내부에서만 이동가능해야 함
 		// todo : 이동좌표가 맵 밖인지 && 맵인지 판별 필요(이동 x)
