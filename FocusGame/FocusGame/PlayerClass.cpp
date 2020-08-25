@@ -44,6 +44,7 @@ Player* Player::GetInstance()
 
 void Player::Update()
 {
+	//printf("%d %d\n", playerPos[0].y, playerPos[2].y);
 	Gravity();
 	MovePlayer();
 	// 충돌판정(벽, 장애물 등)
@@ -151,44 +152,138 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect))
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapBlock)
 			{
 				lengthDiff = checkBtm[i].pos.left - checkRect.right;
 				return false;
 			}
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			{
+				// todo : 게임오버 추가
+				printf("hitobstacle\n");
+				return true;
+			}
 		}
 			return true;
 	}
+
 	if (direction == eMoveLeft)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect))
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapBlock)
 			{
 				lengthDiff = checkBtm[i].pos.right - checkRect.left;
 				return false;
 			}
+			// else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			// {
+			// 	// todo : 게임오버 추가
+			// 	printf("hitobstacle\n");
+			// 	return true;
+			// }
 		}
 		return true;
 	}
+
 	if (direction == eMoveUp)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect))
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapBlock)
 			{
 				lengthDiff = checkBtm[i].pos.bottom - checkRect.top;
 				return false;
 			}
+			// else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			// {
+			// 	// todo : 게임오버 추가
+			// 	printf("hitobstacle\n");
+			// 	return true;
+			// }
+
+		}
+		return true;
+	}
+
+	if (direction == eMoveDown)
+	{
+		for (int i = 0; i < checkBtm.size(); i++)
+		{
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			{
+				lengthDiff = checkBtm[i].pos.top - checkRect.bottom;
+				return false;
+			}
+			// else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			// {
+			// 	// todo : 게임오버 추가
+			// 	printf("hitobstacle\n");
+			// 	return true;
+			// }
 		}
 		return true;
 	}
 
 }
 
+bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
+{
+	RECT checkRect;
+	checkRect.left = pos[0].x;
+	checkRect.top = pos[0].y;
+	checkRect.right = pos[2].x;
+	checkRect.bottom = pos[2].y;
+
+	if (direction == eMoveLeft)
+	{
+		if (checkRect.left <= eLimitL)
+		{
+			lengthDiff = eLimitL - checkRect.left;
+			return false;
+		}
+		else
+			return true;
+	}
+
+	if (direction == eMoveRight)
+	{
+		if (checkRect.right >= eLimitR)
+		{
+			lengthDiff = eLimitR - checkRect.right;
+			return false;
+		}
+		else
+			return true;
+	}
+
+	if (direction == eMoveDown)
+	{
+		if (checkRect.bottom >= eLimitB)
+		{
+			lengthDiff = eLimitB - checkRect.bottom;
+			return false;
+		}
+		else
+			return true;
+	}
+
+	if (direction == eMoveUp)
+	{
+		if (checkRect.top <= eLimitT)
+		{
+			lengthDiff = eLimitT - checkRect.top;
+			return false;
+		}
+		else
+			return true;
+	}
+
+
+}
+
 void Player::DrawObject(HDC hdc)
 {
-	//if(playerState == eFocus)
 	Polygon(hdc, focusPos, 4);
 	// todo : 반투명한 이미지로 대체
 
@@ -230,57 +325,44 @@ void Player::MovePlayer()
 		pos.x = v * cos(degree)*time;
 		pos.y = v *sin(degree)*time - (0.5*halfG*pow(time, 2));
 
-		if (speed.y == 0)
-		{
-			playerPos[0].x += pos.x;
-			playerPos[1].x += pos.x;
-			playerPos[2].x += pos.x;
-			playerPos[3].x += pos.x;
-		}
+		printf("speed : %d %d\n", speed.x, speed.y);
+		printf("pos : %d %d\n", pos.x, pos.y);
+
+		// speed에 따른 부호 변화(x, y)
+		// ++ 0+ -+
+		// +0 00 -0
+		// +- 0- --
 
 		if (speed.x == 0)
-		{
-			playerPos[0].y += pos.y;
-			playerPos[1].y += pos.y;
-			playerPos[2].y += pos.y;
-			playerPos[3].y += pos.y;
-		}
+			pos.x = 0;
+		else if (speed.x > 0)
+			pos.x *= 1;
+		else
+			pos.x *= -1;
 
+		if (speed.y == 0)
+			pos.y = 0;
+		else if (speed.y > 0)
+			pos.y *= 1;
+		else
+			pos.y *= -1;
 
-		if (speed.x > 0 && speed.y > 0)
-		{
-			playerPos[0].x -= pos.x;
-			playerPos[0].y += pos.y;
-			
-			playerPos[1].x -= pos.x;
-			playerPos[1].y += pos.y;
-			
-			playerPos[2].x -= pos.x;
-			playerPos[2].y += pos.y;
-			
-			playerPos[3].x -= pos.x;
-			playerPos[3].y += pos.y;
-		}
-		else if (speed.x < 0 && speed.y < 0)
-		{
-			playerPos[0].x += pos.x;
-			playerPos[0].y += pos.y;
+		playerPos[0].x += pos.x;
+		playerPos[0].y += pos.y;
 
-			playerPos[1].x += pos.x;
-			playerPos[1].y += pos.y;
+		playerPos[1].x += pos.x;
+		playerPos[1].y += pos.y;
 
-			playerPos[2].x += pos.x;
-			playerPos[2].y += pos.y;
+		playerPos[2].x += pos.x;
+		playerPos[2].y += pos.y;
 
-			playerPos[3].x += pos.x;
-			playerPos[3].y += pos.y;
-		}
+		playerPos[3].x += pos.x;
+		playerPos[3].y += pos.y;
 
 		int diffNum = 0;
 		if (CheckBtmGround(diffNum))	// 충돌처리 판정 필요
 		{
-			if (CollisionMap(playerPos,eMoveUp,diffNum) || CollisionMap(playerPos, eMoveDown, diffNum)
-				|| CollisionMap(playerPos, eMoveDown, diffNum) || CollisionMap(playerPos, eMoveUp, diffNum))// (CheckBtmGround(diffNum))
+			if (CollisionMap(playerPos, eMoveDown, diffNum) || CollisionMap(playerPos, eMoveUp, diffNum))// (CheckBtmGround(diffNum))
 			{
 				for (int i = 0; i < 4; i++)
 					playerPos[i].y += diffNum;
@@ -290,6 +372,17 @@ void Player::MovePlayer()
 				for (int i = 0; i < 4; i++)
 					playerPos[i].y -= diffNum;
 			}
+
+			//if (CollisionMap(playerPos, eMoveLeft, diffNum) || CollisionMap(playerPos, eMoveRight, diffNum))// (CheckBtmGround(diffNum)))
+			//{
+			//	for (int i = 0; i < 4; i++)
+			//		playerPos[i].x += diffNum;
+			//}
+			//else
+			//{
+			//	for (int i = 0; i < 4; i++)
+			//		playerPos[i].x -= diffNum;
+			//}
 			lastMove.x = 0;
 			playerState = eIdle;
 		}
@@ -300,13 +393,14 @@ void Player::MovePlayer()
 	if (playerState != eFocus)
 	{
 		// 플레이어 이동
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		if (!isJump && (GetAsyncKeyState(VK_DOWN) & 0x8000))
 		{
 			for (int i = 0; i < 4; i++)
 				playerPos[i].y += eMoveSpeed;
 
 			int diffNum;
-			if (CheckBtmGround(diffNum))
+			// if (CollisionMap(playerPos, eMoveDown, diffNum))
+			if(CheckBtmGround(diffNum))
 			{
 				for (int i = 0; i < 4; i++)
 					playerPos[i].y += diffNum;
@@ -355,7 +449,7 @@ void Player::MovePlayer()
 		// 플레이어 이동
 
 		// 점프
-		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000))// || (GetAsyncKeyState(VK_UP) & 0x8000))
+		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) )// || (GetAsyncKeyState(VK_UP) & 0x8000))
 			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;
@@ -480,6 +574,18 @@ void Player::MovePlayer()
 				MoveFocusPos(moveDirection, -1);
 			else
 				MoveFocusPos(moveDirection, 1);
+
+			int diffNum = 0;
+			if (CheckOutMap(fMovePos, moveDirection, diffNum))
+			{
+				for (int i = 0; i < 4; i++)
+					fMovePos[i].y -= diffNum;
+			}
+			else
+			{
+				for (int i = 0; i < 4; i++)
+					fMovePos[i].y += diffNum;
+			}
 		}
 
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
@@ -489,6 +595,19 @@ void Player::MovePlayer()
 				MoveFocusPos(moveDirection, 1);
 			else
 				MoveFocusPos(moveDirection, -1);
+
+
+			int diffNum = 0;
+			if (CheckOutMap(fMovePos, moveDirection, diffNum))
+			{
+				for (int i = 0; i < 4; i++)
+					fMovePos[i].y -= diffNum;
+			}
+			else
+			{
+				for (int i = 0; i < 4; i++)
+					fMovePos[i].y += diffNum;
+			}
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
@@ -497,6 +616,18 @@ void Player::MovePlayer()
 				MoveFocusPos(moveDirection, -1);
 			else
 				MoveFocusPos(moveDirection, 1);
+
+			int diffNum = 0;
+			if (CheckOutMap(fMovePos, moveDirection, diffNum))
+			{
+				for (int i = 0; i < 4; i++)
+					fMovePos[i].x -= diffNum;
+			}
+			 else
+			 {
+			 	for (int i = 0; i < 4; i++)
+			 		fMovePos[i].x += diffNum;
+			 }
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
@@ -505,6 +636,18 @@ void Player::MovePlayer()
 				MoveFocusPos(moveDirection, 1);
 			else
 				MoveFocusPos(moveDirection, -1);
+
+			int diffNum = 0;
+			if (CheckOutMap(fMovePos, moveDirection, diffNum))
+			{
+				for (int i = 0; i < 4; i++)
+					fMovePos[i].x -= diffNum;
+			}
+			else
+			{
+				for (int i = 0; i < 4; i++)
+					fMovePos[i].x += diffNum;
+			}
 		}
 
 		if (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0)

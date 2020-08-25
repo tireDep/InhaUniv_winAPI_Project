@@ -8,7 +8,9 @@ using namespace std;
 enum state
 {
 	eIdle = 0, eMoveLeft = 10, eMoveRight = 15, eMoveDown = 20, eMoveUp = 25,
-	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 10
+	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 10,
+
+	eLimitL = 16, eLimitR = 784, eLimitT = 16, eLimitB = 576
 };
 
 enum playerSet
@@ -59,6 +61,7 @@ public:
 	bool CheckBtmGround(int &lengthDiff);
 	bool CheckUpGround(int &lengthDiff);
 	bool CollisionMap(POINT pos[], int direction, int &lengthDiff);
+	bool CheckOutMap(POINT pos[], int direction, int &lengthDiff);
 
 	void DrawObject(HDC hdc);
 
