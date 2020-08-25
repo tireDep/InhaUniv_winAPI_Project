@@ -209,7 +209,7 @@ void Player::MovePlayer()
 	int degree = 120;
 	float time = 0.05;
 
-	if (lastMove.x != 0 && playerState != eFocus)
+	if (lastMove.x != 0 && lastMove.y != 0 && playerState != eFocus)
 	{
 		speed.x = lastMove.x - fCenterPos.x;
 		speed.y = lastMove.y - fCenterPos.y;
@@ -230,55 +230,50 @@ void Player::MovePlayer()
 		pos.x = v * cos(degree)*time;
 		pos.y = v *sin(degree)*time - (0.5*halfG*pow(time, 2));
 
-
-		printf("%d\n", speed.y);
-		if (speed.x > 0)
-		{
-			playerPos[0].x -= pos.x;
-			playerPos[0].y += pos.y;
-
-			playerPos[1].x -= pos.x;
-			playerPos[1].y += pos.y;
-
-			playerPos[2].x -= pos.x;
-			playerPos[2].y += pos.y;
-
-			playerPos[3].x -= pos.x;
-			playerPos[3].y += pos.y;
-		}
-		else if (speed.x < 0)
+		if (speed.y == 0)
 		{
 			playerPos[0].x += pos.x;
-			playerPos[0].y += pos.y;
-
 			playerPos[1].x += pos.x;
-			playerPos[1].y += pos.y;
-
 			playerPos[2].x += pos.x;
-			playerPos[2].y += pos.y;
-
 			playerPos[3].x += pos.x;
-			playerPos[3].y += pos.y;
 		}
+
 		if (speed.x == 0)
 		{
 			playerPos[0].y += pos.y;
-
 			playerPos[1].y += pos.y;
-
 			playerPos[2].y += pos.y;
-
 			playerPos[3].y += pos.y;
 		}
-		else if (speed.y == 0)
+
+
+		if (speed.x > 0 && speed.y > 0)
+		{
+			playerPos[0].x -= pos.x;
+			playerPos[0].y += pos.y;
+			
+			playerPos[1].x -= pos.x;
+			playerPos[1].y += pos.y;
+			
+			playerPos[2].x -= pos.x;
+			playerPos[2].y += pos.y;
+			
+			playerPos[3].x -= pos.x;
+			playerPos[3].y += pos.y;
+		}
+		else if (speed.x < 0 && speed.y < 0)
 		{
 			playerPos[0].x += pos.x;
+			playerPos[0].y += pos.y;
 
 			playerPos[1].x += pos.x;
+			playerPos[1].y += pos.y;
 
 			playerPos[2].x += pos.x;
+			playerPos[2].y += pos.y;
 
 			playerPos[3].x += pos.x;
+			playerPos[3].y += pos.y;
 		}
 
 		int diffNum = 0;
@@ -360,7 +355,7 @@ void Player::MovePlayer()
 		// 플레이어 이동
 
 		// 점프
-		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) || (GetAsyncKeyState(VK_UP) & 0x8000))
+		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000))// || (GetAsyncKeyState(VK_UP) & 0x8000))
 			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;
