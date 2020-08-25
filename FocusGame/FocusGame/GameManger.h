@@ -1,11 +1,13 @@
 #pragma once
 #include "stdafx.h"
+#include "FocusGame.h"
 
 using namespace std;
 
 enum BaicsWindowSize
 {
-	eWindowWidth = 816, eWindowHeight = 651
+	eWindowWidth = 816, eWindowHeight = 651,
+	eTrueWinWidth = 800, eTrueWinHeight = 592
 };
 
 enum SceneNum
@@ -17,7 +19,7 @@ class GameManager
 {
 private:
 	RECT screenSize;
-	vector<RECT> nowMap;
+	vector<MapTile> nowMap;
 
 	int nowScene;
 	bool isPause;
@@ -36,83 +38,13 @@ public:
 	void SetIsPause();
 	void SetIsPlayerLive(bool live);
 
-	void SetNowMap(vector<RECT> map);
+	void SetNowMap(vector<MapTile> map);
 
 	int GetSceneNum();
 	bool GetIsPause();
 	bool GetIsPlayerLive();
 	RECT GetScreenSize();
 
-	vector<RECT> GetMap();
+	vector<MapTile> GetMap();
 };
 
-GameManager::GameManager()
-{
-	nowScene = eMainScene;
-	isPause = false;
-	isPlayerLive = true;
-}
-
-GameManager::~GameManager()
-{
-
-}
-
-GameManager* GameManager::GetInstance()
-{
-	static GameManager gameManger;
-	return &gameManger;
-}
-
-void GameManager::CalcScreenSize(HWND hWnd)
-{
-	GetClientRect(hWnd, &screenSize);
-}
-
-inline void GameManager::SetSceneNum(int num)
-{
-	nowScene = num;
-}
-
-inline void GameManager::SetIsPause()
-{
-	if (isPause == false)
-		isPause = true;
-	else
-		isPause = false;
-}
-
-inline void GameManager::SetIsPlayerLive(bool live)
-{
-	isPlayerLive = live;
-}
-
-void GameManager::SetNowMap(vector<RECT> map)
-{
-	nowMap = map;
-}
-
-inline int GameManager::GetSceneNum()
-{
-	return nowScene;
-}
-
-inline bool GameManager::GetIsPause()
-{
-	return isPause;
-}
-
-inline bool GameManager::GetIsPlayerLive()
-{
-	return isPlayerLive;
-}
-
-RECT GameManager::GetScreenSize()
-{
-	return screenSize;
-}
-
-inline vector<RECT> GameManager::GetMap()
-{
-	return nowMap;
-}

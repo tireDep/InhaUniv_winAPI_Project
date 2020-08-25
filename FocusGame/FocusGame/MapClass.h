@@ -1,20 +1,15 @@
 #pragma once
 #include "stdafx.h"
 #include "ObjectClass.h"
-//#include "GameManger.h"
+#include "FocusGame.h"
+#include "GameManger.h"
 
 using namespace std;
-
-struct MapTile
-{
-	RECT pos;
-	int type;
-};
 
 class Map : public Object
 {
 private:
-	//GameManager *gameManger = GameManager::GetInstance();
+	GameManager *gameManger = GameManager::GetInstance();
 	vector<MapTile> mapPos;
 
 	Map();
