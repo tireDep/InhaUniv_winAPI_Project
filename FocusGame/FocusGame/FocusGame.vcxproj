@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="FocusGame.h" />
     <ClInclude Include="GameManger.h" />
+    <ClInclude Include="MapClass.h" />
     <ClInclude Include="ObjectClass.h" />
     <ClInclude Include="PlayerClass.h" />
     <ClInclude Include="Resource.h" />
@@ -155,6 +156,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FocusGame.cpp" />
+    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="MapClass.cpp" />
     <ClCompile Include="ObjectClass.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
