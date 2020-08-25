@@ -23,6 +23,8 @@ enum playerSet
 	// 정해지지 않은 값들
 };
 
+#define defTimeSec 0.1
+
 class Player : public Object
 {
 private:
@@ -34,6 +36,7 @@ private:
 	POINT centerPos;
 	POINT fCenterPos;
 
+	POINT lastPlayerPos[4];
 	POINT lastMove;
 
 	int moveDirection;
@@ -59,7 +62,6 @@ public:
 	void Gravity();
 	
 	bool CheckBtmGround(int &lengthDiff);
-	bool CheckUpGround(int &lengthDiff);
 	bool CollisionMap(POINT pos[], int direction, int &lengthDiff);
 	bool CheckOutMap(POINT pos[], int direction, int &lengthDiff);
 

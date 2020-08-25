@@ -57,17 +57,17 @@ void Player::Gravity()
 	if (playerState != eFocus || playerState != eJump)
 	{
 		for (int i = 0; i < 4; i++)
-			playerPos[i].y += gravity * 0.1;
+			playerPos[i].y += gravity * defTimeSec;
 
 		if (CheckBtmGround(diffNum))
 		{
 			for (int i = 0; i < 4; i++)
-				playerPos[i].y += diffNum;
+				playerPos[i].y += diffNum + defTimeSec;
 		}
 		else
 		{
 			for (int i = 0; i < 4; i++)
-				playerPos[i].y -= diffNum;
+				playerPos[i].y -= diffNum + defTimeSec;
 		}
 	}
 }
@@ -105,36 +105,6 @@ bool Player::CheckBtmGround(int &lengthDiff)
 	}
 	 return true;
 
-}
-
-inline bool Player::CheckUpGround(int & lengthDiff)
-{
-	/*RECT temp;
-	vector<MapTile> checkBtm = gameManger->GetMap();
-	RECT checkRect;
-
-	checkRect.left = playerPos[0].x;
-	checkRect.top = playerPos[0].y;
-	checkRect.right = playerPos[2].x;
-	checkRect.bottom = playerPos[2].y;
-
-	for (int i = 0; i < checkBtm.size(); i++)
-	{
-		if (IntersectRect(&temp, &checkBtm[i], &checkRect))
-		{
-			isBtmGround = true;
-			lengthDiff = checkBtm[i].bottom - checkRect.top;
-			printf("%d\n", lengthDiff);
-
-			return false;
-		}
-		else
-			isBtmGround = false;
-	}
-
-	return true;*/
-
-	return true;
 }
 
 bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
@@ -278,8 +248,6 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 		else
 			return true;
 	}
-
-
 }
 
 void Player::DrawObject(HDC hdc)
@@ -306,88 +274,120 @@ void Player::MovePlayer()
 
 	if (lastMove.x != 0 && lastMove.y != 0 && playerState != eFocus)
 	{
-		speed.x = lastMove.x - fCenterPos.x;
-		speed.y = lastMove.y - fCenterPos.y;
+		printf("%d %d\n", lastMove.x, lastMove.y);
 
-		v = sqrt((pow(speed.x, 2) + pow(speed.y, 2)));
-		//printf("tt : %d %d\n", lastMove.x, lastMove.y);
-		//printf("speed : %d %d, v : %f\n", speed.x, speed.y, v);
-		// 속력 계산
-
-		float halfG = gravity * 0.5;
-		POINT calcV;
-		calcV.x = v * cos(degree);
-		calcV.y = v * sin(degree) - halfG * time;
-
-		float finV = sqrt(pow(calcV.x, 2) + pow(calcV.y, 2));
-
-		POINT pos;
-		pos.x = v * cos(degree)*time;
-		pos.y = v *sin(degree)*time - (0.5*halfG*pow(time, 2));
-
-		printf("speed : %d %d\n", speed.x, speed.y);
-		printf("pos : %d %d\n", pos.x, pos.y);
-
-		// speed에 따른 부호 변화(x, y)
-		// ++ 0+ -+
-		// +0 00 -0
-		// +- 0- --
-
-		if (speed.x == 0)
-			pos.x = 0;
-		else if (speed.x > 0)
-			pos.x *= 1;
-		else
-			pos.x *= -1;
-
-		if (speed.y == 0)
-			pos.y = 0;
-		else if (speed.y > 0)
-			pos.y *= 1;
-		else
-			pos.y *= -1;
-
-		playerPos[0].x += pos.x;
-		playerPos[0].y += pos.y;
-
-		playerPos[1].x += pos.x;
-		playerPos[1].y += pos.y;
-
-		playerPos[2].x += pos.x;
-		playerPos[2].y += pos.y;
-
-		playerPos[3].x += pos.x;
-		playerPos[3].y += pos.y;
-
-		int diffNum = 0;
-		if (CheckBtmGround(diffNum))	// 충돌처리 판정 필요
+		bool isCanMove = true;
+		RECT area;
+		vector<MapTile> temp = gameManger->GetMap();
+		RECT conversion;
+		conversion.left = playerPos[0].x;
+		conversion.top = playerPos[0].y;
+		conversion.right = playerPos[2].x;
+		conversion.bottom = playerPos[2].y;
+		for (int i = 0; i < temp.size(); i++)
 		{
-			if (CollisionMap(playerPos, eMoveDown, diffNum) || CollisionMap(playerPos, eMoveUp, diffNum))// (CheckBtmGround(diffNum))
+			if (IntersectRect(&area, &temp[i].pos, &conversion))
 			{
-				for (int i = 0; i < 4; i++)
-					playerPos[i].y += diffNum;
+				printf("++++++++++++++++++++++++++++++++++++++++++++++++++cantmove");
+				isCanMove = false;
+				playerPos[0] = lastPlayerPos[0];
+				playerPos[1] = lastPlayerPos[1];
+				playerPos[2] = lastPlayerPos[2];
+				playerPos[3] = lastPlayerPos[3];
+
+				lastMove.x = 0;
+				lastMove.y = 0;
+
+				playerState = eIdle;
+			}
+				
+		}
+
+		if (isCanMove)
+		{
+			speed.x = lastMove.x - fCenterPos.x;
+			speed.y = lastMove.y - fCenterPos.y;
+
+			v = sqrt((pow(speed.x, 2) + pow(speed.y, 2)));
+			//printf("tt : %d %d\n", lastMove.x, lastMove.y);
+			//printf("speed : %d %d, v : %f\n", speed.x, speed.y, v);
+			// 속력 계산
+
+			float halfG = gravity * 0.5;
+			POINT calcV;
+			calcV.x = v * cos(degree);
+			calcV.y = v * sin(degree) - halfG * time;
+
+			float finV = sqrt(pow(calcV.x, 2) + pow(calcV.y, 2));
+
+			POINT pos;
+			pos.x = v * cos(degree)*time;
+			pos.y = v *sin(degree)*time - (0.5*halfG*pow(time, 2));
+
+			printf("speed : %d %d\n", speed.x, speed.y);
+			printf("pos : %d %d\n", pos.x, pos.y);
+
+			// speed에 따른 부호 변화(x, y)
+			// ++ 0+ -+
+			// +0 00 -0
+			// +- 0- --
+
+			if (speed.x == 0)
+				pos.x = 0;
+			else if (speed.x > 0)
+				pos.x *= 1;
+			else
+				pos.x *= -1;
+
+			if (speed.y == 0)
+				pos.y = 0;
+			else if (speed.y > 0)
+				pos.y *= 1;
+			else
+				pos.y *= -1;
+
+			playerPos[0].x += pos.x;
+			playerPos[0].y += pos.y;
+
+			playerPos[1].x += pos.x;
+			playerPos[1].y += pos.y;
+
+			playerPos[2].x += pos.x;
+			playerPos[2].y += pos.y;
+
+			playerPos[3].x += pos.x;
+			playerPos[3].y += pos.y;
+
+			int diffNum = 0;
+			if (CheckBtmGround(diffNum))	// 충돌처리 판정 필요
+			{
+				if (CollisionMap(playerPos, eMoveDown, diffNum) || CollisionMap(playerPos, eMoveUp, diffNum))// (CheckBtmGround(diffNum))
+				{
+					for (int i = 0; i < 4; i++)
+						playerPos[i].y += diffNum + defTimeSec;
+				}
+				else
+				{
+					for (int i = 0; i < 4; i++)
+						playerPos[i].y -= diffNum + defTimeSec;
+				}
+
+				//if (CollisionMap(playerPos, eMoveLeft, diffNum) || CollisionMap(playerPos, eMoveRight, diffNum))// (CheckBtmGround(diffNum)))
+				//{
+				//	for (int i = 0; i < 4; i++)
+				//		playerPos[i].x += diffNum;
+				//}
+				//else
+				//{
+				//	for (int i = 0; i < 4; i++)
+				//		playerPos[i].x -= diffNum;
+				//}
+				lastMove.x = 0;
+				playerState = eIdle;
 			}
 			else
-			{
-				for (int i = 0; i < 4; i++)
-					playerPos[i].y -= diffNum;
-			}
-
-			//if (CollisionMap(playerPos, eMoveLeft, diffNum) || CollisionMap(playerPos, eMoveRight, diffNum))// (CheckBtmGround(diffNum)))
-			//{
-			//	for (int i = 0; i < 4; i++)
-			//		playerPos[i].x += diffNum;
-			//}
-			//else
-			//{
-			//	for (int i = 0; i < 4; i++)
-			//		playerPos[i].x -= diffNum;
-			//}
-			lastMove.x = 0;
-			playerState = eIdle;
+				playerState = eFall;
 		}
-		else
-			playerState = eFall;
 	}
 
 	if (playerState != eFocus)
@@ -403,12 +403,12 @@ void Player::MovePlayer()
 			if(CheckBtmGround(diffNum))
 			{
 				for (int i = 0; i < 4; i++)
-					playerPos[i].y += diffNum;
+					playerPos[i].y += diffNum + defTimeSec;
 			}
 			else
 			{
 				for (int i = 0; i < 4; i++)
-					playerPos[i].y -= diffNum;
+					playerPos[i].y -= diffNum + defTimeSec;
 			}
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
@@ -420,12 +420,12 @@ void Player::MovePlayer()
 			if (CollisionMap(playerPos, eMoveRight, diffNum))
 			{
 				for (int i = 0; i < 4; i++)
-					playerPos[i].x -= diffNum;
+					playerPos[i].x -= diffNum - defTimeSec;
 			}
 			else
 			{
 				for (int i = 0; i < 4; i++)
-					playerPos[i].x += diffNum;
+					playerPos[i].x += diffNum - defTimeSec;
 			}
 
 		}
@@ -458,11 +458,21 @@ void Player::MovePlayer()
 		}
 		else if (isJump && playerState == eJump)
 		{
+			// if (jumpPower > 0)
+			// {
+			// 	jumpPower -= eGravity * defTimeSec;
+			// 	for (int i = 0; i < 4; i++)
+			// 		playerPos[i].y -= jumpPower;
+			// }
 			if (jumpPower > 0)
 			{
-				jumpPower -= eGravity * 0.1;
+				jumpPower -= gravity * defTimeSec;
 				for (int i = 0; i < 4; i++)
-					playerPos[i].y -= jumpPower;
+				{
+					playerPos[i].y -= gravity * defTimeSec + eMoveSpeed;//30;//33;//41;
+					//printf("%d\t", playerPos[i].y);
+				}
+				//printf("\n");
 			}
 			else
 			{
@@ -470,18 +480,18 @@ void Player::MovePlayer()
 				playerState = eFall;
 			}
 
-			//int diffNum = 0;
-			//if (CollisionMap(eMoveUp, diffNum))
-			//{
-			//	printf("-------------------------------------testsetstasdf456879\n");
-			//	printf("%d\n", diffNum);
-			//	playerState = eFall;
-			//
-			//	for (int i = 0; i < 4; i++)
-			//		playerPos[i].y += diffNum;
-			//
-			//	jumpPower = 0;
-			//}
+			int diffNum = 0;
+			if (!CollisionMap(playerPos, eMoveUp, diffNum))
+			{
+				printf("-------------------------------------testsetstasdf456879\n");
+				printf("%d\n", diffNum);
+				playerState = eFall;
+			
+				for (int i = 0; i < 4; i++)
+					playerPos[i].y += diffNum;
+			
+				jumpPower = 0;
+			}
 		}
 		else
 		{
@@ -556,6 +566,11 @@ void Player::MovePlayer()
 			lastMove.x = centerPos.x;
 			lastMove.y = centerPos.y;
 
+			lastPlayerPos[0] = playerPos[0];
+			lastPlayerPos[1] = playerPos[1];
+			lastPlayerPos[2] = playerPos[2];
+			lastPlayerPos[3] = playerPos[3];
+
 			CalcFCenterPos();
 			SetPos(playerPos, fCenterPos.x, fCenterPos.y, ePlayerSize);
 			playerState = eIdle;
@@ -566,6 +581,27 @@ void Player::MovePlayer()
 		POINT checkCenter;
 		checkCenter.x = (fMovePos[0].x + fMovePos[2].x) / 2;
 		checkCenter.y = (fMovePos[0].y + fMovePos[2].y) / 2;
+
+		RECT area;
+		RECT rcMovepos;
+		rcMovepos.left = fMovePos[0].x;
+		rcMovepos.top = fMovePos[0].y;
+		rcMovepos.right = fMovePos[2].x;
+		rcMovepos.bottom = fMovePos[2].y;
+
+		RECT rcFPos;
+		rcFPos.left = focusPos[0].x;
+		rcFPos.top = focusPos[0].y;
+		rcFPos.right = focusPos[2].x;
+		rcFPos.bottom = focusPos[2].y;
+
+
+		if ( (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0)
+			)// || !IntersectRect(&area,&rcMovepos,&rcFPos) ) // todo : 수정 예정 -> 두 키 누르다 한 키만 누르면 범위 밖으로 나가짐
+		{
+			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화 =
+			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+		}
 
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
@@ -648,12 +684,6 @@ void Player::MovePlayer()
 				for (int i = 0; i < 4; i++)
 					fMovePos[i].x += diffNum;
 			}
-		}
-
-		if (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0)
-		{
-			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
-			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
 		}
 
 		CalcFCenterPos();
