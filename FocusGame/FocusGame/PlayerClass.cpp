@@ -133,7 +133,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 		return true;
 	}
 
-	if (direction == eMoveUp)
+	if (direction == eMoveUp || direction == eJump)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
@@ -414,28 +414,38 @@ void Player::CanMovePlayer()
 		}
 		else if (isJump && playerState == eJump)	// 점프 중
 		{
-			// if (jumpPower > 0)
-			// {
-			// 	jumpPower -= eGravity * defTimeSec;
-			// 	for (int i = 0; i < 4; i++)
-			// 		playerPos[i].y -= jumpPower;
-			// }
-			if (jumpPower > 0)
-			{
-				jumpPower -= gravity * defTimeSec;
-				// MovePlayer(playerPos, playerState, gravity, defTimeSec, eMoveSpeed);
-				for (int i = 0; i < 4; i++)
-					playerPos[i].y -= gravity * defTimeSec + eMoveSpeed;
-			}
-			else
-				playerState = eFall;
+			// 약 7칸 정도 뛰어짐 (gravity = 185, jumpPower = 85 기준)
+			jumpPower -= eGravity * defTimeSec;
+
+			// >> 충돌 판정
+			POINT checkRect[4];
+			checkRect[0] = playerPos[0];
+			checkRect[1] = playerPos[1];
+			checkRect[2] = playerPos[2];
+			checkRect[3] = playerPos[3];
 
 			int diffNum = 0;
-			if (!CollisionMap(playerPos, eMoveUp, diffNum))
+			int underLineNum = 0;
+			for (int i = 1; i < jumpPower; i++)
 			{
-				jumpPower = 0;
+				MovePlayer(checkRect, playerState, 1, -1, 0);
+
+				if (CollisionMap(checkRect, playerState, diffNum))
+					underLineNum++;
+				else
+					underLineNum--;
+			}
+			// << 충돌 판정
+
+			printf("%d\n", underLineNum);
+			if (underLineNum > 0)
+			{
+				MovePlayer(playerPos, playerState, underLineNum, -1, 0);
+			}
+			else
+			{
 				playerState = eFall;
-				MovePlayer(playerPos, playerState, diffNum, 1, 0);
+				MovePlayer(playerPos, playerState, 0, 1, 1);
 			}
 		}
 		else // 점프 후 바닥에 닿음
