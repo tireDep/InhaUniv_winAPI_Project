@@ -7,7 +7,7 @@ using namespace std;
 
 enum state
 {
-	eIdle = 0, eMoveLeft = 10, eMoveRight = 15, eMoveDown = 20, eMoveUp = 25,
+	eIdle = 0, eMoveLeft = 0, eMoveUp = 1, eMoveRight = 2, eMoveDown =3,
 	eJump = 50, eFall = 100, eFocus = 150, eSmallFocus = 10,
 
 	eLimitL = 16, eLimitR = 784, eLimitT = 16, eLimitB = 576
@@ -17,6 +17,7 @@ enum playerSet
 {
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 10, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
+	ePushKey = 9999,
 
 	eGravity = 185, eJumpPower = 85
 	// ※ : 수치는 조정 가능..
@@ -47,6 +48,7 @@ private:
 	int playerState;	// 현재 상태 플래그
 	int focusGauge;
 	int focusLv;
+	int pushKey[4];
 
 	bool isJump;	// 점프 중 판별
 	int jumpPower;	// 점프하는 힘
@@ -86,5 +88,6 @@ public:
 	void CalcFCenterPos();
 
 	RECT ConversionRect(POINT pos[]);
+	void ResetPushKey();
 };
 

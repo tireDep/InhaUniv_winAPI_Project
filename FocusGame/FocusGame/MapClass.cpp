@@ -17,6 +17,12 @@ Map::Map()
 		mapTile.pos = { i, 576, 16 + i, 576 + 16 };
 		mapTile.type = eMapBlock;
 		mapPos.push_back(mapTile);
+
+
+		mapTile.pos = { i, 304, 16 + i, 304 + 16 };
+		mapTile.type = eMapBlock;
+		mapPos.push_back(mapTile);
+
 	}
 	
 	for (int i = 0; i < 592; i += 16)
