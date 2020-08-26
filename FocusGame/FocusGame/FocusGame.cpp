@@ -5,6 +5,7 @@
 #include "FocusGame.h"
 
 // >> --------------------------
+#include "MapClass.h"
 #include "PlayerClass.h"
 #include "GameManger.h"
 
@@ -140,17 +141,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	GameManager *gameManger = GameManager::GetInstance();
+	Map *map = Map::GetInstance();
 	Player *player = Player::GetInstance();
 
 	static vector<Object *> object;
 	if (object.size() == 0)
 	{
 		object.push_back(player);
+		object.push_back(map);
 	}
-	// ¡Ø : ¼öÁ¤?
-	
-	//static vector<saveMap> map;
-	static vector<RECT> tempMap;
 
     switch (message)
     {
@@ -161,32 +160,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		SetTimer(hWnd, 0, 25, NULL);
 
 		gameManger->CalcScreenSize(hWnd);
-
-		for (int i = 0; i < gameManger->GetScreenSize().right; i += 16)
-		{
-			tempMap.push_back({ i, 0, 16 + i, 16 });
-			tempMap.push_back({ i, 576, 16 + i, 576 + 16 });
-		}
-
-		for (int i = 0; i < gameManger->GetScreenSize().bottom; i += 16)
-		{
-			tempMap.push_back({ 0, i, 16, 16 + i });
-			tempMap.push_back({ 784, i, 784 + 16, 16 + i });
-		}
-
-
-		tempMap.push_back({ 500, 484,516,500 });
-		tempMap.push_back({ 500, 500,516,516 });
-		tempMap.push_back({ 500, 516,516,532 });
-		tempMap.push_back({ 500, 532,516,548 });
-		tempMap.push_back({ 500, 548,516,564 });
 		break;
 
 	case WM_TIMER:
 		if (!gameManger->GetIsPause())
 		{
 			// player->Update();
-			gameManger->SetNowMap(tempMap);
+			gameManger->SetNowMap(map->GetMapPos());
 			for(int i=0;i<object.size();i++)
 				object[0]->Update();
 		}
@@ -219,38 +199,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		oldBit = (HBITMAP)SelectObject(memDc, hBit);
 		PatBlt(memDc, rectView.left, rectView.top, rectView.right, rectView.bottom, WHITENESS);
 
-
-		// player->DrawPlayer(hdc);
 		for (int i = 0; i<object.size(); i++)
-			object[0]->DrawObject(memDc);
-
-		for (int i = 0; i < tempMap.size(); i++)
-			Rectangle(memDc, tempMap[i].left, tempMap[i].top, tempMap[i].right, tempMap[i].bottom);
-
-		//POINT tempMap[4];
-		//for (int i = 0; i < gameManger->GetScreenSize().right; i += 16)
-		//{
-		//	Rectangle(hdc, i, 0, 16 +i, 16);
-		//	Rectangle(hdc, i, 576, 16 + i, 576+16);
-		//}
-		//
-		//for (int i = 0; i < gameManger->GetScreenSize().bottom; i += 16)
-		//{
-		//	Rectangle(hdc, 0, i, 16, 16 + i);
-		//	Rectangle(hdc, 784, i, 784+16, 16 + i);
-		//}
-
-		// map.push_back({ {100,100},{200,100},{200,200},{100,200} });
-		// 
-		// for (int i = 0; i < map.size(); i++)
-		// {
-		// 	tempMap[0] = map[i].first;
-		// 	tempMap[1] = map[i].second;
-		// 	tempMap[2] = map[i].third;
-		// 	tempMap[3] = map[i].forth;
-		// 	
-		// 	Polygon(hdc, tempMap, 4);
-		// }
+			object[i]->DrawObject(memDc);
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
 
