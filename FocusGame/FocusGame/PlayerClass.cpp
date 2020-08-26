@@ -547,7 +547,8 @@ void Player::CanMovePlayer()
 		checkCenter.x = (fMovePos[0].x + fMovePos[2].x) / 2;
 		checkCenter.y = (fMovePos[0].y + fMovePos[2].y) / 2;
 
-		if ( (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0) )
+		if ( (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0)
+			|| !IntersectRect(&area, &rcMovepos, &rcFPos) )	// ※ : 영역 밖으로 나가게 되면 리셋
 		{
 			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
