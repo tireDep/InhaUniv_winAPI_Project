@@ -76,6 +76,8 @@ public:
 	void FocusMomentum();
 	void CanMovePlayer();
 	void MovePlayer(POINT pos[], int direction, int num, float mulNum, float addNum);
+
+	int CheckFocusRange(int direction, int mulNum);
 	// 이동 관련 함수
 
 	void SetPos(POINT pos[], int xPos, int yPos, int addNum);
