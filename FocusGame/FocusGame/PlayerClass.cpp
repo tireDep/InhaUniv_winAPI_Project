@@ -20,12 +20,18 @@ Player::Player()
 	isCharging = false;
 	focusGauge = eFocusLv3;
 	focusLv = eFocusLv3;
+	ResetPushKey();
 	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
 
 	CalcCenterPos();
 
 	SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
 	SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+	CalcFCenterPos();
+
+	SetPos(lastPlayerPos, centerPos.x, centerPos.y, efMoveSize);
+	lastMoveCenter.x = 0;
+	lastMoveCenter.y = 0;
 }
 
 Player::~Player()
@@ -240,7 +246,8 @@ bool Player::CheckBlockMap()
 {
 	RECT area;
 	vector<MapTile> tempMap = gameManger->GetMap();
-	RECT conRect = ConversionRect(playerPos);
+	RECT conRect = ConversionRect(fMovePos);
+	// ※ : 포커스 좌표로 잡아야 맨 위 블럭도 판정 가능
 
 	for (int i = 0; i < tempMap.size(); i++)
 	{
@@ -311,6 +318,7 @@ void Player::CalcFocusMove()
 
 void Player::FocusMomentum()
 {
+	// 포물선 계산
 	POINT speed;
 	float v;
 
@@ -468,6 +476,8 @@ void Player::CanMovePlayer()
 		// 포커스
 		if (((GetAsyncKeyState(0x41) & 0x8000)) && !isCharging)
 		{
+			ResetPushKey();
+
 			moveSpeed = 0;
 			jumpPower = 0;
 			gravity = 0;
@@ -537,67 +547,129 @@ void Player::CanMovePlayer()
 		checkCenter.x = (fMovePos[0].x + fMovePos[2].x) / 2;
 		checkCenter.y = (fMovePos[0].y + fMovePos[2].y) / 2;
 
-		if ( (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0)
-			|| !IntersectRect(&area, &rcMovepos, &rcFPos) ) // todo : 수정 예정(임시 적용) -> 두 키 누르다 한 키만 누르면 범위 밖으로 나가짐
-			//|| (rcFPos.left >= rcMovepos.left || rcFPos.top >= rcMovepos.top || rcFPos.right <= rcMovepos.right || rcFPos.bottom <= rcMovepos.bottom))
+		if ( (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0) )
 		{
 			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+			ResetPushKey();
 		}
-
+		
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
 			moveDirection = eMoveUp;
+			pushKey[moveDirection] = ePushKey;
 			int underLineNum = CheckFocusRange(moveDirection, -1);
 			// >> 충돌 판정
+
+			// printf("fmovePos : %d %d %d %d\n", fMovePos[0].x, fMovePos[0].y, fMovePos[2].x, fMovePos[2].y);
 
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, -1, 0);
 			else
+			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, 1);
 
+				if (pushKey[eMoveLeft] == -ePushKey)
+					MovePlayer(fMovePos, eMoveLeft, 0, 1, 1);
+				else if (pushKey[eMoveRight] == -ePushKey)
+					MovePlayer(fMovePos, eMoveRight, 0, 1, -1);
+				else if(pushKey[eMoveDown]==-ePushKey)
+					MovePlayer(fMovePos, eMoveDown, 0, 1, -1);
+			}
+
 			CheckOut(fMovePos, moveDirection);
+		}
+		else if (GetKeyState(VK_UP >= 0) && pushKey[eMoveUp] == ePushKey)
+		{
+			pushKey[eMoveUp] = -ePushKey;
 		}
 
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
 			moveDirection = eMoveDown;
+			pushKey[moveDirection] = ePushKey;
 			int underLineNum = CheckFocusRange(moveDirection, 1);
 			// >> 충돌 판정
 
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
 			else
+			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
+
+				if (pushKey[eMoveUp] == -ePushKey)
+					MovePlayer(fMovePos, eMoveUp, 0, 1, 1);
+				else if (pushKey[eMoveLeft] == -ePushKey)
+					MovePlayer(fMovePos, eMoveLeft, 0, 1, 1);
+				else if (pushKey[eMoveRight] == -ePushKey)
+					MovePlayer(fMovePos, eMoveRight, 0, 1, -1);
+			}
 
 			CheckOut(fMovePos, moveDirection);
 		}
+		else if (GetKeyState(VK_DOWN) >= 0 && pushKey[eMoveDown] == ePushKey)
+		{
+			pushKey[eMoveDown] = -ePushKey;
+		}
+
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			moveDirection = eMoveLeft;
+			pushKey[moveDirection] = ePushKey;
 			int underLineNum = CheckFocusRange(moveDirection, -1);
 			// >> 충돌 판정
 
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, -1, 0);
 			else
+			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, 1);
+
+				if (pushKey[eMoveUp] == -ePushKey)
+					MovePlayer(fMovePos, eMoveUp, 0, 1, 1);
+				else if (pushKey[eMoveRight] == -ePushKey)
+					MovePlayer(fMovePos, eMoveRight, 0, 1, -1);
+				else if (pushKey[eMoveDown] == -ePushKey)
+					MovePlayer(fMovePos, eMoveDown, 0, 1, -1);
+			}
 
 			CheckOut(fMovePos, moveDirection);
 		}
+		else if (GetKeyState(VK_LEFT) >= 0 && pushKey[eMoveLeft] == ePushKey)
+		{
+			pushKey[eMoveLeft] = -ePushKey;
+		}
+
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			moveDirection = eMoveRight;
+			pushKey[moveDirection] = ePushKey;
 			int underLineNum = CheckFocusRange(moveDirection, 1);
 			// >> 충돌 판정
 
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
 			else
+			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
+
+				if (pushKey[eMoveUp] == -ePushKey)
+					MovePlayer(fMovePos, eMoveUp, 0, 1, 1);
+				else if (pushKey[eMoveLeft] == -ePushKey)
+					MovePlayer(fMovePos, eMoveLeft, 0, 1, 1);
+				else if (pushKey[eMoveDown] == -ePushKey)
+					MovePlayer(fMovePos, eMoveDown, 0, 1, -1);
+			}
+				
 
 			CheckOut(fMovePos, moveDirection);
 		}
+		else if (GetKeyState(VK_RIGHT) >= 0 && pushKey[eMoveRight] == ePushKey)
+		{
+			pushKey[eMoveRight] = -ePushKey;
+		}
+
+		//printf("%d\n", pushKey[eMoveRight]);
 		CalcFCenterPos();
 	}
 	// Player Control
@@ -713,4 +785,12 @@ RECT Player::ConversionRect(POINT pos[])
 	conversion.bottom = pos[2].y;
 
 	return conversion;
+}
+
+void Player::ResetPushKey()
+{
+	pushKey[eMoveLeft] = 0;
+	pushKey[eMoveUp] = 0;
+	pushKey[eMoveRight] = 0;
+	pushKey[eMoveDown] = 0;
 }
