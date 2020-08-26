@@ -548,21 +548,8 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
 			moveDirection = eMoveUp;
-
+			int underLineNum = CheckFocusRange(moveDirection, -1);
 			// >> 충돌 판정
-			RECT calcRect = ConversionRect(fMovePos);
-			int underLineNum = 0;
-			for (int i = 1; i < eMoveSpeed; i++)
-			{
-				calcRect.top -= 1;
-				calcRect.bottom -= 1;
-
-				if ((calcRect.top + calcRect.bottom) * 0.5 >= focusPos[0].y)
-					underLineNum++;
-				else
-					break;
-			}
-			// << 충돌 판정
 
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, -1, 0);
@@ -575,21 +562,8 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
 			moveDirection = eMoveDown;
-
+			int underLineNum = CheckFocusRange(moveDirection, 1);
 			// >> 충돌 판정
-			RECT calcRect = ConversionRect(fMovePos);
-			int underLineNum = 0;
-			for (int i = 1; i < eMoveSpeed; i++)
-			{
-				calcRect.top += 1;
-				calcRect.bottom += 1;
-
-				if ((calcRect.top + calcRect.bottom) * 0.5 <= focusPos[2].y)
-					underLineNum++;
-				else
-					break;
-			}
-			// << 충돌 판정
 
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
@@ -601,21 +575,8 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			moveDirection = eMoveLeft;
-
+			int underLineNum = CheckFocusRange(moveDirection, -1);
 			// >> 충돌 판정
-			RECT calcRect = ConversionRect(fMovePos);
-			int underLineNum = 0;
-			for (int i = 1; i < eMoveSpeed; i++)
-			{
-				calcRect.left -= 1;
-				calcRect.right -= 1;
-
-				if ((calcRect.left + calcRect.right) * 0.5 >= focusPos[0].x)
-					underLineNum++;
-				else
-					break;
-			}
-			// << 충돌 판정
 
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, -1, 0);
@@ -627,21 +588,8 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			moveDirection = eMoveRight;
-
+			int underLineNum = CheckFocusRange(moveDirection, 1);
 			// >> 충돌 판정
-			RECT calcRect = ConversionRect(fMovePos);
-			int underLineNum = 0;
-			for (int i = 1; i < eMoveSpeed; i++)
-			{
-				calcRect.left += 1;
-				calcRect.right += 1;
-
-				if ((calcRect.left + calcRect.right) * 0.5 <= focusPos[2].x)
-					underLineNum++;
-				else
-					break;
-			}
-			// << 충돌 판정
 
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
@@ -667,6 +615,46 @@ void Player::MovePlayer(POINT pos[], int direction, int num, float mulNum, float
 		for (int i = 0; i < 4; i++)
 			pos[i].y += num * mulNum + addNum;
 	}
+}
+
+int Player::CheckFocusRange(int direction, int mulNum)
+{
+	RECT calcRect = ConversionRect(fMovePos);
+	int num = 0;
+
+	if (direction == eMoveUp || direction == eMoveDown)
+	{
+		for (int i = 1; i < eMoveSpeed; i++)
+		{
+			calcRect.top += 1 * mulNum;
+			calcRect.bottom += 1 * mulNum;
+
+			if ((calcRect.top + calcRect.bottom) * 0.5 >= focusPos[0].y && direction == eMoveUp)
+				num++;
+			else if ((calcRect.top + calcRect.bottom) * 0.5 <= focusPos[2].y && direction == eMoveDown)
+				num++;
+			else
+				break;
+		}
+	}
+
+	else if (direction == eMoveLeft || direction == eMoveRight)
+	{
+		for (int i = 1; i < eMoveSpeed; i++)
+		{
+			calcRect.left += 1 * mulNum;
+			calcRect.right += 1 * mulNum;
+
+			if ((calcRect.left + calcRect.right) * 0.5 >= focusPos[0].x && direction == eMoveLeft)
+				num++;
+			else if ((calcRect.left + calcRect.right) * 0.5 <= focusPos[2].x && direction == eMoveRight)
+				num++;
+			else
+				break;
+		}
+	}
+
+	return num;
 }
 
 void Player::SetPos(POINT pos[], int xPos, int yPos, int addNum)
