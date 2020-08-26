@@ -519,25 +519,17 @@ void Player::CanMovePlayer()
 			playerState = eIdle;
 		}
 
+		RECT area;
+		RECT rcMovepos = ConversionRect(fMovePos);
+		RECT rcFPos = ConversionRect(focusPos);
+
 		POINT checkCenter;
 		checkCenter.x = (fMovePos[0].x + fMovePos[2].x) / 2;
 		checkCenter.y = (fMovePos[0].y + fMovePos[2].y) / 2;
 
-		// RECT area;
-		// RECT rcMovepos;
-		// rcMovepos.left = fMovePos[0].x;
-		// rcMovepos.top = fMovePos[0].y;
-		// rcMovepos.right = fMovePos[2].x;
-		// rcMovepos.bottom = fMovePos[2].y;
-		// 
-		// RECT rcFPos;
-		// rcFPos.left = focusPos[0].x;
-		// rcFPos.top = focusPos[0].y;
-		// rcFPos.right = focusPos[2].x;
-		// rcFPos.bottom = focusPos[2].y;
-
 		if ( (GetKeyState(VK_UP) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_LEFT) >= 0 && GetKeyState(VK_RIGHT) >= 0)
-			)// || !IntersectRect(&area,&rcMovepos,&rcFPos) ) // todo : 수정 예정 -> 두 키 누르다 한 키만 누르면 범위 밖으로 나가짐
+			|| !IntersectRect(&area, &rcMovepos, &rcFPos) ) // todo : 수정 예정(임시 적용) -> 두 키 누르다 한 키만 누르면 범위 밖으로 나가짐
+			//|| (rcFPos.left >= rcMovepos.left || rcFPos.top >= rcMovepos.top || rcFPos.right <= rcMovepos.right || rcFPos.bottom <= rcMovepos.bottom))
 		{
 			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
@@ -546,38 +538,108 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
 			moveDirection = eMoveUp;
-			if (checkCenter.y > focusPos[0].y)
-				MovePlayer(fMovePos, moveDirection, eMoveSpeed, -1, 0);
+
+			// >> 충돌 판정
+			RECT calcRect = ConversionRect(fMovePos);
+			int underLineNum = 0;
+			for (int i = 1; i < eMoveSpeed; i++)
+			{
+				calcRect.top -= 1;
+				calcRect.bottom -= 1;
+
+				if ((calcRect.top + calcRect.bottom) * 0.5 >= focusPos[0].y)
+					underLineNum++;
+				else
+					break;
+			}
+			// << 충돌 판정
+
+			if (underLineNum > 0)
+				MovePlayer(fMovePos, moveDirection, underLineNum, -1, 0);
 			else
 				MovePlayer(fMovePos, moveDirection, 0, 1, 1);
+
+			CheckOut(fMovePos, moveDirection);
 		}
 
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
 			moveDirection = eMoveDown;
-			if (checkCenter.y < focusPos[2].y)
-				MovePlayer(fMovePos, moveDirection, eMoveSpeed, 1, -0.1);
+
+			// >> 충돌 판정
+			RECT calcRect = ConversionRect(fMovePos);
+			int underLineNum = 0;
+			for (int i = 1; i < eMoveSpeed; i++)
+			{
+				calcRect.top += 1;
+				calcRect.bottom += 1;
+
+				if ((calcRect.top + calcRect.bottom) * 0.5 <= focusPos[2].y)
+					underLineNum++;
+				else
+					break;
+			}
+			// << 충돌 판정
+
+			if (underLineNum > 0)
+				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
 			else
-				MovePlayer(fMovePos, moveDirection, 0, 1, 0.9);
+				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
+
+			CheckOut(fMovePos, moveDirection);
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			moveDirection = eMoveLeft;
-			if (checkCenter.x > focusPos[0].x)
-				MovePlayer(fMovePos, moveDirection, eMoveSpeed, -1, 0);
+
+			// >> 충돌 판정
+			RECT calcRect = ConversionRect(fMovePos);
+			int underLineNum = 0;
+			for (int i = 1; i < eMoveSpeed; i++)
+			{
+				calcRect.left -= 1;
+				calcRect.right -= 1;
+
+				if ((calcRect.left + calcRect.right) * 0.5 >= focusPos[0].x)
+					underLineNum++;
+				else
+					break;
+			}
+			// << 충돌 판정
+
+			if (underLineNum > 0)
+				MovePlayer(fMovePos, moveDirection, underLineNum, -1, 0);
 			else
 				MovePlayer(fMovePos, moveDirection, 0, 1, 1);
+
+			CheckOut(fMovePos, moveDirection);
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			moveDirection = eMoveRight;
-			if (checkCenter.x < focusPos[2].x)
-				MovePlayer(fMovePos, moveDirection, eMoveSpeed, 1, 0);
+
+			// >> 충돌 판정
+			RECT calcRect = ConversionRect(fMovePos);
+			int underLineNum = 0;
+			for (int i = 1; i < eMoveSpeed; i++)
+			{
+				calcRect.left += 1;
+				calcRect.right += 1;
+
+				if ((calcRect.left + calcRect.right) * 0.5 <= focusPos[2].x)
+					underLineNum++;
+				else
+					break;
+			}
+			// << 충돌 판정
+
+			if (underLineNum > 0)
+				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
 			else
 				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
-		}
 
-		CheckOut(fMovePos, moveDirection);
+			CheckOut(fMovePos, moveDirection);
+		}
 		CalcFCenterPos();
 	}
 	// Player Control
