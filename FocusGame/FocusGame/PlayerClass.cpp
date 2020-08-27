@@ -75,7 +75,7 @@ void Player::Gravity()
 bool Player::CheckBtmGround(int &lengthDiff)
 {
 	RECT temp;
-	vector<MapTile> checkBtm = gameManger->GetMap();
+	vector<TileMap> checkBtm = dGameManger->GetMap();
 	RECT checkRect = ConversionRect(playerPos);
 
 	for (int i = 0; i < checkBtm.size(); i++)
@@ -98,7 +98,7 @@ bool Player::CheckBtmGround(int &lengthDiff)
 bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 {
 	RECT areaRect;
-	vector<MapTile> checkBtm = gameManger->GetMap();
+	vector<TileMap> checkBtm = dGameManger->GetMap();
 	RECT checkRect = ConversionRect(pos);
 
 	if (direction == eMoveRight)
@@ -245,7 +245,7 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 bool Player::CheckBlockMap()
 {
 	RECT area;
-	vector<MapTile> tempMap = gameManger->GetMap();
+	vector<TileMap> tempMap = dGameManger->GetMap();
 	RECT conRect = ConversionRect(fMovePos);
 	// ※ : 포커스 좌표로 잡아야 맨 위 블럭도 판정 가능
 

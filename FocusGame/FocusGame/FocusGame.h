@@ -4,10 +4,11 @@
 
 enum MapType
 {
-	eMapBlock = 50, eMapObstacle = 100
+	eMapBlock = 50, eMapObstacle = 100,
+	eMapCannon_0 = 150, eMapCannon_1 = 151, eMapCannon_2 = 152, eMapCannon_3 = 153
 };
 
-struct MapTile
+struct TileMap
 {
 	RECT pos;
 	int type;

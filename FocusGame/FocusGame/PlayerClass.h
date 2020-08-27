@@ -3,6 +3,8 @@
 #include "ObjectClass.h"
 #include "GameManger.h"
 
+#define dGameManger GameManager::GetInstance()
+
 using namespace std;
 
 enum state
@@ -29,7 +31,7 @@ enum playerSet
 class Player : public Object
 {
 private:
-	GameManager *gameManger = GameManager::GetInstance();
+	// GameManager *gameManger = GameManager::GetInstance();
 
 	POINT playerPos[4];	// 플레이어 위치
 	POINT focusPos[4];	// 포커스 위치
@@ -56,9 +58,9 @@ private:
 	bool isBtmGround;
 
 	Player();
-	~Player();
 
 public:
+	~Player();
 	static Player* GetInstance();
 
 	void Update();

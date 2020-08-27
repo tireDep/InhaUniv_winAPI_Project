@@ -19,7 +19,7 @@ class GameManager
 {
 private:
 	RECT screenSize;
-	vector<MapTile> nowMap;
+	vector<TileMap> nowMap;
 
 	int nowScene;
 	bool isPause;
@@ -27,9 +27,9 @@ private:
 	bool isPlayerLive;
 
 	GameManager();
-	~GameManager();
 
 public:
+	~GameManager();
 	static GameManager* GetInstance();
 
 	void CalcScreenSize(HWND hWnd);
@@ -38,13 +38,13 @@ public:
 	void SetIsPause();
 	void SetIsPlayerLive(bool live);
 
-	void SetNowMap(vector<MapTile> map);
+	void SetNowMap(vector<TileMap> map);
 
 	int GetSceneNum();
 	bool GetIsPause();
 	bool GetIsPlayerLive();
 	RECT GetScreenSize();
 
-	vector<MapTile> GetMap();
+	vector<TileMap> GetMap();
 };
 
