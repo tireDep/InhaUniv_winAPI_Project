@@ -15,12 +15,13 @@ private:
 
 	POINT centerPos;
 
+	POINT tempSpot;
 	RECT testShot;
 	
 	time_t nowTime;
 	struct tm *tmTime = localtime(&nowTime);
 
-	int timer;
+	float timer;
 	int countDownSec;
 
 public:
