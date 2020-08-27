@@ -15,6 +15,11 @@ enum SceneNum
 	eMainScene = 0, eGameScene = 50, eResultScene = 150, eExit = 9999,
 };
 
+enum BasicNum
+{
+	eBlockSize = 16
+};
+
 class GameManager
 {
 private:

@@ -8,6 +8,8 @@
 #include "MapClass.h"
 #include "PlayerClass.h"
 #include "GameManger.h"
+//#include "ObstacleClass.h"
+#include "CannonClass.h"
 
 using namespace std;
 // << --------------------------
@@ -144,12 +146,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	Map *map = Map::GetInstance();
 	Player *player = Player::GetInstance();
 
+	static vector<Obstacle *>obstacle;
+	// obstacle
+
 	static vector<Object *> object;
-	if (object.size() == 0)
+
+	// setObject
+	if (object.size() == 0)	// 플레이어 상태 변경시?
 	{
 		object.push_back(player);
+
+		// >> 맵에 대포가 존재하는지 판단
+		vector<int> tempSet = map->CheckInCannon();
+		if (tempSet.size() > 0)
+		{
+			for (int i = 0; i < tempSet.size(); i++)
+			{
+				Cannon *addCannon = new Cannon(tempSet[i]);
+				obstacle.push_back(addCannon);
+			}
+
+			for (int i = 0; i < obstacle.size(); i++)
+			{
+				object.push_back(obstacle[i]);
+			}
+		}
+		// >> 맵에 대포가 존재하는지 판단
+		
 		object.push_back(map);
 	}
+
+	else
+	{
+		//Obstacle::DeleteAllData(obstacle);
+	}
+	// setObject
 
     switch (message)
     {
@@ -232,6 +263,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
    
     case WM_DESTROY:
 		FreeConsole();
+
+		Obstacle::DeleteAllData(obstacle);	// 후에 수정 예정
 
 		KillTimer(hWnd, 0);
 

@@ -66,7 +66,7 @@ Map::Map()
 	tileMap.pos = { 300, 548, 316, 564 };
 	mapPos.push_back(tileMap);
 
-
+	// >> cannon test
 	tileMap.type = eMapCannon_0;
 	tileMap.pos = { 100, 100, 116, 116};
 	mapPos.push_back(tileMap);
@@ -84,7 +84,22 @@ Map::Map()
 	mapPos.push_back(tileMap);
 
 
+	tileMap.type = eMapCannon_0;
+	tileMap.pos = { 700, 100, 716, 116 };
+	mapPos.push_back(tileMap);
 
+	tileMap.type = eMapCannon_1;
+	tileMap.pos = { 716, 100, 732, 116 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapCannon_2;
+	tileMap.pos = { 716, 116, 732, 132 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapCannon_3;
+	tileMap.pos = { 700, 116, 716, 132 };
+	mapPos.push_back(tileMap);
+	// >> cannon test
 }
 
 Map::~Map()
@@ -105,7 +120,7 @@ void Map::Update()
 
 void Map::DrawObject(HDC hdc)
 {
-	Rectangle(hdc, 116 - 16 * 5, 0, 116 + 16 * 5, eTrueWinHeight); //test
+	// Rectangle(hdc, 116 - 16 * 5, 0, 116 + 16 * 5, eTrueWinHeight); //test
 
 	for(int i=0;i<mapPos.size();i++)
 		Rectangle(hdc, mapPos[i].pos.left, mapPos[i].pos.top, mapPos[i].pos.right, mapPos[i].pos.bottom);
@@ -114,4 +129,18 @@ void Map::DrawObject(HDC hdc)
 vector<TileMap> Map::GetMapPos()
 {
 	return mapPos;
+}
+
+vector<int> Map::CheckInCannon()
+{
+	vector<int> tempPos;
+
+	vector<TileMap>::iterator it;
+	for (it = mapPos.begin(); it < mapPos.end(); it++)
+	{
+		if (it->type == eMapCannon_0)
+			tempPos.push_back(it->pos.left);
+	}
+
+	return tempPos;
 }
