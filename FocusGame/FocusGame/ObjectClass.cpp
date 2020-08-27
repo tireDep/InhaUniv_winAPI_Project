@@ -21,8 +21,3 @@ void Object::DrawObject(HDC hdc)
 
 }
 
-//	Object* Object::GetInstance()
-//	{
-//		static Object object;
-//		return &object;
-//	}

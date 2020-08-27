@@ -21,4 +21,5 @@ public:
 	void DrawObject(HDC hdc);
 
 	vector<TileMap> GetMapPos();
+	vector<int> CheckInCannon();
 };
