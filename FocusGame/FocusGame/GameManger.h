@@ -26,6 +26,7 @@ private:
 	RECT screenSize;
 	vector<TileMap> nowMap;
 
+	RECT nowPlayerPos;
 	int nowScene;
 	bool isPause;
 
@@ -43,6 +44,7 @@ public:
 	void SetIsPause();
 	void SetIsPlayerLive(bool live);
 
+	void SetNowPlayerPos(RECT set);
 	void SetNowMap(vector<TileMap> map);
 
 	int GetSceneNum();
@@ -50,6 +52,7 @@ public:
 	bool GetIsPlayerLive();
 	RECT GetScreenSize();
 
-	vector<TileMap> GetMap();
+	vector<TileMap> GetNowMap();
+	RECT GetNowPlayerPos();
 };
 

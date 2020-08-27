@@ -75,7 +75,7 @@ void Player::Gravity()
 bool Player::CheckBtmGround(int &lengthDiff)
 {
 	RECT temp;
-	vector<TileMap> checkBtm = dGameManger->GetMap();
+	vector<TileMap> checkBtm = dGameManger->GetNowMap();
 	RECT checkRect = ConversionRect(playerPos);
 
 	for (int i = 0; i < checkBtm.size(); i++)
@@ -98,7 +98,7 @@ bool Player::CheckBtmGround(int &lengthDiff)
 bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 {
 	RECT areaRect;
-	vector<TileMap> checkBtm = dGameManger->GetMap();
+	vector<TileMap> checkBtm = dGameManger->GetNowMap();
 	RECT checkRect = ConversionRect(pos);
 
 	if (direction == eMoveRight)
@@ -245,7 +245,7 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 bool Player::CheckBlockMap()
 {
 	RECT area;
-	vector<TileMap> tempMap = dGameManger->GetMap();
+	vector<TileMap> tempMap = dGameManger->GetNowMap();
 	RECT conRect = ConversionRect(fMovePos);
 	// ※ : 포커스 좌표로 잡아야 맨 위 블럭도 판정 가능
 
@@ -273,6 +273,8 @@ bool Player::CheckBlockMap()
 void Player::DrawObject(HDC hdc)
 {
 	Polygon(hdc, focusPos, 4);
+	//RECT temp = ConversionRect(focusPos);
+	//Ellipse(hdc, temp.left, temp.top, temp.right, temp.bottom);
 	// todo : 반투명한 이미지로 대체
 
 	Polygon(hdc, playerPos, 4);
@@ -794,4 +796,9 @@ void Player::ResetPushKey()
 	pushKey[eMoveUp] = 0;
 	pushKey[eMoveRight] = 0;
 	pushKey[eMoveDown] = 0;
+}
+
+RECT Player::GetPlayerPos()
+{
+	return ConversionRect(playerPos);
 }

@@ -68,36 +68,36 @@ Map::Map()
 
 	// >> cannon test
 	tileMap.type = eMapCannon_0;
-	tileMap.pos = { 100, 100, 116, 116};
+	tileMap.pos = { 112, 112, 128, 128};
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_1;
-	tileMap.pos = { 116, 100, 132, 116 };
+	tileMap.pos = { 128, 112, 144, 128 };
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_2;
-	tileMap.pos = { 116, 116, 132, 132 };
+	tileMap.pos = { 128, 128, 144, 144 };
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_3;
-	tileMap.pos = { 100, 116, 116, 132 };
+	tileMap.pos = { 112, 128, 128, 144 };
 	mapPos.push_back(tileMap);
 
 
 	tileMap.type = eMapCannon_0;
-	tileMap.pos = { 700, 100, 716, 116 };
+	tileMap.pos = { 704, 112, 720, 128 };
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_1;
-	tileMap.pos = { 716, 100, 732, 116 };
+	tileMap.pos = { 720, 112, 738, 128 };
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_2;
-	tileMap.pos = { 716, 116, 732, 132 };
+	tileMap.pos = { 720, 128, 738, 144 };
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_3;
-	tileMap.pos = { 700, 116, 716, 132 };
+	tileMap.pos = { 704, 128, 720, 144 };
 	mapPos.push_back(tileMap);
 	// >> cannon test
 }
@@ -131,15 +131,15 @@ vector<TileMap> Map::GetMapPos()
 	return mapPos;
 }
 
-vector<int> Map::CheckInCannon()
+vector<POINT> Map::CheckInCannon()
 {
-	vector<int> tempPos;
+	vector<POINT> tempPos;
 
 	vector<TileMap>::iterator it;
 	for (it = mapPos.begin(); it < mapPos.end(); it++)
 	{
 		if (it->type == eMapCannon_0)
-			tempPos.push_back(it->pos.left);
+			tempPos.push_back({it->pos.right, it->pos.bottom});
 	}
 
 	return tempPos;
