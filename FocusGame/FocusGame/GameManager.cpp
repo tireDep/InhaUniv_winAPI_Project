@@ -44,7 +44,7 @@ void GameManager::SetIsPlayerLive(bool live)
 
 void GameManager::SetNowMap(vector<MapTile> map)
 {
-	// nowMap = map;
+	nowMap = map;
 }
 
 inline int GameManager::GetSceneNum()
