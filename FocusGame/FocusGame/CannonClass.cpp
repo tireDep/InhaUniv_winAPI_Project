@@ -2,6 +2,8 @@
 #include "PlayerClass.h"
 #include "CannonClass.h"
 
+#define dCountdown 2
+
 #define dGameManager GameManager::GetInstance()
 
 Cannon::Cannon()
@@ -24,6 +26,11 @@ Cannon::Cannon(POINT set)
 
 	centerPos.x = set.x;
 	centerPos.y = set.y;
+
+	timer = tmTime->tm_sec;
+	countDownSec = dCountdown;
+
+	testShot = hitRect;
 }
 
 Cannon::~Cannon()
@@ -50,50 +57,25 @@ void Cannon::CheckInPlayer()
 
 	if (IntersectRect(&area, &hitRect, &playerPos))
 	{
-		POINT playerCenter;
-		playerCenter.x = (playerPos.left + playerPos.right) * 0.5;
-		playerCenter.y = (playerPos.top + playerPos.bottom) * 0.5;
+		// todo : 벽 판정 필요 -> 테스트 총알 발사로 확인?
+		
+		// >> countdownTimer
+		time(&nowTime);
+		tmTime = localtime(&nowTime);
 
-		float length = sqrt(pow(playerCenter.x - centerPos.x, 2) + pow(playerCenter.y - centerPos.y, 2));
-
-		int addX = -1, addY = -1;
-		RECT area;
-		POINT checkSpot = centerPos;
-
-		while (addX !=0)
+		if (timer != tmTime->tm_sec)
 		{
-			if (playerCenter.x > checkSpot.x) addX = 1;
-			else if (playerCenter.x < checkSpot.x) addX = -1;
-			else addX = 0;
-
-			checkSpot.x += addX;
-
-			for (int i = 0; i < mapPos.size(); i++)
-			{
-				if (PtInRect(&mapPos[i].pos, checkSpot) && checkSpot.x != playerCenter.x && checkSpot.y != playerCenter.y)
-				{
-						printf("---------------------------------------------------------------%d\n", i);
-				}
-			}
+			timer = tmTime->tm_sec;
+			countDownSec--;
+			printf("testTime\n");
 		}
 
-		checkSpot = centerPos;
-		while (addY != 0)
+		if (countDownSec == 0)
 		{
-			if (playerCenter.y > checkSpot.y) addY = 1;
-			else if (playerCenter.y < checkSpot.y) addY = -1;
-			else addY = 0;
-
-			checkSpot.y += addY;
-
-			for (int i = 0; i < mapPos.size(); i++)
-			{
-				if (PtInRect(&mapPos[i].pos, checkSpot) && checkSpot.x != playerCenter.x && checkSpot.y != playerCenter.y)
-				{
-					printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++%d\n", i);
-				}
-			}
+			countDownSec = dCountdown;
+			printf("카운트 타임 오버\n");
 		}
+		// >> countdownTimer
 	}
 	return;
 }

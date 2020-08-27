@@ -3,6 +3,8 @@
 #include "GameManger.h"
 #include "ObstacleClass.h"
 
+#include <time.h>
+
 #define hitRange 5
 #define largeHitRange 10
 
@@ -12,6 +14,14 @@ private:
 	RECT hitRect;
 
 	POINT centerPos;
+
+	RECT testShot;
+	
+	time_t nowTime;
+	struct tm *tmTime = localtime(&nowTime);
+
+	int timer;
+	int countDownSec;
 
 public:
 	Cannon();
