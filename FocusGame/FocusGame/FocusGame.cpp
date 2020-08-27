@@ -157,7 +157,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		object.push_back(player);
 
 		// >> 맵에 대포가 존재하는지 판단
-		vector<int> tempSet = map->CheckInCannon();
+		vector<POINT> tempSet = map->CheckInCannon();
 		if (tempSet.size() > 0)
 		{
 			for (int i = 0; i < tempSet.size(); i++)
@@ -166,10 +166,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				obstacle.push_back(addCannon);
 			}
 
-			for (int i = 0; i < obstacle.size(); i++)
-			{
-				object.push_back(obstacle[i]);
-			}
+			// for (int i = 0; i < obstacle.size(); i++)
+			// {
+			// 	object.push_back(obstacle[i]);
+			// }
 		}
 		// >> 맵에 대포가 존재하는지 판단
 		
@@ -198,8 +198,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			// player->Update();
 			gameManger->SetNowMap(map->GetMapPos());
-			for(int i=0;i<object.size();i++)
-				object[0]->Update();
+			gameManger->SetNowPlayerPos(player->GetPlayerPos());
+
+			//for(int i=0;i<object.size();i++)
+			object[0]->Update();
+
+			for (int i = 0; i < obstacle.size(); i++)
+				obstacle[i]->Update();
 		}
 
 		InvalidateRect(hWnd, NULL, false);
@@ -232,6 +237,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		for (int i = 0; i<object.size(); i++)
 			object[i]->DrawObject(memDc);
+
+		for (int i = 0; i < obstacle.size(); i++)
+			obstacle[i]->DrawObject(memDc);
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
 

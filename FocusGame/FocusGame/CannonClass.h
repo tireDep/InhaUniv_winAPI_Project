@@ -3,19 +3,23 @@
 #include "GameManger.h"
 #include "ObstacleClass.h"
 
-#define hitRange 5.5
+#define hitRange 5
+#define largeHitRange 10
 
 class Cannon : public Obstacle
 {
 private:
 	RECT hitRect;
-	int test;
+
+	POINT centerPos;
 
 public:
 	Cannon();
-	Cannon(int set);
+	Cannon(POINT set);
 	~Cannon();
 
 	void Update();
 	void DrawObject(HDC hdc);
+
+	void CheckInPlayer();
 };
