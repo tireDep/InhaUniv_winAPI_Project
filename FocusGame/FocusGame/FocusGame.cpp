@@ -8,8 +8,8 @@
 #include "MapClass.h"
 #include "PlayerClass.h"
 #include "GameManger.h"
-//#include "ObstacleClass.h"
 #include "CannonClass.h"
+#include "BulletClass.h"
 
 using namespace std;
 // << --------------------------
@@ -145,10 +145,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	GameManager *gameManger = GameManager::GetInstance();
 	Map *map = Map::GetInstance();
 	Player *player = Player::GetInstance();
+	Bullet *bulletList = Bullet::GetInstance();
 
 	static vector<Obstacle *>obstacle;
-	// obstacle
-
 	static vector<Object *> object;
 
 	// setObject
@@ -166,10 +165,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				obstacle.push_back(addCannon);
 			}
 
-			// for (int i = 0; i < obstacle.size(); i++)
-			// {
-			// 	object.push_back(obstacle[i]);
-			// }
+		// for (int i = 0; i < obstacle.size(); i++)
+		// {
+		// 	object.push_back(obstacle[i]);
+		// }
 		}
 		// >> 맵에 대포가 존재하는지 판단
 		
@@ -200,8 +199,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gameManger->SetNowMap(map->GetMapPos());
 			gameManger->SetNowPlayerPos(player->GetPlayerPos());
 
-			//for(int i=0;i<object.size();i++)
-			object[0]->Update();
+			for(int i=0;i<object.size();i++)
+				object[i]->Update();
 
 			for (int i = 0; i < obstacle.size(); i++)
 				obstacle[i]->Update();
@@ -223,7 +222,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
-
 
 		HDC memDc;
 		HBITMAP hBit, oldBit;

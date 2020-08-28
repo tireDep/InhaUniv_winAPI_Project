@@ -13,3 +13,10 @@ struct TileMap
 	RECT pos;
 	int type;
 };
+
+struct BulletSctruct
+{
+	POINT centerPos;
+	int type;
+	bool isShot;
+};
