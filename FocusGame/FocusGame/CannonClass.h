@@ -12,11 +12,14 @@ private:
 
 	POINT centerPos;
 
-	POINT tempSpot;
 	RECT testShot;
+	POINT tempCenter;
+	POINT nextSpot;
+	// 테스트 샷(벽판정)
 	
 	time_t nowTime;
 	struct tm *tmTime = localtime(&nowTime);
+	bool isCanShoot;
 
 	float timer;
 	int countDownSec;
@@ -30,4 +33,6 @@ public:
 	void DrawObject(HDC hdc);
 
 	void CheckInPlayer();
+	void MoveTestShot();
+	void ResetTestShot();
 };
