@@ -37,7 +37,8 @@ Bullet* Bullet::GetInstance()
 
 void Bullet::Update()
 {
-
+	// 미사일 관련 함수 작성
+	// 유도인지 일반인지
 }
 
 void Bullet::DrawObject(HDC hdc)
@@ -58,6 +59,11 @@ void Bullet::DrawObject(HDC hdc)
 			Rectangle(hdc, tempRect.left, tempRect.top, tempRect.right, tempRect.bottom);
 		}
 	}
+}
+
+void Bullet::Shoot(const POINT &cannonPos, const POINT &playerPos, int bulletType)
+{
+	printf("**********************************************************************\n");
 }
 
 

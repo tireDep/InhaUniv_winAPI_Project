@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PlayerClass.h"
+#include "BulletClass.h"
 #include "CannonClass.h"
 
 #define hitRange 15
@@ -9,6 +10,7 @@
 #define degree 90
 
 #define dGameManager GameManager::GetInstance()
+#define dBulletList Bullet::GetInstance()
 
 Cannon::Cannon()
 {
@@ -189,6 +191,8 @@ void Cannon::CheckInPlayer()
 				// >> ÇÃ·¹ÀÌ¾î¿¡ ºÎµúÈû
 				printf("playerHit");
 				// todo : ÃÑ¾Ë »ý¼º or È°¼ºÈ­
+				dBulletList->Shoot(centerPos, playerCenter, 1);
+				// bulletType
 				isCanShoot = false;
 				break;
 			}
