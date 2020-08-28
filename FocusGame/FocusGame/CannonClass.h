@@ -5,9 +5,6 @@
 
 #include <time.h>
 
-#define hitRange 5
-#define largeHitRange 10
-
 class Cannon : public Obstacle
 {
 private:
