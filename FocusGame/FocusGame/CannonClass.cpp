@@ -5,6 +5,7 @@
 
 #define hitRange 15
 #define countDown 3
+#define shootedDown 2
 #define tShotSpeed 10
 
 #define degree 90
@@ -22,7 +23,14 @@ Cannon::Cannon()
 	centerPos.x = 0;
 	centerPos.y = 0;
 
+	shotCd = { 0,0,0,0 };
+
+	tmTime = localtime(&nowTime);
+
 	type = 0;
+	isShooted = false;
+	shootedTimer = 0;
+	shottedDownSec = shootedDown;
 }
 
 Cannon::Cannon(parceCannon set)
@@ -35,6 +43,8 @@ Cannon::Cannon(parceCannon set)
 	centerPos.x = set.pos.x;
 	centerPos.y = set.pos.y;
 
+	shotCd = { centerPos.x - 16, centerPos.y - 24, centerPos.x + 16, centerPos.y - 16 };
+
 	timer = tmTime->tm_sec;
 	countDownSec = countDown;
 	isCanShoot = true;
@@ -44,10 +54,16 @@ Cannon::Cannon(parceCannon set)
 	testShot.right = set.pos.x + eBlockSize * 0.5;
 	testShot.bottom = set.pos.y + eBlockSize * 0.5;
 
+	tmTime = localtime(&nowTime);
+
 	if (set.type == dNormal)
 		type = dNormal;
 	else
 		type = dHoming;
+
+	isShooted = false;
+	shootedTimer = 0;
+	shottedDownSec = shootedDown;
 }
 
 Cannon::~Cannon()
@@ -63,6 +79,10 @@ void Cannon::Update()
 void Cannon::DrawObject(HDC hdc)
 {
 	SelectObject(hdc, GetStockObject(NULL_BRUSH));
+
+	if (isShooted)
+		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);	// test_shootdGage
+
 	Rectangle(hdc, hitRect.left, hitRect.top, hitRect.right, hitRect.bottom);	// test
 
 	Rectangle(hdc, testShot.left, testShot.top, testShot.right, testShot.bottom);	// test_testShot
@@ -74,6 +94,31 @@ void Cannon::CheckInPlayer()
 	vector<TileMap> mapPos = dGameManager->GetNowMap();
 	RECT playerPos = dGameManager->GetNowPlayerPos();
 
+	POINT playerCenter;
+	playerCenter.x = (playerPos.left + playerPos.right) * 0.5;
+	playerCenter.y = (playerPos.top + playerPos.bottom) * 0.5;
+
+	if (isShooted)
+	{
+		time(&nowTime);
+		tmTime = localtime(&nowTime);
+
+		if (shootedTimer != tmTime->tm_sec)
+		{
+			shootedTimer = tmTime->tm_sec;
+			shottedDownSec--;
+		}
+
+		if (shottedDownSec == 0)
+		{
+			shottedDownSec = shootedDown;
+			dBulletList->Shoot(centerPos, playerCenter, type);
+			// 발사 경고 후 발사
+			isShooted = false;
+		}
+	}
+
+
 	if (!isCanShoot)
 	{
 		time(&nowTime);
@@ -83,24 +128,18 @@ void Cannon::CheckInPlayer()
 		{
 			timer = tmTime->tm_sec;
 			countDownSec--;
-			printf("testTime\n");
 		}
 
 		if (countDownSec == 0)
 		{
 			countDownSec = countDown;
 			isCanShoot = true;
-			printf("카운트 타임 오버\n");
 		}
 	}
 	// >> countdownTimer
 
 	if (IntersectRect(&area, &hitRect, &playerPos) && isCanShoot)
 	{
-		POINT playerCenter;
-		playerCenter.x = (playerPos.left + playerPos.right) * 0.5;
-		playerCenter.y = (playerPos.top + playerPos.bottom) * 0.5;
-
 		POINT tempPlayerCenter;
 		if (tempCenter.x == -1 && tempCenter.y == -1)
 		{
@@ -185,7 +224,6 @@ void Cannon::CheckInPlayer()
 			if (IntersectRect(&area, &mapPos[i].pos, &testShot) && mapPos[i].type == eMapBlock)	
 			{
 				// >> 맵에 부딪힘
-				printf("hit");
 				isCanShoot = false;
 				break;
 			}
@@ -193,11 +231,8 @@ void Cannon::CheckInPlayer()
 			if (IntersectRect(&area, &playerPos, &testShot))
 			{
 				// >> 플레이어에 부딪힘
-				printf("playerHit");
-				// todo : 총알 생성 or 활성화
-				dBulletList->Shoot(centerPos, playerCenter, type);
-				// bulletType
 				isCanShoot = false;
+				isShooted = true;
 				break;
 			}
 			
@@ -231,6 +266,8 @@ void Cannon::ResetTestShot()
 	testShot.top = centerPos.y - eBlockSize * 0.5;
 	testShot.right = centerPos.x + eBlockSize * 0.5;
 	testShot.bottom = centerPos.y + eBlockSize * 0.5;
+
+	shotCd = { centerPos.x - 16, centerPos.y - 24, centerPos.x + 16, centerPos.y - 16 };
 
 	tempCenter.x = -1;
 	tempCenter.y = -1;

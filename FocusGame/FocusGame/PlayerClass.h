@@ -93,5 +93,7 @@ public:
 	void ResetPushKey();
 
 	RECT GetPlayerPos();
+	RECT GetFocusPos();
+	bool GetIsFocusMode();
 };
 

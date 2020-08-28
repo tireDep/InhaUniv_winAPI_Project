@@ -802,3 +802,16 @@ RECT Player::GetPlayerPos()
 {
 	return ConversionRect(playerPos);
 }
+
+RECT Player::GetFocusPos()
+{
+	return ConversionRect(focusPos);
+}
+
+bool Player::GetIsFocusMode()
+{
+	if (playerState == eFocus)
+		return true;
+	else
+		return false;
+}

@@ -21,7 +21,11 @@ public:
 	void Update();
 	void DrawObject(HDC hdc);
 
-	void Shoot(const POINT &cannonPos, const POINT &playerPos, int bulletType);
+	void Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
+	void CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
+	void CheckShot();
+	void MoveShot(BulletSctruct &bullet);
+	void ResetBullet(BulletSctruct &bullet);
 
 	RECT ConversionRect(POINT pos);
 };

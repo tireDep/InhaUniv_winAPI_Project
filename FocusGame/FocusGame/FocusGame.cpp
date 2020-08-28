@@ -204,6 +204,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			for (int i = 0; i < obstacle.size(); i++)
 				obstacle[i]->Update();
+
+			bulletList->Update();
 		}
 
 		InvalidateRect(hWnd, NULL, false);
@@ -238,6 +240,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		for (int i = 0; i < obstacle.size(); i++)
 			obstacle[i]->DrawObject(memDc);
+
+		bulletList->DrawObject(memDc);
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
 

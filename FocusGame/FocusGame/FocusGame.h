@@ -18,8 +18,12 @@ struct TileMap
 struct BulletSctruct
 {
 	POINT centerPos;
+	POINT nextSpot;
+	RECT shotBullet;
+
 	int type;
 	bool isShot;
+	float speed;
 };
 
 struct parceCannon
