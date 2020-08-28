@@ -8,6 +8,8 @@
 class Cannon : public Obstacle
 {
 private:
+	int type;
+
 	RECT hitRect;
 
 	POINT centerPos;
@@ -26,7 +28,7 @@ private:
 
 public:
 	Cannon();
-	Cannon(POINT set);
+	Cannon(parceCannon set);
 	~Cannon();
 
 	void Update();

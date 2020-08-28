@@ -156,7 +156,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		object.push_back(player);
 
 		// >> 맵에 대포가 존재하는지 판단
-		vector<POINT> tempSet = map->CheckInCannon();
+		vector<parceCannon> tempSet = map->CheckInCannon();
 		if (tempSet.size() > 0)
 		{
 			for (int i = 0; i < tempSet.size(); i++)
