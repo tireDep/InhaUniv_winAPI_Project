@@ -4,9 +4,6 @@
 #include "FocusGame.h"
 #include "ObstacleClass.h"
 
-#define dNormal -1
-#define dHoming 1
-
 using namespace std;
 
 class Bullet : public Obstacle

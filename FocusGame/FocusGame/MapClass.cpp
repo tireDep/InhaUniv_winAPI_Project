@@ -131,16 +131,32 @@ vector<TileMap> Map::GetMapPos()
 	return mapPos;
 }
 
-vector<POINT> Map::CheckInCannon()
+vector<parceCannon> Map::CheckInCannon()
 {
-	vector<POINT> tempPos;
+	parceCannon tempVal;
+	vector<parceCannon> result;
 
 	vector<TileMap>::iterator it;
 	for (it = mapPos.begin(); it < mapPos.end(); it++)
 	{
 		if (it->type == eMapCannon_0)
-			tempPos.push_back({it->pos.right, it->pos.bottom});
+		{
+			// tempPos.push_back({it->pos.right, it->pos.bottom});
+			tempVal.pos = { it->pos.right, it->pos.bottom };
+			tempVal.type = dNormal;
+			
+			result.push_back(tempVal);
+		}
+
+		if (it->type == eMapCannon_4)
+		{
+			// tempPos.push_back({it->pos.right, it->pos.bottom});
+			tempVal.pos = { it->pos.right, it->pos.bottom };
+			tempVal.type = dHoming;
+
+			result.push_back(tempVal);
+		}
 	}
 
-	return tempPos;
+	return result;
 }

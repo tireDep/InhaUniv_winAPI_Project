@@ -21,29 +21,33 @@ Cannon::Cannon()
 
 	centerPos.x = 0;
 	centerPos.y = 0;
+
+	type = 0;
 }
 
-Cannon::Cannon(POINT set)
+Cannon::Cannon(parceCannon set)
 {
-	hitRect.left = set.x - eBlockSize * hitRange;
+	hitRect.left = set.pos.x - eBlockSize * hitRange;
 	hitRect.top = 0;
-	hitRect.right = set.x + eBlockSize * hitRange;
+	hitRect.right = set.pos.x + eBlockSize * hitRange;
 	hitRect.bottom = eTrueWinHeight;
 
-	centerPos.x = set.x;
-	centerPos.y = set.y;
+	centerPos.x = set.pos.x;
+	centerPos.y = set.pos.y;
 
 	timer = tmTime->tm_sec;
 	countDownSec = countDown;
 	isCanShoot = true;
 
-	testShot.left = set.x - eBlockSize * 0.5;
-	testShot.top = set.y - eBlockSize * 0.5;
-	testShot.right = set.x + eBlockSize * 0.5;
-	testShot.bottom = set.y + eBlockSize * 0.5;
+	testShot.left = set.pos.x - eBlockSize * 0.5;
+	testShot.top = set.pos.y - eBlockSize * 0.5;
+	testShot.right = set.pos.x + eBlockSize * 0.5;
+	testShot.bottom = set.pos.y + eBlockSize * 0.5;
 
-	tempCenter.x = -1;
-	tempCenter.y = -1;
+	if (set.type == dNormal)
+		type = dNormal;
+	else
+		type = dHoming;
 }
 
 Cannon::~Cannon()
@@ -191,7 +195,7 @@ void Cannon::CheckInPlayer()
 				// >> ÇÃ·¹ÀÌ¾î¿¡ ºÎµúÈû
 				printf("playerHit");
 				// todo : ÃÑ¾Ë »ý¼º or È°¼ºÈ­
-				dBulletList->Shoot(centerPos, playerCenter, 1);
+				dBulletList->Shoot(centerPos, playerCenter, type);
 				// bulletType
 				isCanShoot = false;
 				break;
