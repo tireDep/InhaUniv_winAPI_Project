@@ -11,12 +11,13 @@ private:
 	int type;
 
 	RECT hitRect;
-
 	POINT centerPos;
 
 	RECT testShot;
 	POINT tempCenter;
 	POINT nextSpot;
+
+	RECT shotCd;
 	// 테스트 샷(벽판정)
 	
 	time_t nowTime;
@@ -25,6 +26,10 @@ private:
 
 	float timer;
 	int countDownSec;
+
+	float shootedTimer;
+	int shottedDownSec;
+	bool isShooted;
 
 public:
 	Cannon();
