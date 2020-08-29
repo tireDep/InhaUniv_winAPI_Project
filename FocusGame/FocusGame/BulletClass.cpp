@@ -29,7 +29,7 @@ Bullet::Bullet()
 		hBullet.nextSpot = { 0, 0 };
 		hBullet.shotBullet = { 0, 0 };
 		hBullet.isShot = false;
-		hBullet.type = dNormal;
+		hBullet.type = dHoming;
 		hBullet.speed = dShotSpeed;
 		hBulletList.push_back(hBullet);
 	}

@@ -89,11 +89,11 @@ Map::Map()
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_1;
-	tileMap.pos = { 720, 112, 738, 128 };
+	tileMap.pos = { 720, 112, 736, 128 };
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_2;
-	tileMap.pos = { 720, 128, 738, 144 };
+	tileMap.pos = { 720, 128, 736, 144 };
 	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapCannon_3;

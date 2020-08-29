@@ -19,20 +19,18 @@ enum playerSet
 {
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 15, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
-	ePushKey = 9999,
 
 	eGravity = 185, eJumpPower = 85
 	// ※ : 수치는 조정 가능..
 	// 정해지지 않은 값들
 };
 
-#define defTimeSec 0.1
+#define dTimeSec 0.1
+#define dCorrection 0.1
 
 class Player : public Object
 {
 private:
-	// GameManager *gameManger = GameManager::GetInstance();
-
 	POINT playerPos[4];	// 플레이어 위치
 	POINT focusPos[4];	// 포커스 위치
 	POINT fMovePos[4];
@@ -50,7 +48,6 @@ private:
 	int playerState;	// 현재 상태 플래그
 	int focusGauge;
 	int focusLv;
-	int pushKey[4];
 
 	bool isJump;	// 점프 중 판별
 	int jumpPower;	// 점프하는 힘
@@ -77,7 +74,7 @@ public:
 	void DrawObject(HDC hdc);
 
 	void CalcFocusMove();
-	void FocusMomentum();
+	bool FocusMomentum();
 	void CanMovePlayer();
 	void MovePlayer(POINT pos[], int direction, int num, float mulNum, float addNum);
 
@@ -90,7 +87,6 @@ public:
 	void CalcFCenterPos();
 
 	RECT ConversionRect(POINT pos[]);
-	void ResetPushKey();
 
 	RECT GetPlayerPos();
 	RECT GetFocusPos();
