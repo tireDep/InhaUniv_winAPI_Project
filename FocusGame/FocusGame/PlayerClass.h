@@ -25,13 +25,12 @@ enum playerSet
 	// 정해지지 않은 값들
 };
 
-#define defTimeSec 0.1
+#define dTimeSec 0.1
+#define dCorrection 0.1
 
 class Player : public Object
 {
 private:
-	// GameManager *gameManger = GameManager::GetInstance();
-
 	POINT playerPos[4];	// 플레이어 위치
 	POINT focusPos[4];	// 포커스 위치
 	POINT fMovePos[4];

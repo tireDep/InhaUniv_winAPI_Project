@@ -2,6 +2,11 @@
 #include "FocusGame.h"
 #include "PlayerClass.h"
 
+#define dAddFocusP 1.5
+#define dMinusFocusP 1
+
+#define dgameManger GameManager::GetInstance()
+
 Player::Player()
 {
 	// todo : 플레이어 정보가 파싱된 위치로 이동해야 함
@@ -56,17 +61,17 @@ void Player::Gravity()
 	if (playerState != eFocus || playerState != eJump)
 	{
 		for (int i = 0; i < 4; i++)
-			playerPos[i].y += gravity * defTimeSec;
+			playerPos[i].y += gravity * dTimeSec;
 
 		if (CheckBtmGround(diffNum))
 		{
 			for (int i = 0; i < 4; i++)
-				playerPos[i].y += diffNum + defTimeSec;
+				playerPos[i].y += diffNum + dTimeSec;
 		}
 		else
 		{
 			for (int i = 0; i < 4; i++)
-				playerPos[i].y -= diffNum + defTimeSec;
+				playerPos[i].y -= diffNum + dTimeSec;
 		}
 	}
 }
@@ -187,19 +192,31 @@ void Player::CheckOut(POINT pos[], int direction)
 	float addNum = 0;
 
 	if (direction == eMoveRight || direction == eMoveDown)
-		addNum = 0.1;
+		addNum = -dCorrection;
 
 	MovePlayer(pos, direction, diffNum, mulNum, addNum);
 }
 
 bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 {
+	RECT area;
 	RECT checkRect = ConversionRect(pos);
+	vector<TileMap> mapPos = dgameManger->GetNowMap();
 
+	// todo : 해당 위치가 벽이 아니면 지나갈 수 있어야 함!!(스테이지 클리어 후)
 	if (direction == eMoveLeft)
 	{
 		if (checkRect.left <= eLimitL)
 		{
+			for (int i = 0; i < mapPos.size(); i++)
+			{
+				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type != eMapBlock)
+				{
+					printf("Can Escape\n");
+					return true;
+				}
+			}
+
 			lengthDiff = eLimitL - checkRect.left;
 			return false;
 		}
@@ -230,7 +247,7 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 	}
 
 	if (direction == eMoveUp)
-	{
+	{ 
 		if (checkRect.top <= eLimitT)
 		{
 			lengthDiff = eLimitT - checkRect.top;
@@ -246,6 +263,7 @@ bool Player::CheckBlockMap()
 	RECT area;
 	vector<TileMap> tempMap = dGameManger->GetNowMap();
 	RECT conRect = ConversionRect(fMovePos);
+	RECT conRect2 = ConversionRect(playerPos);
 	// ※ : 포커스 좌표로 잡아야 맨 위 블럭도 판정 가능
 
 	for (int i = 0; i < tempMap.size(); i++)
@@ -265,6 +283,29 @@ bool Player::CheckBlockMap()
 			return false;
 		}
 	}
+
+	for (int i = 0; i < tempMap.size(); i++)
+	{
+		if (IntersectRect(&area, &tempMap[i].pos, &conRect2) && tempMap[i].type == eMapBlock)	// 블럭인 경우에만 지나갈 수 x
+		{
+			playerPos[0] = lastPlayerPos[0];
+			playerPos[1] = lastPlayerPos[1];
+			playerPos[2] = lastPlayerPos[2];
+			playerPos[3] = lastPlayerPos[3];
+
+			lastMoveCenter.x = 0;
+			lastMoveCenter.y = 0;
+
+			playerState = eIdle;
+
+			return false;
+		}
+	}
+
+	lastPlayerPos[0] = playerPos[0];
+	lastPlayerPos[1] = playerPos[1];
+	lastPlayerPos[2] = playerPos[2];
+	lastPlayerPos[3] = playerPos[3];
 
 	return true;
 }
@@ -293,58 +334,21 @@ void Player::CalcFocusMove()
 			bool isMomentum = FocusMomentum();
 
 			int diffNum = 0;
-			// todo : bool 변수 추가해서 해보기!! -> 각각에 대해 확인해봐야 할 것!!!
 			if (CheckBtmGround(diffNum) && isMomentum)
 			{
-				if (CollisionMap(playerPos, eMoveDown, diffNum))
-				{
-					MovePlayer(playerPos, eMoveDown, diffNum, 1, defTimeSec);
-					lastMoveCenter.y--;
-				}
-				else if (!CollisionMap(playerPos, eMoveDown, diffNum))
-				{
-					MovePlayer(playerPos, eMoveDown, diffNum, -1, defTimeSec);
-					lastMoveCenter.y = 0;
-				}
-
-				if (CollisionMap(playerPos, eMoveUp, diffNum))
-				{
-					MovePlayer(playerPos, eMoveUp, diffNum, 1, 0);
-					lastMoveCenter.y--;
-				}
-				else if (!CollisionMap(playerPos, eMoveUp, diffNum))
-				{
-					MovePlayer(playerPos, eMoveUp, diffNum, -1, 0);
-					lastMoveCenter.y = 0;
-				}
-
-				if (CollisionMap(playerPos, eMoveLeft, diffNum))
-				{
-					MovePlayer(playerPos, eMoveLeft, diffNum, 1, 0);
-					lastMoveCenter.x--;
-				}
-				else  if (!CollisionMap(playerPos, eMoveLeft, diffNum))
-				{
-					MovePlayer(playerPos, eMoveLeft, diffNum, -1, 0);
-					lastMoveCenter.x = 0;
-				}
-
-				if (CollisionMap(playerPos, eMoveRight, diffNum))
-				{
-					MovePlayer(playerPos, eMoveRight, diffNum, 1, defTimeSec);
-					lastMoveCenter.x--;
-				}
-				else if (!CollisionMap(playerPos, eMoveRight, diffNum))
-				{
-					MovePlayer(playerPos, eMoveRight, diffNum, -1, defTimeSec);
-					lastMoveCenter.x = 0;
-				}
+				lastMoveCenter.x--;
+				lastMoveCenter.y--;
 			}
 			else
 			{
 				playerState = eIdle;
 				lastMoveCenter = { 0,0 };
-				MovePlayer(playerPos, eMoveDown, diffNum, -1, -defTimeSec);
+
+				playerPos[0] = lastPlayerPos[0];
+				playerPos[1] = lastPlayerPos[1];
+				playerPos[2] = lastPlayerPos[2];
+				playerPos[3] = lastPlayerPos[3];
+				// 맵에 끼이는 것 방지
 			}
 
 		}
@@ -357,14 +361,14 @@ bool Player::FocusMomentum()
 	POINT speed;
 	float v;
 
-	int degree = 45;
-	float time = 0.05;
+	int degree = 120;
+	float time = 0.1;
 
 	speed.x = lastMoveCenter.x - fCenterPos.x;
 	speed.y = lastMoveCenter.y - fCenterPos.y;
 
 	if (speed.x == 0 || speed.y == 0)
-		return false;
+		return false;	// x축 직선 이동 시 바닥에서 미끄러지는 것 방지
 
 	v = sqrt((pow(speed.x, 2) + pow(speed.y, 2)));
 	// 속력 계산
@@ -372,7 +376,7 @@ bool Player::FocusMomentum()
 	float halfG = gravity * 0.5;
 	POINT calcV;
 	if (speed.x > 0)
-		degree += 45;
+		degree = 210;
 
 	calcV.x = v * cos(degree);
 	calcV.y = v * sin(degree) - halfG * time;
@@ -396,6 +400,9 @@ bool Player::FocusMomentum()
 		pos.y *= 1;
 	else
 		pos.y *= -1;
+
+	if (pos.y == 1 || pos.y == -1)
+		return false;	// 작은 짧은 위치 이동시 바닥에서 미끄러지는 것 방지
 
 	playerPos[0].x += pos.x;
 	playerPos[0].y += pos.y;
@@ -426,9 +433,9 @@ void Player::CanMovePlayer()
 
 			int diffNum = 0;
 			if (CheckBtmGround(diffNum))
-				MovePlayer(playerPos, moveDirection, diffNum, 1, defTimeSec);
+				MovePlayer(playerPos, moveDirection, diffNum, 1, dCorrection);
 			else
-				MovePlayer(playerPos, moveDirection, diffNum, -1, defTimeSec);
+				MovePlayer(playerPos, moveDirection, diffNum, -1, dCorrection);
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
@@ -437,9 +444,9 @@ void Player::CanMovePlayer()
 
 			int diffNum = 0;
 			if (CollisionMap(playerPos, eMoveRight, diffNum))
-				MovePlayer(playerPos, moveDirection, diffNum, -1, -defTimeSec);
+				MovePlayer(playerPos, moveDirection, diffNum, -1, -dCorrection);
 			else
-				MovePlayer(playerPos, moveDirection, diffNum, 1, - defTimeSec);
+				MovePlayer(playerPos, moveDirection, diffNum, 1, -dCorrection);
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
@@ -466,7 +473,7 @@ void Player::CanMovePlayer()
 		else if (isJump && playerState == eJump)	// 점프 중
 		{
 			// 약 7칸 정도 뛰어짐 (gravity = 185, jumpPower = 85 기준)
-			jumpPower -= eGravity * defTimeSec;
+			jumpPower -= eGravity * dTimeSec;
 
 			// >> 충돌 판정
 			POINT checkRect[4];
@@ -544,7 +551,7 @@ void Player::CanMovePlayer()
 			gravity = eGravity;
 
 			if (focusGauge < focusLv)
-				focusGauge += 1.5;
+				focusGauge += dAddFocusP;
 
 			if (focusGauge <= eSmallFocus || GetKeyState(0x41) < 0)	// 계속 누르고 있으면 포커스 모드 실행 x
 				isCharging = true;
@@ -563,7 +570,7 @@ void Player::CanMovePlayer()
 		{
 			if (focusGauge > eSmallFocus)
 			{
-				focusGauge -= 0.5;
+				focusGauge -= dMinusFocusP;
 				SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
 			}
 			else
@@ -601,15 +608,10 @@ void Player::CanMovePlayer()
 			int underLineNum = CheckFocusRange(moveDirection, -1);
 			// >> 충돌 판정
 
-			// printf("fmovePos : %d %d %d %d\n", fMovePos[0].x, fMovePos[0].y, fMovePos[2].x, fMovePos[2].y);
-
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, -1, 0);
 			else
-			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, 1);
-
-			}
 
 			CheckOut(fMovePos, moveDirection);
 			CalcFCenterPos();
@@ -624,9 +626,7 @@ void Player::CanMovePlayer()
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
 			else
-			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
-			}
 
 			CheckOut(fMovePos, moveDirection);
 			CalcFCenterPos();
@@ -642,9 +642,7 @@ void Player::CanMovePlayer()
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, -1, 0);
 			else
-			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, 1);
-			}
 
 			CheckOut(fMovePos, moveDirection);
 			CalcFCenterPos();
@@ -659,16 +657,11 @@ void Player::CanMovePlayer()
 			if (underLineNum > 0)
 				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
 			else
-			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
-			}
-				
 
 			CheckOut(fMovePos, moveDirection);
 			CalcFCenterPos();
 		}
-
-		//printf("%d\n", pushKey[eMoveRight]);
 	}
 	// Player Control
 }
