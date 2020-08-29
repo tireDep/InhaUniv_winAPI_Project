@@ -290,26 +290,55 @@ void Player::CalcFocusMove()
 
 		if (isCanMove)
 		{
-			FocusMomentum();
+			bool isMomentum = FocusMomentum();
 
 			int diffNum = 0;
-			if (CheckBtmGround(diffNum))
+			// todo : bool 변수 추가해서 해보기!! -> 각각에 대해 확인해봐야 할 것!!!
+			if (CheckBtmGround(diffNum) && isMomentum)
 			{
-				if (CollisionMap(playerPos, eMoveDown, diffNum) || CollisionMap(playerPos, eMoveUp, diffNum))
+				if (CollisionMap(playerPos, eMoveDown, diffNum))
 				{
 					MovePlayer(playerPos, eMoveDown, diffNum, 1, defTimeSec);
+					lastMoveCenter.y--;
+				}
+				else if (!CollisionMap(playerPos, eMoveDown, diffNum))
+				{
+					MovePlayer(playerPos, eMoveDown, diffNum, -1, defTimeSec);
 					lastMoveCenter.y = 0;
 				}
-				else if (!CollisionMap(playerPos, eMoveDown, diffNum) || !CollisionMap(playerPos, eMoveUp, diffNum))
-					MovePlayer(playerPos, eMoveDown, diffNum, -1, defTimeSec);
 
-				if (CollisionMap(playerPos, eMoveLeft, diffNum) || CollisionMap(playerPos, eMoveRight, diffNum))
+				if (CollisionMap(playerPos, eMoveUp, diffNum))
+				{
+					MovePlayer(playerPos, eMoveUp, diffNum, 1, 0);
+					lastMoveCenter.y--;
+				}
+				else if (!CollisionMap(playerPos, eMoveUp, diffNum))
+				{
+					MovePlayer(playerPos, eMoveUp, diffNum, -1, 0);
+					lastMoveCenter.y = 0;
+				}
+
+				if (CollisionMap(playerPos, eMoveLeft, diffNum))
 				{
 					MovePlayer(playerPos, eMoveLeft, diffNum, 1, 0);
+					lastMoveCenter.x--;
+				}
+				else  if (!CollisionMap(playerPos, eMoveLeft, diffNum))
+				{
+					MovePlayer(playerPos, eMoveLeft, diffNum, -1, 0);
 					lastMoveCenter.x = 0;
 				}
-				else
-					MovePlayer(playerPos, eMoveLeft, diffNum, -1, 0);
+
+				if (CollisionMap(playerPos, eMoveRight, diffNum))
+				{
+					MovePlayer(playerPos, eMoveRight, diffNum, 1, defTimeSec);
+					lastMoveCenter.x--;
+				}
+				else if (!CollisionMap(playerPos, eMoveRight, diffNum))
+				{
+					MovePlayer(playerPos, eMoveRight, diffNum, -1, defTimeSec);
+					lastMoveCenter.x = 0;
+				}
 			}
 			else
 			{
@@ -322,31 +351,37 @@ void Player::CalcFocusMove()
 	}
 }
 
-void Player::FocusMomentum()
+bool Player::FocusMomentum()
 {
 	// 포물선 계산
 	POINT speed;
 	float v;
 
-	int degree = 120;
+	int degree = 45;
 	float time = 0.05;
 
 	speed.x = lastMoveCenter.x - fCenterPos.x;
 	speed.y = lastMoveCenter.y - fCenterPos.y;
+
+	if (speed.x == 0 || speed.y == 0)
+		return false;
 
 	v = sqrt((pow(speed.x, 2) + pow(speed.y, 2)));
 	// 속력 계산
 
 	float halfG = gravity * 0.5;
 	POINT calcV;
+	if (speed.x > 0)
+		degree += 45;
+
 	calcV.x = v * cos(degree);
 	calcV.y = v * sin(degree) - halfG * time;
 
 	float finV = sqrt(pow(calcV.x, 2) + pow(calcV.y, 2));
 
 	POINT pos;
-	pos.x = v * cos(degree)*time;
-	pos.y = v *sin(degree)*time - (0.5*halfG*pow(time, 2));
+	pos.x = speed.x * cos(degree)*time;
+	pos.y = speed.y *sin(degree)*time - (0.5*halfG*pow(time, 2));
 
 	if (speed.x == 0)
 		pos.x = 0;
@@ -373,6 +408,8 @@ void Player::FocusMomentum()
 
 	playerPos[3].x += pos.x;
 	playerPos[3].y += pos.y;
+
+	return true;
 }
 
 void Player::CanMovePlayer()
@@ -488,6 +525,16 @@ void Player::CanMovePlayer()
 
 			playerState = eFocus;
 			CalcCenterPos();
+			lastMoveCenter.x = centerPos.x;
+			lastMoveCenter.y = centerPos.y;
+
+			lastPlayerPos[0] = playerPos[0];
+			lastPlayerPos[1] = playerPos[1];
+			lastPlayerPos[2] = playerPos[2];
+			lastPlayerPos[3] = playerPos[3];
+			// 운동량 계산을 위한 변수 값 저장
+
+
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
 		}
 
@@ -528,16 +575,6 @@ void Player::CanMovePlayer()
 		}
 		else // 게이지가 다 감소하기 전, 이동한 경우
 		{
-			CalcCenterPos();
-			lastMoveCenter.x = centerPos.x;
-			lastMoveCenter.y = centerPos.y;
-
-			lastPlayerPos[0] = playerPos[0];
-			lastPlayerPos[1] = playerPos[1];
-			lastPlayerPos[2] = playerPos[2];
-			lastPlayerPos[3] = playerPos[3];
-			// 운동량 계산을 위한 변수 값 저장
-
 			CalcFCenterPos();
 			SetPos(playerPos, fCenterPos.x, fCenterPos.y, ePlayerSize);
 			playerState = eIdle;
@@ -575,6 +612,7 @@ void Player::CanMovePlayer()
 			}
 
 			CheckOut(fMovePos, moveDirection);
+			CalcFCenterPos();
 		}
 
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
@@ -591,6 +629,7 @@ void Player::CanMovePlayer()
 			}
 
 			CheckOut(fMovePos, moveDirection);
+			CalcFCenterPos();
 		}
 	
 
@@ -608,6 +647,7 @@ void Player::CanMovePlayer()
 			}
 
 			CheckOut(fMovePos, moveDirection);
+			CalcFCenterPos();
 		}
 
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
@@ -625,10 +665,10 @@ void Player::CanMovePlayer()
 				
 
 			CheckOut(fMovePos, moveDirection);
+			CalcFCenterPos();
 		}
 
 		//printf("%d\n", pushKey[eMoveRight]);
-		CalcFCenterPos();
 	}
 	// Player Control
 }

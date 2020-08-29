@@ -75,7 +75,7 @@ public:
 	void DrawObject(HDC hdc);
 
 	void CalcFocusMove();
-	void FocusMomentum();
+	bool FocusMomentum();
 	void CanMovePlayer();
 	void MovePlayer(POINT pos[], int direction, int num, float mulNum, float addNum);
 
