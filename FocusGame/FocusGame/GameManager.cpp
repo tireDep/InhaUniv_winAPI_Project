@@ -42,7 +42,12 @@ void GameManager::SetIsPlayerLive(bool live)
 	isPlayerLive = live;
 }
 
-void GameManager::SetNowMap(vector<MapTile> map)
+void GameManager::SetNowPlayerPos(RECT set)
+{
+	nowPlayerPos = set;
+}
+
+void GameManager::SetNowMap(vector<TileMap> map)
 {
 	nowMap = map;
 }
@@ -67,7 +72,12 @@ RECT GameManager::GetScreenSize()
 	return screenSize;
 }
 
-vector<MapTile> GameManager::GetMap()
+vector<TileMap> GameManager::GetNowMap()
 {
 	return nowMap;
+}
+
+RECT GameManager::GetNowPlayerPos()
+{
+	return nowPlayerPos;
 }

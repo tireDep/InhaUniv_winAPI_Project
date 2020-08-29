@@ -8,6 +8,8 @@
 #include "MapClass.h"
 #include "PlayerClass.h"
 #include "GameManger.h"
+#include "CannonClass.h"
+#include "BulletClass.h"
 
 using namespace std;
 // << --------------------------
@@ -143,13 +145,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	GameManager *gameManger = GameManager::GetInstance();
 	Map *map = Map::GetInstance();
 	Player *player = Player::GetInstance();
+	Bullet *bulletList = Bullet::GetInstance();
 
+	static vector<Obstacle *>obstacle;
 	static vector<Object *> object;
-	if (object.size() == 0)
+
+	// setObject
+	if (object.size() == 0)	// 플레이어 상태 변경시?
 	{
 		object.push_back(player);
+
+		// >> 맵에 대포가 존재하는지 판단
+		vector<parceCannon> tempSet = map->CheckInCannon();
+		if (tempSet.size() > 0)
+		{
+			for (int i = 0; i < tempSet.size(); i++)
+			{
+				Cannon *addCannon = new Cannon(tempSet[i]);
+				obstacle.push_back(addCannon);
+			}
+
+		// for (int i = 0; i < obstacle.size(); i++)
+		// {
+		// 	object.push_back(obstacle[i]);
+		// }
+		}
+		// >> 맵에 대포가 존재하는지 판단
+		
 		object.push_back(map);
 	}
+
+	else
+	{
+		//Obstacle::DeleteAllData(obstacle);
+	}
+	// setObject
 
     switch (message)
     {
@@ -167,8 +197,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			// player->Update();
 			gameManger->SetNowMap(map->GetMapPos());
+			gameManger->SetNowPlayerPos(player->GetPlayerPos());
+
 			for(int i=0;i<object.size();i++)
-				object[0]->Update();
+				object[i]->Update();
+
+			for (int i = 0; i < obstacle.size(); i++)
+				obstacle[i]->Update();
+
+			bulletList->Update();
 		}
 
 		InvalidateRect(hWnd, NULL, false);
@@ -188,7 +225,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 
-
 		HDC memDc;
 		HBITMAP hBit, oldBit;
 
@@ -201,6 +237,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		for (int i = 0; i<object.size(); i++)
 			object[i]->DrawObject(memDc);
+
+		for (int i = 0; i < obstacle.size(); i++)
+			obstacle[i]->DrawObject(memDc);
+
+		bulletList->DrawObject(memDc);
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
 
@@ -232,6 +273,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
    
     case WM_DESTROY:
 		FreeConsole();
+
+		Obstacle::DeleteAllData(obstacle);	// 후에 수정 예정
 
 		KillTimer(hWnd, 0);
 

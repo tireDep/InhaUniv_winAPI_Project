@@ -10,15 +10,16 @@ class Map : public Object
 {
 private:
 	GameManager *gameManger = GameManager::GetInstance();
-	vector<MapTile> mapPos;
+	vector<TileMap> mapPos;
 
 	Map();
-	~Map();
 
 public:
+	~Map();
 	static Map* GetInstance();
 	void Update();
 	void DrawObject(HDC hdc);
 
-	vector<MapTile> GetMapPos();
+	vector<TileMap> GetMapPos();
+	vector<parceCannon> CheckInCannon();
 };

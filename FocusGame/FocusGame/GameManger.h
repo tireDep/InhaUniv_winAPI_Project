@@ -15,21 +15,27 @@ enum SceneNum
 	eMainScene = 0, eGameScene = 50, eResultScene = 150, eExit = 9999,
 };
 
+enum BasicNum
+{
+	eBlockSize = 16
+};
+
 class GameManager
 {
 private:
 	RECT screenSize;
-	vector<MapTile> nowMap;
+	vector<TileMap> nowMap;
 
+	RECT nowPlayerPos;
 	int nowScene;
 	bool isPause;
 
 	bool isPlayerLive;
 
 	GameManager();
-	~GameManager();
 
 public:
+	~GameManager();
 	static GameManager* GetInstance();
 
 	void CalcScreenSize(HWND hWnd);
@@ -38,13 +44,15 @@ public:
 	void SetIsPause();
 	void SetIsPlayerLive(bool live);
 
-	void SetNowMap(vector<MapTile> map);
+	void SetNowPlayerPos(RECT set);
+	void SetNowMap(vector<TileMap> map);
 
 	int GetSceneNum();
 	bool GetIsPause();
 	bool GetIsPlayerLive();
 	RECT GetScreenSize();
 
-	vector<MapTile> GetMap();
+	vector<TileMap> GetNowMap();
+	RECT GetNowPlayerPos();
 };
 

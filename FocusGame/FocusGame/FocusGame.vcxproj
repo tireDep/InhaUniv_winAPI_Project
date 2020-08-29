@@ -145,20 +145,26 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BulletClass.h" />
+    <ClInclude Include="CannonClass.h" />
     <ClInclude Include="FocusGame.h" />
     <ClInclude Include="GameManger.h" />
     <ClInclude Include="MapClass.h" />
     <ClInclude Include="ObjectClass.h" />
+    <ClInclude Include="ObstacleClass.h" />
     <ClInclude Include="PlayerClass.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BulletClass.cpp" />
+    <ClCompile Include="CannonClass.cpp" />
     <ClCompile Include="FocusGame.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="MapClass.cpp" />
     <ClCompile Include="ObjectClass.cpp" />
+    <ClCompile Include="ObstacleClass.cpp" />
     <ClCompile Include="PlayerClass.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
