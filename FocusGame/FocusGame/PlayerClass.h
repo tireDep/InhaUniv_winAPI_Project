@@ -37,12 +37,13 @@ private:
 	POINT fCenterPos;
 
 	POINT lastPlayerPos[4];
-	POINT lastMove;
+	POINT lastMoveCenter;
 
 	int moveDirection;
 	int moveSpeed;
 	int gravity;
 
+	bool isCharging;
 	int playerState;	// 현재 상태 플래그
 	int focusGauge;
 	int focusLv;
@@ -63,17 +64,25 @@ public:
 	
 	bool CheckBtmGround(int &lengthDiff);
 	bool CollisionMap(POINT pos[], int direction, int &lengthDiff);
+
+	void CheckOut(POINT pos[], int direction);
 	bool CheckOutMap(POINT pos[], int direction, int &lengthDiff);
+	bool CheckBlockMap();
+	// focus 관련 충돌 함수
 
 	void DrawObject(HDC hdc);
 
-	void MovePlayer();
-
-	void MoveFocusPos(int direction, int moveVal);
+	void CalcFocusMove();
+	void FocusMomentum();
+	void CanMovePlayer();
+	void MovePlayer(POINT pos[], int direction, int num, float mulNum, float addNum);
+	// 이동 관련 함수
 
 	void SetPos(POINT pos[], int xPos, int yPos, int addNum);
 
 	void CalcCenterPos();
 	void CalcFCenterPos();
+
+	RECT ConversionRect(POINT pos[]);
 };
 
