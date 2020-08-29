@@ -25,6 +25,7 @@ public:
 	void CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
 	void CheckShot();
 	void MoveShot(BulletSctruct &bullet);
+	void CheckHit(BulletSctruct &bullet);
 	void ResetBullet(BulletSctruct &bullet);
 
 	RECT ConversionRect(POINT pos);

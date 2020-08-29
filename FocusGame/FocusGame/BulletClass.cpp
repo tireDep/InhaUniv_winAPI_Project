@@ -5,10 +5,13 @@
 
 #define dShotSpeed 10
 #define dDegree 90
-#define dMaxCnt 10
+#define dMaxCnt 100
 
 #define dGameManager GameManager::GetInstance()
 #define dPlayer Player::GetInstance()
+
+#define dMapPos dGameManager->GetNowMap()
+#define dPlayerPos dGameManager->GetNowPlayerPos()
 
 Bullet::Bullet()
 {
@@ -58,14 +61,10 @@ void Bullet::DrawObject(HDC hdc)
 	for (int i = 0; i < dMaxCnt; i++)
 	{
 		if (nBulletList[i].isShot == true)
-		{
 			Rectangle(hdc, nBulletList[i].shotBullet.left, nBulletList[i].shotBullet.top, nBulletList[i].shotBullet.right, nBulletList[i].shotBullet.bottom);
-		}
 
 		if (hBulletList[i].isShot == true)
-		{
 			Rectangle(hdc, hBulletList[i].shotBullet.left, hBulletList[i].shotBullet.top, hBulletList[i].shotBullet.right, hBulletList[i].shotBullet.bottom);
-		}
 	}
 }
 
@@ -100,17 +99,10 @@ void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const 
 	RECT focusPos = dPlayer->GetFocusPos();
 	bool isFocus = dPlayer->GetIsFocusMode();
 	if (isFocus && IntersectRect(&area, &focusPos, &bullet.shotBullet))
-	{
 		bullet.speed = dShotSpeed * 0.5 * 0.5;
-	}
 	else
-	{
 		bullet.speed = dShotSpeed;
-	}
 	// >> 포커스 내부 판정
-
-	vector<TileMap> mapPos = dGameManager->GetNowMap();
-	RECT playerPos = dGameManager->GetNowPlayerPos();
 
 	POINT tempPlayerCenter;
 	if (bullet.centerPos.x == -1 && bullet.centerPos.y == -1)
@@ -190,45 +182,21 @@ void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const 
 	// >>
 	
 	MoveShot(bullet);
-
-	for (int i = 0; i < mapPos.size(); i++)
-	{
-		if (IntersectRect(&area, &mapPos[i].pos, &bullet.shotBullet) && mapPos[i].type == eMapBlock)
-		{
-			// >> 맵에 부딪힘
-			printf("++++++++++++++++++++\n");
-			ResetBullet(bullet);
-			// todo : 폭발 이펙트 & hit 판정
-			break;
-		}
-	
-		if (IntersectRect(&area, &playerPos, &bullet.shotBullet))
-		{
-			// >> 플레이어에 부딪힘
-			printf("-------------------------\n");
-			ResetBullet(bullet);
-			// todo : 폭발 이펙트 & hit 판정
-			// todo : 플레이어 사망 판정, 스테이지 리셋
-			break;
-		}
-	}
 }
 
 void Bullet::CheckShot()
 {
-	// todo : focus 내부인지?
-	RECT playerPos = dGameManager->GetNowPlayerPos();
 	POINT playerCenter;
-	playerCenter.x = (playerPos.left + playerPos.right) * 0.5;
-	playerCenter.y = (playerPos.top + playerPos.bottom) * 0.5;
+	playerCenter.x = (dPlayerPos.left + dPlayerPos.right) * 0.5;
+	playerCenter.y = (dPlayerPos.top + dPlayerPos.bottom) * 0.5;
 
 	for (int i = 0; i < dMaxCnt; i++)
 	{
 		if (nBulletList[i].isShot == true)
-			CalcBullet(nBulletList[i], nBulletList[i].centerPos, playerCenter, nBulletList[i].type);// MoveShot(nBulletList[i]);
+			MoveShot(nBulletList[i]);
 
 		if(hBulletList[i].isShot==true)
-			MoveShot(hBulletList[i]);
+			CalcBullet(hBulletList[i], hBulletList[i].centerPos, playerCenter, hBulletList[i].type);// MoveShot(nBulletList[i]);
 	}
 }
 
@@ -241,6 +209,35 @@ void Bullet::MoveShot(BulletSctruct &bullet)
 	bullet.shotBullet.top = bullet.centerPos.y - eBlockSize * 0.5;
 	bullet.shotBullet.right = bullet.centerPos.x + eBlockSize * 0.5;
 	bullet.shotBullet.bottom = bullet.centerPos.y + eBlockSize * 0.5;
+
+	CheckHit(bullet);
+}
+
+void Bullet::CheckHit(BulletSctruct &bullet)
+{
+	RECT area;
+
+	for (int i = 0; i < dMapPos.size(); i++)
+	{
+		if (IntersectRect(&area, &dMapPos[i].pos, &bullet.shotBullet) && dMapPos[i].type == eMapBlock)
+		{
+			// >> 맵에 부딪힘
+			printf("++++++++++++++++++++\n");
+			ResetBullet(bullet);
+			// todo : 폭발 이펙트 & hit 판정
+			break;
+		}
+
+		if (IntersectRect(&area, &dPlayerPos, &bullet.shotBullet))
+		{
+			// >> 플레이어에 부딪힘
+			printf("-------------------------\n");
+			ResetBullet(bullet);
+			// todo : 폭발 이펙트 & hit 판정
+			// todo : 플레이어 사망 판정, 스테이지 리셋
+			break;
+		}
+	}
 }
 
 void Bullet::ResetBullet(BulletSctruct & bullet)
