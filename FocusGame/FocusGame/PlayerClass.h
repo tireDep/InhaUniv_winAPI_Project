@@ -19,7 +19,6 @@ enum playerSet
 {
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 15, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
-	ePushKey = 9999,
 
 	eGravity = 185, eJumpPower = 85
 	// ※ : 수치는 조정 가능..
@@ -50,7 +49,6 @@ private:
 	int playerState;	// 현재 상태 플래그
 	int focusGauge;
 	int focusLv;
-	int pushKey[4];
 
 	bool isJump;	// 점프 중 판별
 	int jumpPower;	// 점프하는 힘
@@ -90,7 +88,6 @@ public:
 	void CalcFCenterPos();
 
 	RECT ConversionRect(POINT pos[]);
-	void ResetPushKey();
 
 	RECT GetPlayerPos();
 	RECT GetFocusPos();

@@ -20,7 +20,6 @@ Player::Player()
 	isCharging = false;
 	focusGauge = eFocusLv3;
 	focusLv = eFocusLv3;
-	ResetPushKey();
 	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
 
 	CalcCenterPos();
@@ -313,7 +312,12 @@ void Player::CalcFocusMove()
 					MovePlayer(playerPos, eMoveLeft, diffNum, -1, 0);
 			}
 			else
-				playerState = eFall;
+			{
+				playerState = eIdle;
+				lastMoveCenter = { 0,0 };
+				MovePlayer(playerPos, eMoveDown, diffNum, -1, -defTimeSec);
+			}
+
 		}
 	}
 }
@@ -478,8 +482,6 @@ void Player::CanMovePlayer()
 		// 포커스
 		if (((GetAsyncKeyState(0x41) & 0x8000)) && !isCharging)
 		{
-			ResetPushKey();
-
 			moveSpeed = 0;
 			jumpPower = 0;
 			gravity = 0;
@@ -554,13 +556,11 @@ void Player::CanMovePlayer()
 		{
 			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
-			ResetPushKey();
 		}
 		
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
 			moveDirection = eMoveUp;
-			pushKey[moveDirection] = ePushKey;
 			int underLineNum = CheckFocusRange(moveDirection, -1);
 			// >> 충돌 판정
 
@@ -572,25 +572,14 @@ void Player::CanMovePlayer()
 			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, 1);
 
-				if (pushKey[eMoveLeft] == -ePushKey)
-					MovePlayer(fMovePos, eMoveLeft, 0, 1, 1);
-				else if (pushKey[eMoveRight] == -ePushKey)
-					MovePlayer(fMovePos, eMoveRight, 0, 1, -1);
-				else if(pushKey[eMoveDown]==-ePushKey)
-					MovePlayer(fMovePos, eMoveDown, 0, 1, -1);
 			}
 
 			CheckOut(fMovePos, moveDirection);
-		}
-		else if (GetKeyState(VK_UP >= 0) && pushKey[eMoveUp] == ePushKey)
-		{
-			pushKey[eMoveUp] = -ePushKey;
 		}
 
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
 			moveDirection = eMoveDown;
-			pushKey[moveDirection] = ePushKey;
 			int underLineNum = CheckFocusRange(moveDirection, 1);
 			// >> 충돌 판정
 
@@ -599,26 +588,15 @@ void Player::CanMovePlayer()
 			else
 			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
-
-				if (pushKey[eMoveUp] == -ePushKey)
-					MovePlayer(fMovePos, eMoveUp, 0, 1, 1);
-				else if (pushKey[eMoveLeft] == -ePushKey)
-					MovePlayer(fMovePos, eMoveLeft, 0, 1, 1);
-				else if (pushKey[eMoveRight] == -ePushKey)
-					MovePlayer(fMovePos, eMoveRight, 0, 1, -1);
 			}
 
 			CheckOut(fMovePos, moveDirection);
 		}
-		else if (GetKeyState(VK_DOWN) >= 0 && pushKey[eMoveDown] == ePushKey)
-		{
-			pushKey[eMoveDown] = -ePushKey;
-		}
+	
 
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			moveDirection = eMoveLeft;
-			pushKey[moveDirection] = ePushKey;
 			int underLineNum = CheckFocusRange(moveDirection, -1);
 			// >> 충돌 판정
 
@@ -627,26 +605,14 @@ void Player::CanMovePlayer()
 			else
 			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, 1);
-
-				if (pushKey[eMoveUp] == -ePushKey)
-					MovePlayer(fMovePos, eMoveUp, 0, 1, 1);
-				else if (pushKey[eMoveRight] == -ePushKey)
-					MovePlayer(fMovePos, eMoveRight, 0, 1, -1);
-				else if (pushKey[eMoveDown] == -ePushKey)
-					MovePlayer(fMovePos, eMoveDown, 0, 1, -1);
 			}
 
 			CheckOut(fMovePos, moveDirection);
-		}
-		else if (GetKeyState(VK_LEFT) >= 0 && pushKey[eMoveLeft] == ePushKey)
-		{
-			pushKey[eMoveLeft] = -ePushKey;
 		}
 
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			moveDirection = eMoveRight;
-			pushKey[moveDirection] = ePushKey;
 			int underLineNum = CheckFocusRange(moveDirection, 1);
 			// >> 충돌 판정
 
@@ -655,21 +621,10 @@ void Player::CanMovePlayer()
 			else
 			{
 				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
-
-				if (pushKey[eMoveUp] == -ePushKey)
-					MovePlayer(fMovePos, eMoveUp, 0, 1, 1);
-				else if (pushKey[eMoveLeft] == -ePushKey)
-					MovePlayer(fMovePos, eMoveLeft, 0, 1, 1);
-				else if (pushKey[eMoveDown] == -ePushKey)
-					MovePlayer(fMovePos, eMoveDown, 0, 1, -1);
 			}
 				
 
 			CheckOut(fMovePos, moveDirection);
-		}
-		else if (GetKeyState(VK_RIGHT) >= 0 && pushKey[eMoveRight] == ePushKey)
-		{
-			pushKey[eMoveRight] = -ePushKey;
 		}
 
 		//printf("%d\n", pushKey[eMoveRight]);
@@ -790,13 +745,6 @@ RECT Player::ConversionRect(POINT pos[])
 	return conversion;
 }
 
-void Player::ResetPushKey()
-{
-	pushKey[eMoveLeft] = 0;
-	pushKey[eMoveUp] = 0;
-	pushKey[eMoveRight] = 0;
-	pushKey[eMoveDown] = 0;
-}
 
 RECT Player::GetPlayerPos()
 {
