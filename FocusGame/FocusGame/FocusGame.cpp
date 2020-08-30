@@ -10,6 +10,7 @@
 #include "GameManger.h"
 #include "CannonClass.h"
 #include "BulletClass.h"
+#include "ExplodeClass.h"
 
 using namespace std;
 // << --------------------------
@@ -146,7 +147,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	Map *map = Map::GetInstance();
 	Player *player = Player::GetInstance();
 	Bullet *bulletList = Bullet::GetInstance();
-
+	Explode *explodeList = Explode::GetInstance();
+	
 	static vector<Obstacle *>obstacle;
 	static vector<Object *> object;
 
@@ -189,12 +191,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		SetTimer(hWnd, 0, 25, NULL);
 
+		SetTimer(hWnd, 50, 50, NULL);
+
 		gameManger->CalcScreenSize(hWnd);
 		break;
 
 	case WM_TIMER:
 		if (!gameManger->GetIsPause())
 		{
+			if (wParam == 50)
+				explodeList->SetNextFrame();
+
 			// player->Update();
 			gameManger->SetNowMap(map->GetMapPos());
 			gameManger->SetNowPlayerPos(player->GetPlayerPos());
@@ -206,6 +213,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				obstacle[i]->Update();
 
 			bulletList->Update();
+			explodeList->Update();
 		}
 
 		InvalidateRect(hWnd, NULL, false);
@@ -242,6 +250,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			obstacle[i]->DrawObject(memDc);
 
 		bulletList->DrawObject(memDc);
+
+		// >>
+		explodeList->DrawBitMap(hWnd, memDc);
+		// <<
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
 

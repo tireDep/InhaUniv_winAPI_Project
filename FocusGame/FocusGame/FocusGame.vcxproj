@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="BulletClass.h" />
     <ClInclude Include="CannonClass.h" />
+    <ClInclude Include="ExplodeClass.h" />
     <ClInclude Include="FocusGame.h" />
     <ClInclude Include="GameManger.h" />
     <ClInclude Include="MapClass.h" />
@@ -160,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="BulletClass.cpp" />
     <ClCompile Include="CannonClass.cpp" />
+    <ClCompile Include="ExplodeClass.cpp" />
     <ClCompile Include="FocusGame.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="MapClass.cpp" />

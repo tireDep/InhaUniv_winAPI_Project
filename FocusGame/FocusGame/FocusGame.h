@@ -32,5 +32,18 @@ struct parceCannon
 	int type;
 };
 
+struct explodStruct
+{
+	POINT centerPos;
+	RECT explodeRect;
+
+	HBITMAP hAniImg;
+	BITMAP bitAni;
+	
+	bool isStart;
+	int maxFrame;
+	int curFrame;
+};
+
 #define dNormal -1
 #define dHoming 1

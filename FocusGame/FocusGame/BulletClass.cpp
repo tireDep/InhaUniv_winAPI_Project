@@ -2,6 +2,7 @@
 #include "GameManger.h"
 #include "PlayerClass.h"
 #include "BulletClass.h"
+#include "ExplodeClass.h"
 
 #define dShotSpeed 10
 #define dDegree 90
@@ -12,6 +13,8 @@
 
 #define dMapPos dGameManager->GetNowMap()
 #define dPlayerPos dGameManager->GetNowPlayerPos()
+
+#define dExplode Explode::GetInstance()
 
 Bullet::Bullet()
 {
@@ -183,7 +186,7 @@ void Bullet::CheckShot()
 	for (int i = 0; i < dMaxCnt; i++)
 	{
 		if (nBulletList[i].isShot == true)
-			MoveShot(nBulletList[i]);
+			CalcBullet(nBulletList[i], nBulletList[i].centerPos, playerCenter, nBulletList[i].type);// MoveShot(nBulletList[i]);
 
 		if(hBulletList[i].isShot==true)
 			CalcBullet(hBulletList[i], hBulletList[i].centerPos, playerCenter, hBulletList[i].type);// MoveShot(nBulletList[i]);
@@ -212,16 +215,15 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 		if (IntersectRect(&area, &dMapPos[i].pos, &bullet.shotBullet) && dMapPos[i].type == eMapBlock)
 		{
 			// >> 맵에 부딪힘
-			printf("++++++++++++++++++++\n");
+			dExplode->StartExplode(bullet.centerPos);
 			ResetBullet(bullet);
-			// todo : 폭발 이펙트 & hit 판정
 			break;
 		}
 
 		if (IntersectRect(&area, &dPlayerPos, &bullet.shotBullet))
 		{
 			// >> 플레이어에 부딪힘
-			printf("-------------------------\n");
+			dExplode->StartExplode(bullet.centerPos);
 			ResetBullet(bullet);
 			// todo : 폭발 이펙트 & hit 판정
 			// todo : 플레이어 사망 판정, 스테이지 리셋

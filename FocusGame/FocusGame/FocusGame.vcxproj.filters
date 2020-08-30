@@ -51,6 +51,9 @@
     <ClInclude Include="BulletClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ExplodeClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -78,6 +81,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BulletClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExplodeClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
