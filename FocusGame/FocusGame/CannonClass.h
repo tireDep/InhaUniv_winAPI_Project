@@ -41,5 +41,6 @@ public:
 
 	void CheckInPlayer();
 	void MoveTestShot();
+	void CheckHit();
 	void ResetTestShot();
 };

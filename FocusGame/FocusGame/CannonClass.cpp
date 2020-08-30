@@ -13,6 +13,9 @@
 #define dGameManager GameManager::GetInstance()
 #define dBulletList Bullet::GetInstance()
 
+#define dMapPos dGameManager->GetNowMap()
+#define dPlayerPos dGameManager->GetNowPlayerPos()
+
 Cannon::Cannon()
 {
 	hitRect.left = 0;
@@ -47,7 +50,7 @@ Cannon::Cannon(parceCannon set)
 
 	timer = tmTime->tm_sec;
 	countDownSec = countDown;
-	isCanShoot = true;
+	isCanShoot = false;
 
 	testShot.left = set.pos.x - eBlockSize * 0.5;
 	testShot.top = set.pos.y - eBlockSize * 0.5;
@@ -84,19 +87,16 @@ void Cannon::DrawObject(HDC hdc)
 		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);	// test_shootdGage
 
 	Rectangle(hdc, hitRect.left, hitRect.top, hitRect.right, hitRect.bottom);	// test
-
+	
 	Rectangle(hdc, testShot.left, testShot.top, testShot.right, testShot.bottom);	// test_testShot
 }
 
 void Cannon::CheckInPlayer()
 {
 	RECT area;
-	vector<TileMap> mapPos = dGameManager->GetNowMap();
-	RECT playerPos = dGameManager->GetNowPlayerPos();
-
 	POINT playerCenter;
-	playerCenter.x = (playerPos.left + playerPos.right) * 0.5;
-	playerCenter.y = (playerPos.top + playerPos.bottom) * 0.5;
+	playerCenter.x = (dPlayerPos.left + dPlayerPos.right) * 0.5;
+	playerCenter.y = (dPlayerPos.top + dPlayerPos.bottom) * 0.5;
 
 	if (isShooted)
 	{
@@ -138,7 +138,7 @@ void Cannon::CheckInPlayer()
 	}
 	// >> countdownTimer
 
-	if (IntersectRect(&area, &hitRect, &playerPos) && isCanShoot)
+	if (IntersectRect(&area, &hitRect, &dPlayerPos) && isCanShoot)
 	{
 		POINT tempPlayerCenter;
 		if (tempCenter.x == -1 && tempCenter.y == -1)
@@ -147,10 +147,7 @@ void Cannon::CheckInPlayer()
 			tempPlayerCenter = playerCenter;
 		}
 
-		 // float calc = sqrt(float(tempPlayerCenter.x - tempCenter.x) * float(tempPlayerCenter.x - tempCenter.x) + float(tempPlayerCenter.y - tempCenter.y)*float(tempPlayerCenter.y - tempCenter.y));
-		 // ÀÏ¹Ý
 		 float calc = sqrt(float(playerCenter.x - tempCenter.x) * float(playerCenter.x - tempCenter.x) + float(playerCenter.y - tempCenter.y)*float(playerCenter.y - tempCenter.y));
-		 // À¯µµ
 		 // µÎ Á¡ »çÀÌÀÇ °Å¸®
 		 
 		 POINT lastVec;
@@ -160,12 +157,8 @@ void Cannon::CheckInPlayer()
 
 		 if (calc)
 		 {
-		 	 // nextSpot.x = (tempPlayerCenter.x - tempCenter.x) / calc * tShotSpeed;
-		 	 // nextSpot.y = (tempPlayerCenter.y - tempCenter.y) / calc * tShotSpeed;
-			 // ÀÏ¹Ý
 			 nextSpot.x = (playerCenter.x - tempCenter.x) / calc * tShotSpeed;
 			 nextSpot.y = (playerCenter.y - tempCenter.y) / calc * tShotSpeed;
-			 // À¯µµ
 		 }
 		 else
 		 {
@@ -215,29 +208,8 @@ void Cannon::CheckInPlayer()
 				 nextSpot.x = nextSpot3.y;
 			 }
 		 }
-		 // >>
 
 		 MoveTestShot();
-
-		for (int i = 0; i < mapPos.size(); i++)
-		{
-			if (IntersectRect(&area, &mapPos[i].pos, &testShot) && mapPos[i].type == eMapBlock)	
-			{
-				// >> ¸Ê¿¡ ºÎµúÈû
-				isCanShoot = false;
-				break;
-			}
-
-			if (IntersectRect(&area, &playerPos, &testShot))
-			{
-				// >> ÇÃ·¹ÀÌ¾î¿¡ ºÎµúÈû
-				isCanShoot = false;
-				isShooted = true;
-				break;
-			}
-			
-			// if()
-		}
 	}
 
 	else
@@ -255,6 +227,30 @@ void Cannon::MoveTestShot()
 	testShot.top = tempCenter.y - eBlockSize * 0.5;
 	testShot.right = tempCenter.x + eBlockSize * 0.5;
 	testShot.bottom = tempCenter.y + eBlockSize * 0.5;
+
+	CheckHit();
+}
+
+void Cannon::CheckHit()
+{
+	RECT area;
+	for (int i = 0; i < dMapPos.size(); i++)
+	{
+		if (IntersectRect(&area, &dMapPos[i].pos, &testShot) && dMapPos[i].type == eMapBlock)
+		{
+			// >> ¸Ê¿¡ ºÎµúÈû
+			isCanShoot = false;
+			break;
+		}
+
+		if (IntersectRect(&area, &dPlayerPos, &testShot))
+		{
+			// >> ÇÃ·¹ÀÌ¾î¿¡ ºÎµúÈû
+			isCanShoot = false;
+			isShooted = true;
+			break;
+		}
+	}
 }
 
 void Cannon::ResetTestShot()

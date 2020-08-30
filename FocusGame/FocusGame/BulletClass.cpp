@@ -91,9 +91,6 @@ void Bullet::Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bul
 
 void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType)
 {
-	// todo : 일반 / 호밍 분리
-	// -> 현 상황 : 일반인데 호밍으로 나감
-
 	// >> 포커스 내부 판정
 	RECT area;
 	RECT focusPos = dPlayer->GetFocusPos();
@@ -111,10 +108,7 @@ void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const 
 		tempPlayerCenter = playerCenter;
 	}
 
-	// float calc = sqrt(float(tempPlayerCenter.x - bullet.tempCenter.x) * float(tempPlayerCenter.x - bullet.tempCenter.x) + float(tempPlayerCenter.y - bullet.tempCenter.y)*float(tempPlayerCenter.y - bullet.tempCenter.y));
-	// 일반
 	float calc = sqrt(float(playerCenter.x - bullet.centerPos.x) * float(playerCenter.x - bullet.centerPos.x) + float(playerCenter.y - bullet.centerPos.y)*float(playerCenter.y - bullet.centerPos.y));
-	// 유도
 	// 두 점 사이의 거리
 
 	POINT lastVec;
@@ -124,9 +118,6 @@ void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const 
 
 	if (calc)
 	{
-		// nextSpot.x = (tempPlayerCenter.x - tempCenter.x) / calc * bullet.speed;
-		// nextSpot.y = (tempPlayerCenter.y - tempCenter.y) / calc * bullet.speed;
-		// 일반
 		bullet.nextSpot.x = (playerCenter.x - bullet.centerPos.x) / calc * bullet.speed;
 		bullet.nextSpot.y = (playerCenter.y - bullet.centerPos.y) / calc * bullet.speed;
 		// 유도
@@ -179,7 +170,6 @@ void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const 
 			bullet.nextSpot.x = nextSpot3.y;
 		}
 	}
-	// >>
 	
 	MoveShot(bullet);
 }
