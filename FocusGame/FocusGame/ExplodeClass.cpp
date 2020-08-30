@@ -2,13 +2,13 @@
 #include "ExplodeClass.h"
 #include "PlayerClass.h"
 #include "GameManger.h"
-#include <string>
 
 #include<commdlg.h>
 
 #pragma comment(lib, "msimg32.lib")
 
 #define dMaxCnt 200
+#define dMaxFrame 7
 
 #define dGameManager GameManager::GetInstance()
 #define dPlayer Player::GetInstance()
@@ -25,7 +25,8 @@ Explode::Explode()
 		temp.isStart = false;
 
 		temp.curFrame = 1;
-		temp.maxFrame = 7;
+		temp.maxFrame = dMaxFrame;
+		temp.addNum = 0;
 
 		temp.hAniImg = (HBITMAP)LoadImage(NULL, TEXT("../Image/explode.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 		GetObject(temp.hAniImg, sizeof(BITMAP), &temp.bitAni);
@@ -50,20 +51,18 @@ void Explode::Update()
 {
 	for (int i = 0; i < dMaxCnt; i++)
 	{
-		if (explodeList[i].isStart == false)
+		if (explodeList[i].isStart == true)
 			CheckHitPlayer(explodeList[i]);
 	}
 }
 
-void Explode::CheckHitPlayer(explodStruct effect)
+void Explode::CheckHitPlayer(explodStruct &effect)
 {
 	RECT area;
 	RECT playerPos = dPlayer->GetPlayerPos();
 	
-	if (IntersectRect(&area, &playerPos, &effect.explodeRect) && effect.isStart == true)
+	if (IntersectRect(&area, &playerPos, &effect.explodeRect))
 	{
-		effect.isStart = false;
-		effect.curFrame = 1;
 		printf("playerHit!\n");
 		// todo : player 사망 판정 & 스테이지 리셋
 	}
@@ -81,6 +80,8 @@ void Explode::DrawObject(HDC hdc)
 
 void Explode::DrawBitMap(HWND hWnd, HDC hdc)
 {
+	HDC finDC = CreateCompatibleDC(hdc);
+
 	for (int i = 0; i < dMaxCnt; i++)
 	{
 		if (explodeList[i].isStart == true)
@@ -98,11 +99,12 @@ void Explode::DrawBitMap(HWND hWnd, HDC hdc)
 			int yStart = 0;
 
 			TransparentBlt(hdc, explodeList[i].explodeRect.left, explodeList[i].explodeRect.top, bx, by, hMemDC, xStart, yStart, bx, by, RGB(255, 0, 255));
-
 			SelectObject(hMemDC, hOldBitmap);
 			DeleteDC(hMemDC);
 		}
 	}
+
+	DeleteDC(finDC);
 }
 
 void Explode::SetNextFrame()
@@ -113,15 +115,16 @@ void Explode::SetNextFrame()
 		if (explodeList[i].isStart == true)
 		{
 			if (IntersectRect(&area, &explodeList[i].explodeRect, &dPlayer->GetFocusPos()) && dPlayer->GetIsFocusMode())
+			{
+				// explodeList[i].addNum += 0.05;
+				// explodeList[i].curFrame += explodeList[i].addNum;
 				continue;	// 포커스 모드 & 영역 포함일 시 폭발 일시 정지
+			}
 			else
 				explodeList[i].curFrame++;
 
-			if (explodeList[i].curFrame++ > explodeList[i].maxFrame)
-			{
-				explodeList[i].isStart = false;
-				explodeList[i].curFrame = 1;
-			}
+			if (explodeList[i].curFrame > explodeList[i].maxFrame)
+				ResetExplode(explodeList[i]);	// 애니메이션 종료시 리셋
 		}
 	}	// for
 }
@@ -132,6 +135,7 @@ void Explode::StartExplode(POINT bulletPos)
 	{
 		if (explodeList[i].isStart == false)
 		{
+			// >> set
 			explodeList[i].isStart = true;
 			explodeList[i].centerPos = bulletPos;
 
@@ -139,6 +143,20 @@ void Explode::StartExplode(POINT bulletPos)
 			explodeList[i].explodeRect.top = explodeList[i].centerPos.y - 32;
 			explodeList[i].explodeRect.right = explodeList[i].centerPos.x + 32;
 			explodeList[i].explodeRect.bottom = explodeList[i].centerPos.y + 32;
+			// 폭발범위 설정
+			// >> set
+			break;
 		}
 	}
+}
+
+void Explode::ResetExplode(explodStruct &effect)
+{
+	effect.centerPos = { 0,0 };
+	effect.explodeRect = { 0,0,0,0 };
+	effect.isStart = false;
+
+	effect.curFrame = 1;
+	effect.maxFrame = 7;
+	effect.addNum = 0;
 }

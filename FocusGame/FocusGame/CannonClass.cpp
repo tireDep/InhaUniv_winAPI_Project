@@ -6,6 +6,7 @@
 #define hitRange 15
 #define countDown 3
 #define shootedDown 2
+#define hitRangeDown 1
 #define tShotSpeed 10
 
 #define degree 90
@@ -34,6 +35,10 @@ Cannon::Cannon()
 	isShooted = false;
 	shootedTimer = 0;
 	shottedDownSec = shootedDown;
+
+	isPlayer = false;
+	checkTimer = 0;
+	hitRangeSec = hitRangeDown;
 }
 
 Cannon::Cannon(parceCannon set)
@@ -81,14 +86,22 @@ void Cannon::Update()
 
 void Cannon::DrawObject(HDC hdc)
 {
-	SelectObject(hdc, GetStockObject(NULL_BRUSH));
 
 	if (isShooted)
+	{
+		SelectObject(hdc, GetStockObject(GRAY_BRUSH));
 		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);	// test_shootdGage
+	}
 
-	Rectangle(hdc, hitRect.left, hitRect.top, hitRect.right, hitRect.bottom);	// test
+	if (isPlayer)
+	{
+		SelectObject(hdc, GetStockObject(BLACK_BRUSH));
+		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);	// test_shootdGage
+	}
 	
-	Rectangle(hdc, testShot.left, testShot.top, testShot.right, testShot.bottom);	// test_testShot
+	// SelectObject(hdc, GetStockObject(NULL_BRUSH));
+	// Rectangle(hdc, hitRect.left, hitRect.top, hitRect.right, hitRect.bottom);	// test
+	// Rectangle(hdc, testShot.left, testShot.top, testShot.right, testShot.bottom);	// test_testShot
 }
 
 void Cannon::CheckInPlayer()
@@ -97,6 +110,103 @@ void Cannon::CheckInPlayer()
 	POINT playerCenter;
 	playerCenter.x = (dPlayerPos.left + dPlayerPos.right) * 0.5;
 	playerCenter.y = (dPlayerPos.top + dPlayerPos.bottom) * 0.5;
+
+	if (IntersectRect(&area, &hitRect, &dPlayerPos) && isCanShoot)
+	{
+		POINT tempPlayerCenter;
+		if (tempCenter.x == -1 && tempCenter.y == -1)
+		{
+			isPlayer = true;
+			tempCenter = centerPos;
+			tempPlayerCenter = playerCenter;
+		}
+
+		float calc = sqrt(float(playerCenter.x - tempCenter.x) * float(playerCenter.x - tempCenter.x) + float(playerCenter.y - tempCenter.y)*float(playerCenter.y - tempCenter.y));
+		// 두 점 사이의 거리
+
+		// POINT lastVec;
+		// lastVec.x = nextSpot.x;
+		// lastVec.y = nextSpot.y;
+		// 탄의 원래 속도 벡터를 저장
+
+		if (calc)
+		{
+			nextSpot.x = (playerCenter.x - tempCenter.x) / calc * tShotSpeed;
+			nextSpot.y = (playerCenter.y - tempCenter.y) / calc * tShotSpeed;
+		}
+		else
+		{
+			nextSpot.x = 0;
+			nextSpot.y = tShotSpeed;
+		}
+		// >> 캐릭터 방향으로 속도 벡터 계산
+
+		// float rad = M_PI / 180 * degree;
+		// POINT nextSpot2;
+		// nextSpot2.x = cos(rad)*lastVec.x - sin(rad)*lastVec.y;
+		// nextSpot2.y = sin(rad)*lastVec.x + cos(rad)*lastVec.y;
+		// // >> 시계방향으로 선회할 때의 상한 각도에 해당하는 속도 벡터 계산
+		// 
+		// // >> 캐릭터 방향 선회인지 제한각도만큼만 선회인지 계산
+		// if (lastVec.x * nextSpot.x + lastVec.y * nextSpot.y >= lastVec.x * nextSpot2.x + lastVec.y * nextSpot2.y)
+		// {
+		// 	 // >> 캐릭터가 선회 가능한 범위 일 경우 캐릭터 방향으로 선회
+		// 	 nextSpot.x = nextSpot.x;
+		// 	 nextSpot.y = nextSpot.y;
+		// }
+		// else
+		// {
+		// 	 // >> 캐릭터가 선회 가능한 범위 밖에 있을 경우
+		// 
+		// 	 POINT nextSpot3;
+		// 	 nextSpot3.x = cos(rad) * lastVec.x + sin(rad) * lastVec.y;
+		// 	 nextSpot3.y = -sin(rad) * lastVec.x + cos(rad) * lastVec.y;
+		// 	 // >> 시계 반대방향으로 선회할 때의 상한 각도에 해당하는 속도벡터 계산
+		// 
+		// 	 POINT posVec;
+		// 	 posVec.x = playerCenter.x - centerPos.x;
+		// 	 posVec.y = playerCenter.y - centerPos.y;
+		// 	 // >> 총알에서 캐릭터까지의 상대위치벡터 계산
+		// 
+		// 	 // >> 시계방향 선회인지 반시계방향 선회인지 계산
+		// 	 if (posVec.x * nextSpot2.x + posVec.y * nextSpot2.y >= posVec.x * nextSpot3.x + posVec.y * nextSpot3.y)
+		// 	 {
+		// 		 // >> 시계방향 선회
+		// 		 nextSpot.x = nextSpot2.x;
+		// 		 nextSpot.x = nextSpot2.y;
+		// 	 }
+		// 	 else
+		// 	 {
+		// 		 // 반시계방향 선회
+		// 		 nextSpot.x = nextSpot3.x;
+		// 		 nextSpot.x = nextSpot3.y;
+		// 	 }
+		// }
+
+		MoveTestShot();
+	}
+
+	else
+		ResetTestShot();
+
+	if (isPlayer)
+	{
+		time(&nowTime);
+		tmTime = localtime(&nowTime);
+
+		if (checkTimer!= tmTime->tm_sec)
+		{
+			checkTimer = tmTime->tm_sec;
+			hitRangeSec--;
+		}
+
+		if (hitRangeSec == 0)
+		{
+			hitRangeSec = hitRangeDown;
+			isPlayer = false;
+		}
+	}
+
 
 	if (isShooted)
 	{
@@ -137,83 +247,6 @@ void Cannon::CheckInPlayer()
 		}
 	}
 	// >> countdownTimer
-
-	if (IntersectRect(&area, &hitRect, &dPlayerPos) && isCanShoot)
-	{
-		POINT tempPlayerCenter;
-		if (tempCenter.x == -1 && tempCenter.y == -1)
-		{
-			tempCenter = centerPos;
-			tempPlayerCenter = playerCenter;
-		}
-
-		 float calc = sqrt(float(playerCenter.x - tempCenter.x) * float(playerCenter.x - tempCenter.x) + float(playerCenter.y - tempCenter.y)*float(playerCenter.y - tempCenter.y));
-		 // 두 점 사이의 거리
-		 
-		 POINT lastVec;
-		 lastVec.x = nextSpot.x;
-		 lastVec.y = nextSpot.y;
-		 // 탄의 원래 속도 벡터를 저장
-
-		 if (calc)
-		 {
-			 nextSpot.x = (playerCenter.x - tempCenter.x) / calc * tShotSpeed;
-			 nextSpot.y = (playerCenter.y - tempCenter.y) / calc * tShotSpeed;
-		 }
-		 else
-		 {
-		 	nextSpot.x = 0;
-		 	nextSpot.y = tShotSpeed;
-		 }
-		 // >> 캐릭터 방향으로 속도 벡터 계산
-
-		 float rad = M_PI / 180 * degree;
-		 POINT nextSpot2;
-		 nextSpot2.x = cos(rad)*lastVec.x - sin(rad)*lastVec.y;
-		 nextSpot2.y = sin(rad)*lastVec.x + cos(rad)*lastVec.y;
-		 // >> 시계방향으로 선회할 때의 상한 각도에 해당하는 속도 벡터 계산
-
-		 // >> 캐릭터 방향 선회인지 제한각도만큼만 선회인지 계산
-		 if (lastVec.x * nextSpot.x + lastVec.y * nextSpot.y >= lastVec.x * nextSpot2.x + lastVec.y * nextSpot2.y)
-		 {
-			 // >> 캐릭터가 선회 가능한 범위 일 경우 캐릭터 방향으로 선회
-			 nextSpot.x = nextSpot.x;
-			 nextSpot.y = nextSpot.y;
-		 }
-		 else
-		 {
-			 // >> 캐릭터가 선회 가능한 범위 밖에 있을 경우
-
-			 POINT nextSpot3;
-			 nextSpot3.x = cos(rad) * lastVec.x + sin(rad) * lastVec.y;
-			 nextSpot3.y = -sin(rad) * lastVec.x + cos(rad) * lastVec.y;
-			 // >> 시계 반대방향으로 선회할 때의 상한 각도에 해당하는 속도벡터 계산
-
-			 POINT posVec;
-			 posVec.x = playerCenter.x - centerPos.x;
-			 posVec.y = playerCenter.y - centerPos.y;
-			 // >> 총알에서 캐릭터까지의 상대위치벡터 계산
-
-			 // >> 시계방향 선회인지 반시계방향 선회인지 계산
-			 if (posVec.x * nextSpot2.x + posVec.y * nextSpot2.y >= posVec.x * nextSpot3.x + posVec.y * nextSpot3.y)
-			 {
-				 // >> 시계방향 선회
-				 nextSpot.x = nextSpot2.x;
-				 nextSpot.x = nextSpot2.y;
-			 }
-			 else
-			 {
-				 // 반시계방향 선회
-				 nextSpot.x = nextSpot3.x;
-				 nextSpot.x = nextSpot3.y;
-			 }
-		 }
-
-		 MoveTestShot();
-	}
-
-	else
-		ResetTestShot();
 
 	return;
 }
@@ -267,4 +300,6 @@ void Cannon::ResetTestShot()
 
 	tempCenter.x = -1;
 	tempCenter.y = -1;
+
+	isPlayer = false;
 }

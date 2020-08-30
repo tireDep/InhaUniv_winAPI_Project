@@ -43,6 +43,7 @@ struct explodStruct
 	bool isStart;
 	int maxFrame;
 	int curFrame;
+	float addNum;
 };
 
 #define dNormal -1

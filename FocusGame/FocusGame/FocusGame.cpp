@@ -197,11 +197,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_TIMER:
-		if (!gameManger->GetIsPause())
-		{
-			if (wParam == 50)
-				explodeList->SetNextFrame();
+		if (wParam == 50)
+			explodeList->SetNextFrame();
 
+		if (!gameManger->GetIsPause() && wParam == 0)
+		{
 			// player->Update();
 			gameManger->SetNowMap(map->GetMapPos());
 			gameManger->SetNowPlayerPos(player->GetPlayerPos());

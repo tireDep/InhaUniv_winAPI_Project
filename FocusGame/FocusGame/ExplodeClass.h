@@ -17,12 +17,12 @@ public:
 	static Explode* GetInstance();
 
 	void Update();
-	void CheckHitPlayer(explodStruct effect);
+	void CheckHitPlayer(explodStruct &effect);
 
 	void DrawObject(HDC hdc);
 	void DrawBitMap(HWND hWnd, HDC hdc);
 	void SetNextFrame();
 
 	void StartExplode(POINT bulletPos);
-
+	void ResetExplode(explodStruct &effect); 
 };

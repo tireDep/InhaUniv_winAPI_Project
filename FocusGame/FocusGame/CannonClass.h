@@ -30,6 +30,10 @@ private:
 	float shootedTimer;
 	int shottedDownSec;
 	bool isShooted;
+	
+	float checkTimer;
+	int hitRangeSec;
+	bool isPlayer; 
 
 public:
 	Cannon();
