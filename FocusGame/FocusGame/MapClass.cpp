@@ -1,5 +1,10 @@
 #include "stdafx.h"
 #include "MapClass.h"
+#include "PlayerClass.h"
+#include "GameManager.h"
+
+#define dGameManager GameManager::GetInstance()
+#define dPlayer Player::GetInstance()
 
 using namespace std;
 
@@ -36,22 +41,16 @@ Map::Map()
 		mapPos.push_back(tileMap);
 	}
 	
-	tileMap.type = eMapBlock;
-	tileMap.pos = { 500, 484, 516, 500 };
+	//tileMap.type = eMapBlock;
+	//tileMap.pos = { 500, 484, 516, 500 };
+	//mapPos.push_back(tileMap);
+	//
+	//tileMap.pos = { 500, 500, 516, 516 };
+	//mapPos.push_back(tileMap);
+
+	tileMap.type = eMapObstacle;
+	tileMap.pos = { 500, 548, 516, 564 };
 	mapPos.push_back(tileMap);
-
-	tileMap.pos = { 500, 500, 516, 516 };
-	mapPos.push_back(tileMap);
-
-	//tileMap.pos = { 500, 516, 516, 532 };
-	//mapPos.push_back(tileMap);
-
-	//tileMap.pos = { 500, 532, 516, 548 };
-	//mapPos.push_back(tileMap);
-
-	//tileMap.type = eMapObstacle;
-	//tileMap.pos = { 500, 548, 516, 564 };
-	//mapPos.push_back(tileMap);
 
 	tileMap.type = eMapBlock;
 	tileMap.pos = { 300, 500, 316, 516 };
@@ -84,22 +83,25 @@ Map::Map()
 	mapPos.push_back(tileMap);
 
 
-	tileMap.type = eMapCannon_0;
+	tileMap.type = eMapCannon_4;
 	tileMap.pos = { 704, 112, 720, 128 };
 	mapPos.push_back(tileMap);
 
-	tileMap.type = eMapCannon_1;
+	tileMap.type = eMapCannon_5;
 	tileMap.pos = { 720, 112, 736, 128 };
 	mapPos.push_back(tileMap);
 
-	tileMap.type = eMapCannon_2;
+	tileMap.type = eMapCannon_6;
 	tileMap.pos = { 720, 128, 736, 144 };
 	mapPos.push_back(tileMap);
 
-	tileMap.type = eMapCannon_3;
+	tileMap.type = eMapCannon_7;
 	tileMap.pos = { 704, 128, 720, 144 };
 	mapPos.push_back(tileMap);
 	// >> cannon test
+
+	resetPos = mapPos;
+	// >> resetValue
 }
 
 Map::~Map()
@@ -115,13 +117,20 @@ Map* Map::GetInstance()
 
 void Map::Update()
 {
+	// >> 가시 충돌 판정
+	RECT area;
+	RECT playerPos = dPlayer->GetPlayerPos();
 
+	for (int i = 0; i < mapPos.size(); i++)
+	{
+		if (mapPos[i].type == eMapObstacle && IntersectRect(&area, &mapPos[i].pos, &playerPos))
+			dGameManager->SetIsPlayerLive(false);
+	}
+	// >> 가시 충돌 판정
 }
 
 void Map::DrawObject(HDC hdc)
 {
-	// Rectangle(hdc, 116 - 16 * 5, 0, 116 + 16 * 5, eTrueWinHeight); //test
-
 	for(int i=0;i<mapPos.size();i++)
 		Rectangle(hdc, mapPos[i].pos.left, mapPos[i].pos.top, mapPos[i].pos.right, mapPos[i].pos.bottom);
 }
@@ -141,7 +150,6 @@ vector<parceCannon> Map::CheckInCannon()
 	{
 		if (it->type == eMapCannon_0)
 		{
-			// tempPos.push_back({it->pos.right, it->pos.bottom});
 			tempVal.pos = { it->pos.right, it->pos.bottom };
 			tempVal.type = dNormal;
 			
@@ -150,7 +158,6 @@ vector<parceCannon> Map::CheckInCannon()
 
 		if (it->type == eMapCannon_4)
 		{
-			// tempPos.push_back({it->pos.right, it->pos.bottom});
 			tempVal.pos = { it->pos.right, it->pos.bottom };
 			tempVal.type = dHoming;
 
@@ -159,4 +166,9 @@ vector<parceCannon> Map::CheckInCannon()
 	}
 
 	return result;
+}
+
+void Map::Reset()
+{
+	mapPos = resetPos;
 }

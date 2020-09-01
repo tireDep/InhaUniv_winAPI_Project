@@ -56,16 +56,8 @@ Player* Player::GetInstance()
 
 void Player::Update()
 {
-	if (dGameManger->GetIsPlayerLive() == true)
-	{
-		Gravity();
-		CanMovePlayer();
-	}
-	else
-	{
-		ResetPlayer();
-		dgameManager->SetIsPlayerLive(true);
-	}
+	Gravity();
+	CanMovePlayer();
 }
 
 void Player::Gravity()
@@ -130,7 +122,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
 			{
 				// todo : 게임오버 추가
-				printf("hitobstacle\n");
+				dGameManger->SetIsPlayerLive(false);
 				return true;
 			}
 		}
@@ -146,12 +138,12 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				lengthDiff = checkBtm[i].pos.right - checkRect.left;
 				return false;
 			}
-			// else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
-			// {
-			// 	// todo : 게임오버 추가
-			// 	printf("hitobstacle\n");
-			// 	return true;
-			// }
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			{
+				// todo : 게임오버 추가
+				dGameManger->SetIsPlayerLive(false);
+				return true;
+			}
 		}
 		return true;
 	}
@@ -165,12 +157,12 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				lengthDiff = checkBtm[i].pos.bottom - checkRect.top;
 				return false;
 			}
-			// else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
-			// {
-			// 	// todo : 게임오버 추가
-			// 	printf("hitobstacle\n");
-			// 	return true;
-			// }
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			{
+				// todo : 게임오버 추가
+				dGameManger->SetIsPlayerLive(false);
+				return true;
+			}
 
 		}
 		return true;
@@ -185,12 +177,12 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				lengthDiff = checkBtm[i].pos.top - checkRect.bottom;
 				return false;
 			}
-			// else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
-			// {
-			// 	// todo : 게임오버 추가
-			// 	printf("hitobstacle\n");
-			// 	return true;
-			// }
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			{
+				// todo : 게임오버 추가
+				dGameManger->SetIsPlayerLive(false);
+				return true;
+			}
 		}
 		return true;
 	}
@@ -791,7 +783,7 @@ RECT Player::ConversionRect(POINT pos[])
 	return conversion;
 }
 
-void Player::ResetPlayer()
+void Player::Reset()
 {
 	playerPos[0] = resetPlayerPos[0];
 	playerPos[1] = resetPlayerPos[1];

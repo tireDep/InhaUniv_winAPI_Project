@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ExplodeClass.h"
 #include "PlayerClass.h"
-#include "GameManger.h"
+#include "GameManager.h"
 
 #include<commdlg.h>
 

@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "ObjectClass.h"
 #include "FocusGame.h"
-#include "GameManger.h"
+#include "GameManager.h"
 
 using namespace std;
 
@@ -10,7 +10,9 @@ class Map : public Object
 {
 private:
 	GameManager *gameManger = GameManager::GetInstance();
+	
 	vector<TileMap> mapPos;
+	vector<TileMap> resetPos;
 
 	Map();
 
@@ -22,4 +24,6 @@ public:
 
 	vector<TileMap> GetMapPos();
 	vector<parceCannon> CheckInCannon();
+
+	void Reset();
 };

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "GameManger.h"
 #include "PlayerClass.h"
 #include "BulletClass.h"
 #include "ExplodeClass.h"
@@ -94,37 +93,30 @@ void Bullet::Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bul
 
 void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType)
 {
-	// >> 포커스 내부 판정
-	RECT area;
-	RECT focusPos = dPlayer->GetFocusPos();
-	bool isFocus = dPlayer->GetIsFocusMode();
-	if (isFocus && IntersectRect(&area, &focusPos, &bullet.shotBullet))
-		bullet.speed = dShotSpeed * 0.5 * 0.5;
-	else
-		bullet.speed = dShotSpeed;
-	// >> 포커스 내부 판정
-
-	POINT tempPlayerCenter;
-	if (bullet.centerPos.x == -1 && bullet.centerPos.y == -1)
+	if (bulletType == dHoming || (bullet.centerPos.x == -1 && bullet.centerPos.y == -1))
 	{
-		bullet.centerPos = cannonCenter;
-		tempPlayerCenter = playerCenter;
-	}
+		POINT tempPlayerCenter;
+		if (bullet.centerPos.x == -1 && bullet.centerPos.y == -1)
+		{
+			bullet.centerPos = cannonCenter;
+			tempPlayerCenter = playerCenter;
+		}
 
-	float calc = sqrt(float(playerCenter.x - bullet.centerPos.x) * float(playerCenter.x - bullet.centerPos.x) + float(playerCenter.y - bullet.centerPos.y)*float(playerCenter.y - bullet.centerPos.y));
-	// 두 점 사이의 거리
+		float calc = sqrt(float(playerCenter.x - bullet.centerPos.x) * float(playerCenter.x - bullet.centerPos.x) + float(playerCenter.y - bullet.centerPos.y)*float(playerCenter.y - bullet.centerPos.y));
+		// 두 점 사이의 거리
 
-	if (calc)
-	{
-		bullet.nextSpot.x = (playerCenter.x - bullet.centerPos.x) / calc * bullet.speed;
-		bullet.nextSpot.y = (playerCenter.y - bullet.centerPos.y) / calc * bullet.speed;
+		if (calc)
+		{
+			bullet.nextSpot.x = (playerCenter.x - bullet.centerPos.x) / calc * bullet.speed;
+			bullet.nextSpot.y = (playerCenter.y - bullet.centerPos.y) / calc * bullet.speed;
+		}
+		else
+		{
+			bullet.nextSpot.x = 0;
+			bullet.nextSpot.y = bullet.speed;
+		}
+		// >> 캐릭터 방향으로 속도 벡터 계산
 	}
-	else
-	{
-		bullet.nextSpot.x = 0;
-		bullet.nextSpot.y = bullet.speed;
-	}
-	// >> 캐릭터 방향으로 속도 벡터 계산
 
 	MoveShot(bullet);
 }
@@ -141,14 +133,27 @@ void Bullet::CheckShot()
 			CalcBullet(nBulletList[i], nBulletList[i].centerPos, playerCenter, nBulletList[i].type); // MoveShot(nBulletList[i]);
 
 		if (hBulletList[i].isShot == true)
+		{
 			CalcBullet(hBulletList[i], hBulletList[i].centerPos, playerCenter, hBulletList[i].type);
+		}
 	}
 }
 
 void Bullet::MoveShot(BulletSctruct &bullet)
 {
-	bullet.centerPos.x += bullet.nextSpot.x;
-	bullet.centerPos.y += bullet.nextSpot.y;
+	// >> 포커스 내부 판정
+	float mulNum = 0;
+	RECT area;
+	RECT focusPos = dPlayer->GetFocusPos();
+	bool isFocus = dPlayer->GetIsFocusMode();
+	if (isFocus && IntersectRect(&area, &focusPos, &bullet.shotBullet))
+		mulNum = 0.25;// bullet.speed = dShotSpeed * 0.5 * 0.5;
+	else
+		mulNum = 1; // bullet.speed = dShotSpeed;
+	// >> 포커스 내부 판정
+
+	bullet.centerPos.x += bullet.nextSpot.x * mulNum;
+	bullet.centerPos.y += bullet.nextSpot.y * mulNum;
 
 	bullet.shotBullet.left = bullet.centerPos.x - eBlockSize * 0.5;
 	bullet.shotBullet.top = bullet.centerPos.y - eBlockSize * 0.5;

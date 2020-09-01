@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GameManger.h"
+#include "GameManager.h"
 
 GameManager::GameManager()
 {

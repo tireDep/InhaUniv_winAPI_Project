@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "GameManger.h"
+#include "GameManager.h"
 #include "FocusGame.h"
 #include "ObstacleClass.h"
 

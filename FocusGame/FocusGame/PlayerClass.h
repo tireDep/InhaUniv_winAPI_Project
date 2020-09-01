@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "ObjectClass.h"
-#include "GameManger.h"
+#include "GameManager.h"
 
 #define dGameManger GameManager::GetInstance()
 
@@ -90,7 +90,7 @@ public:
 
 	RECT ConversionRect(POINT pos[]);
 
-	void ResetPlayer();
+	void Reset();
 
 	RECT GetPlayerPos();
 	RECT GetFocusPos();

@@ -7,7 +7,7 @@
 // >> --------------------------
 #include "MapClass.h"
 #include "PlayerClass.h"
-#include "GameManger.h"
+#include "GameManager.h"
 #include "CannonClass.h"
 #include "BulletClass.h"
 #include "ExplodeClass.h"
@@ -194,7 +194,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				// >> Reset
 				// todo : mapReset Ãß°¡
-				player->ResetPlayer();
+				player->Reset();
+				map->Reset();
 
 				for (int i = 0; i < obstacle.size(); i++)
 					obstacle[i]->Reset();

@@ -149,7 +149,7 @@
     <ClInclude Include="CannonClass.h" />
     <ClInclude Include="ExplodeClass.h" />
     <ClInclude Include="FocusGame.h" />
-    <ClInclude Include="GameManger.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="MapClass.h" />
     <ClInclude Include="ObjectClass.h" />
     <ClInclude Include="ObstacleClass.h" />
