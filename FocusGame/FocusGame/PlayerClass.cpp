@@ -5,12 +5,17 @@
 #define dAddFocusP 1.5
 #define dMinusFocusP 1
 
-#define dgameManger GameManager::GetInstance()
+#define dgameManager GameManager::GetInstance()
 
 Player::Player()
 {
 	// todo : 플레이어 정보가 파싱된 위치로 이동해야 함
 	SetPos(playerPos, eTrueWinWidth / 2, eTrueWinHeight / 2, ePlayerSize);
+
+	resetPlayerPos[0] = playerPos[0];
+	resetPlayerPos[1] = playerPos[1];
+	resetPlayerPos[2] = playerPos[2];
+	resetPlayerPos[3] = playerPos[3];
 
 	playerState = eIdle;
 	isJump = false;
@@ -51,8 +56,16 @@ Player* Player::GetInstance()
 
 void Player::Update()
 {
-	Gravity();
-	CanMovePlayer();
+	if (dGameManger->GetIsPlayerLive() == true)
+	{
+		Gravity();
+		CanMovePlayer();
+	}
+	else
+	{
+		ResetPlayer();
+		dgameManager->SetIsPlayerLive(true);
+	}
 }
 
 void Player::Gravity()
@@ -201,7 +214,7 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 {
 	RECT area;
 	RECT checkRect = ConversionRect(pos);
-	vector<TileMap> mapPos = dgameManger->GetNowMap();
+	vector<TileMap> mapPos = dgameManager->GetNowMap();
 
 	// todo : 해당 위치가 벽이 아니면 지나갈 수 있어야 함!!(스테이지 클리어 후)
 	if (direction == eMoveLeft)
@@ -776,6 +789,39 @@ RECT Player::ConversionRect(POINT pos[])
 	conversion.bottom = pos[2].y;
 
 	return conversion;
+}
+
+void Player::ResetPlayer()
+{
+	playerPos[0] = resetPlayerPos[0];
+	playerPos[1] = resetPlayerPos[1];
+	playerPos[2] = resetPlayerPos[2];
+	playerPos[3] = resetPlayerPos[3];
+
+	playerState = eIdle;
+	isJump = false;
+	jumpPower = 0;
+	
+	isBtmGround = false;
+	
+	moveDirection = eIdle;
+	moveSpeed = eMoveSpeed;
+	gravity = eGravity;
+	
+	isCharging = false;
+	focusGauge = eFocusLv3;
+	focusLv = eFocusLv3;
+	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
+	
+	CalcCenterPos();
+	
+	SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
+	SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+	CalcFCenterPos();
+	
+	SetPos(lastPlayerPos, centerPos.x, centerPos.y, efMoveSize);
+	lastMoveCenter.x = 0;
+	lastMoveCenter.y = 0;
 }
 
 

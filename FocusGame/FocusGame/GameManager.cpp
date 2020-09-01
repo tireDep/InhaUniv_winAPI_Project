@@ -4,8 +4,11 @@
 GameManager::GameManager()
 {
 	nowScene = eMainScene;
+
 	isPause = false;
 	isPlayerLive = true;
+	
+	nowScene = eGameScene;
 }
 
 GameManager::~GameManager()
@@ -52,7 +55,12 @@ void GameManager::SetNowMap(vector<TileMap> map)
 	nowMap = map;
 }
 
-inline int GameManager::GetSceneNum()
+void GameManager::SetNowScene(int scene)
+{
+	nowScene = scene;
+}
+
+int GameManager::GetSceneNum()
 {
 	return nowScene;
 }
@@ -65,6 +73,11 @@ bool GameManager::GetIsPause()
 bool GameManager::GetIsPlayerLive()
 {
 	return isPlayerLive;
+}
+
+int GameManager::GetNowScene()
+{
+	return nowScene;
 }
 
 RECT GameManager::GetScreenSize()

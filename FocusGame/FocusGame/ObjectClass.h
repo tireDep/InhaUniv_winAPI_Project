@@ -15,6 +15,9 @@ public:
 
 	virtual void Update();
 	virtual void DrawObject(HDC hdc);
+
+	virtual void Reset();
+
 	// virtual void RenderObject();
 };
 

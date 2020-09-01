@@ -26,6 +26,8 @@ public:
 	void CheckShot();
 	void MoveShot(BulletSctruct &bullet);
 	void CheckHit(BulletSctruct &bullet);
+	
+	void Reset();
 	void ResetBullet(BulletSctruct &bullet);
 
 	RECT ConversionRect(POINT pos);

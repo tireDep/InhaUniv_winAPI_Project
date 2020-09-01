@@ -17,5 +17,7 @@ public:
 
 	void AddCannon(vector<int> set);
 
+	virtual void Reset();
+
 	static void DeleteAllData(vector<Obstacle *> vec);
 };

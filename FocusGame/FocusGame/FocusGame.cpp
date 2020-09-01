@@ -133,14 +133,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
-// struct saveMap
-// {
-// 	POINT first;
-// 	POINT second;
-// 	POINT third;
-// 	POINT forth;
-// };
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	GameManager *gameManger = GameManager::GetInstance();
@@ -155,6 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	// setObject
 	if (object.size() == 0)	// 플레이어 상태 변경시?
 	{
+		gameManger->SetIsPlayerLive(true);
 		object.push_back(player);
 
 		// >> 맵에 대포가 존재하는지 판단
@@ -166,20 +159,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				Cannon *addCannon = new Cannon(tempSet[i]);
 				obstacle.push_back(addCannon);
 			}
-
-		// for (int i = 0; i < obstacle.size(); i++)
-		// {
-		// 	object.push_back(obstacle[i]);
-		// }
 		}
 		// >> 맵에 대포가 존재하는지 판단
 		
 		object.push_back(map);
-	}
-
-	else
-	{
-		//Obstacle::DeleteAllData(obstacle);
 	}
 	// setObject
 
@@ -189,31 +172,74 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		AllocConsole();
 		freopen("CONOUT$", "wt", stdout);
 
-		SetTimer(hWnd, 0, 25, NULL);
+		SetTimer(hWnd, 0, 25, NULL);	// playeGame
 
-		SetTimer(hWnd, 50, 50, NULL);
+		SetTimer(hWnd, 50, 50, NULL);	// animationFrame 
+
+		SetTimer(hWnd, 100, 100, NULL);	// resetGame
 
 		gameManger->CalcScreenSize(hWnd);
 		break;
 
 	case WM_TIMER:
-		if (wParam == 50)
-			explodeList->SetNextFrame();
-
-		if (!gameManger->GetIsPause() && wParam == 0)
+		if (gameManger->GetSceneNum() == eGameScene)
 		{
-			// player->Update();
-			gameManger->SetNowMap(map->GetMapPos());
-			gameManger->SetNowPlayerPos(player->GetPlayerPos());
+			bool isPlayerLive = gameManger->GetIsPlayerLive();
 
-			for(int i=0;i<object.size();i++)
-				object[i]->Update();
+			// if (wParam == 50)	// animation Timer
+			//	explodeList->SetNextFrame();
+			
+			// todo : dead animation 끝나고 실행되어야 함
+			if (!gameManger->GetIsPause() && wParam == 100 && !isPlayerLive)
+			{
+				// >> Reset
+				// todo : mapReset 추가
+				player->ResetPlayer();
 
-			for (int i = 0; i < obstacle.size(); i++)
-				obstacle[i]->Update();
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->Reset();
 
-			bulletList->Update();
-			explodeList->Update();
+				bulletList->Reset();
+				explodeList->Reset();
+				// >> Reset
+				
+				// >> 화면 전환 타이머
+				time_t nowTime;
+				struct tm *tmTime = localtime(&nowTime);
+				float checkTime = 0;
+				float countDown = 2;
+
+				while (countDown > 0)
+				{
+					time(&nowTime);
+					tmTime = localtime(&nowTime); 
+					if (tmTime->tm_sec != checkTime)
+					{
+						checkTime = tmTime->tm_sec;
+						countDown--;
+					}
+
+					if (countDown <= 0)
+						gameManger->SetIsPlayerLive(true);
+				}
+				// >> 화면 전환 타이머
+			}
+			
+			if (!gameManger->GetIsPause() && wParam == 0 && isPlayerLive)
+			{
+				gameManger->SetNowMap(map->GetMapPos());
+				gameManger->SetNowPlayerPos(player->GetPlayerPos());
+
+				for (int i = 0; i<object.size(); i++)
+					object[i]->Update();
+
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->Update();
+
+				bulletList->Update();
+				explodeList->Update();
+				explodeList->SetNextFrame();
+			}
 		}
 
 		InvalidateRect(hWnd, NULL, false);
@@ -243,17 +269,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		oldBit = (HBITMAP)SelectObject(memDc, hBit);
 		PatBlt(memDc, rectView.left, rectView.top, rectView.right, rectView.bottom, WHITENESS);
 
-		for (int i = 0; i<object.size(); i++)
-			object[i]->DrawObject(memDc);
+		if (gameManger->GetIsPlayerLive())
+		{
+			for (int i = 0; i<object.size(); i++)
+				object[i]->DrawObject(memDc);
 
-		for (int i = 0; i < obstacle.size(); i++)
-			obstacle[i]->DrawObject(memDc);
+			for (int i = 0; i < obstacle.size(); i++)
+				obstacle[i]->DrawObject(memDc);
 
-		bulletList->DrawObject(memDc);
-
-		// >>
-		explodeList->DrawBitMap(hWnd, memDc);
-		// <<
+			bulletList->DrawObject(memDc);
+			explodeList->DrawBitMap(hWnd, memDc);
+		}
+		else
+		{
+			SelectObject(memDc, GetStockObject(BLACK_BRUSH));
+			Rectangle(memDc, 0, 0, eTrueWinWidth, eTrueWinHeight);
+			// todo : 이미지로 띄우기
+		}
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
 
@@ -289,6 +321,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		Obstacle::DeleteAllData(obstacle);	// 후에 수정 예정
 
 		KillTimer(hWnd, 0);
+		KillTimer(hWnd, 50);
+		KillTimer(hWnd, 100);
 
         PostQuitMessage(0);
         break;

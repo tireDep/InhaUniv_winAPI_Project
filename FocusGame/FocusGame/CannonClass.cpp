@@ -187,7 +187,7 @@ void Cannon::CheckInPlayer()
 	}
 
 	else
-		ResetTestShot();
+		Reset();
 
 	if (isPlayer)
 	{
@@ -286,7 +286,7 @@ void Cannon::CheckHit()
 	}
 }
 
-void Cannon::ResetTestShot()
+void Cannon::Reset()
 {
 	nextSpot.x = 0;
 	nextSpot.y = 0;

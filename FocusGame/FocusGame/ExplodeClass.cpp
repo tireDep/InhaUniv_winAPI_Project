@@ -63,7 +63,7 @@ void Explode::CheckHitPlayer(explodStruct &effect)
 	
 	if (IntersectRect(&area, &playerPos, &effect.explodeRect))
 	{
-		printf("playerHit!\n");
+		dGameManger->SetIsPlayerLive(false);
 		// todo : player 사망 판정 & 스테이지 리셋
 	}
 }
@@ -148,6 +148,12 @@ void Explode::StartExplode(POINT bulletPos)
 			break;
 		}
 	}
+}
+
+void Explode::Reset()
+{
+	for (int i = 0; i < dMaxCnt; i++)
+		ResetExplode(explodeList[i]);
 }
 
 void Explode::ResetExplode(explodStruct &effect)

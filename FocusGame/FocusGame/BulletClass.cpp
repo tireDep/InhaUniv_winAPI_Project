@@ -114,16 +114,10 @@ void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const 
 	float calc = sqrt(float(playerCenter.x - bullet.centerPos.x) * float(playerCenter.x - bullet.centerPos.x) + float(playerCenter.y - bullet.centerPos.y)*float(playerCenter.y - bullet.centerPos.y));
 	// 두 점 사이의 거리
 
-	// POINT lastVec;
-	// lastVec.x = bullet.nextSpot.x;
-	// lastVec.y = bullet.nextSpot.y;
-	// 탄의 원래 속도 벡터를 저장
-
 	if (calc)
 	{
 		bullet.nextSpot.x = (playerCenter.x - bullet.centerPos.x) / calc * bullet.speed;
 		bullet.nextSpot.y = (playerCenter.y - bullet.centerPos.y) / calc * bullet.speed;
-		// 유도
 	}
 	else
 	{
@@ -132,48 +126,6 @@ void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const 
 	}
 	// >> 캐릭터 방향으로 속도 벡터 계산
 
-	//float rad = M_PI / 180 * dDegree;
-	//POINT nextSpot2;
-	//nextSpot2.x = cos(rad)*lastVec.x - sin(rad)*lastVec.y;
-	//nextSpot2.y = sin(rad)*lastVec.x + cos(rad)*lastVec.y;
-	//// >> 시계방향으로 선회할 때의 상한 각도에 해당하는 속도 벡터 계산
-
-	//// >> 캐릭터 방향 선회인지 제한각도만큼만 선회인지 계산
-	//if (lastVec.x * bullet.nextSpot.x + lastVec.y * bullet.nextSpot.y >= lastVec.x * nextSpot2.x + lastVec.y * nextSpot2.y)
-	//{
-	//	// >> 캐릭터가 선회 가능한 범위 일 경우 캐릭터 방향으로 선회
-	//	bullet.nextSpot.x = bullet.nextSpot.x;
-	//	bullet.nextSpot.y = bullet.nextSpot.y;
-	//}
-	//else
-	//{
-	//	// >> 캐릭터가 선회 가능한 범위 밖에 있을 경우
-
-	//	POINT nextSpot3;
-	//	nextSpot3.x = cos(rad) * lastVec.x + sin(rad) * lastVec.y;
-	//	nextSpot3.y = -sin(rad) * lastVec.x + cos(rad) * lastVec.y;
-	//	// >> 시계 반대방향으로 선회할 때의 상한 각도에 해당하는 속도벡터 계산
-
-	//	POINT posVec;
-	//	posVec.x = playerCenter.x - cannonCenter.x;
-	//	posVec.y = playerCenter.y - cannonCenter.y;
-	//	// >> 총알에서 캐릭터까지의 상대위치벡터 계산
-
-	//	// >> 시계방향 선회인지 반시계방향 선회인지 계산
-	//	if (posVec.x * nextSpot2.x + posVec.y * nextSpot2.y >= posVec.x * nextSpot3.x + posVec.y * nextSpot3.y)
-	//	{
-	//		// >> 시계방향 선회
-	//		bullet.nextSpot.x = nextSpot2.x;
-	//		bullet.nextSpot.x = nextSpot2.y;
-	//	}
-	//	else
-	//	{
-	//		// 반시계방향 선회
-	//		bullet.nextSpot.x = nextSpot3.x;
-	//		bullet.nextSpot.x = nextSpot3.y;
-	//	}
-	//}
-	
 	MoveShot(bullet);
 }
 
@@ -186,11 +138,10 @@ void Bullet::CheckShot()
 	for (int i = 0; i < dMaxCnt; i++)
 	{
 		if (nBulletList[i].isShot == true)
-			CalcBullet(nBulletList[i], nBulletList[i].centerPos, playerCenter, nBulletList[i].type);// MoveShot(nBulletList[i]);
+			CalcBullet(nBulletList[i], nBulletList[i].centerPos, playerCenter, nBulletList[i].type); // MoveShot(nBulletList[i]);
 
 		if (hBulletList[i].isShot == true)
-			CalcBullet(hBulletList[i], hBulletList[i].centerPos, playerCenter, hBulletList[i].type);// MoveShot(nBulletList[i]);
-
+			CalcBullet(hBulletList[i], hBulletList[i].centerPos, playerCenter, hBulletList[i].type);
 	}
 }
 
@@ -226,10 +177,21 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 			// >> 플레이어에 부딪힘
 			dExplode->StartExplode(bullet.centerPos);
 			ResetBullet(bullet);
+
+			dGameManger->SetIsPlayerLive(false);
 			// todo : 폭발 이펙트 & hit 판정
 			// todo : 플레이어 사망 판정, 스테이지 리셋
 			break;
 		}
+	}
+}
+
+void Bullet::Reset()
+{
+	for (int i = 0; i < dMaxCnt; i++)
+	{
+		ResetBullet(nBulletList[i]);
+		ResetBullet(hBulletList[i]);
 	}
 }
 

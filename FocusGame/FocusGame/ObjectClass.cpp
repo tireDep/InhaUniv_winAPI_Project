@@ -21,3 +21,8 @@ void Object::DrawObject(HDC hdc)
 
 }
 
+void Object::Reset()
+{
+
+}
+

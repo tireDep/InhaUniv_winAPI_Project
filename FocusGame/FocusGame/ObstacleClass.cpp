@@ -27,6 +27,11 @@ void Obstacle::AddCannon(vector<int> set)
 
 }
 
+void Obstacle::Reset()
+{
+
+}
+
 void Obstacle::DeleteAllData(vector<Obstacle *> vec)
 {
 	// >> 동적할당 해제

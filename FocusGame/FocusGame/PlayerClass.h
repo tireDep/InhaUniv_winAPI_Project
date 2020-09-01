@@ -40,6 +40,8 @@ private:
 	POINT lastPlayerPos[4];
 	POINT lastMoveCenter;
 
+	POINT resetPlayerPos[4];
+
 	int moveDirection;
 	int moveSpeed;
 	int gravity;
@@ -87,6 +89,8 @@ public:
 	void CalcFCenterPos();
 
 	RECT ConversionRect(POINT pos[]);
+
+	void ResetPlayer();
 
 	RECT GetPlayerPos();
 	RECT GetFocusPos();

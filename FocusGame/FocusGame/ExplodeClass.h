@@ -11,7 +11,6 @@ private:
 	Explode();
 
 public:
-	
 	~Explode();
 	
 	static Explode* GetInstance();
@@ -24,5 +23,7 @@ public:
 	void SetNextFrame();
 
 	void StartExplode(POINT bulletPos);
+
+	void Reset();
 	void ResetExplode(explodStruct &effect); 
 };

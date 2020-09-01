@@ -46,10 +46,13 @@ public:
 
 	void SetNowPlayerPos(RECT set);
 	void SetNowMap(vector<TileMap> map);
+	void SetNowScene(int scene);
 
 	int GetSceneNum();
 	bool GetIsPause();
 	bool GetIsPlayerLive();
+	int GetNowScene();
+
 	RECT GetScreenSize();
 
 	vector<TileMap> GetNowMap();
