@@ -26,6 +26,9 @@ struct BulletSctruct
 	POINT nextSpot;
 	RECT shotBullet;
 
+	HBITMAP hbitmap;
+	BITMAP bitmap;
+
 	int type;
 	bool isShot;
 	float speed;

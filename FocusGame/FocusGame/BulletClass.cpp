@@ -4,6 +4,9 @@
 #include "ExplodeClass.h"
 #include "MapClass.h"
 
+#include<commdlg.h>
+#pragma comment(lib, "msimg32.lib")
+
 #define dShotSpeed 10
 #define dDegree 90
 #define dMaxCnt 100
@@ -30,6 +33,8 @@ Bullet::Bullet()
 		nBullet.isShot = false;
 		nBullet.type = dNormal;
 		nBullet.speed = dShotSpeed;
+		nBullet.hbitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/bullet.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+		GetObject(nBullet.hbitmap, sizeof(BITMAP), &nBullet.bitmap);
 		nBulletList.push_back(nBullet);
 
 		hBullet.centerPos = { -1, -1 };
@@ -38,13 +43,19 @@ Bullet::Bullet()
 		hBullet.isShot = false;
 		hBullet.type = dHoming;
 		hBullet.speed = dShotSpeed;
+		hBullet.hbitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/bullet2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+		GetObject(hBullet.hbitmap, sizeof(BITMAP), &hBullet.bitmap);
 		hBulletList.push_back(hBullet);
 	}
 }
 
 Bullet::~Bullet()
 {
-
+	for (int i = 0; i < dMaxCnt; i++)
+	{
+		DeleteObject(nBulletList[i].hbitmap);
+		DeleteObject(hBulletList[i].hbitmap);
+	}
 }
 
 Bullet* Bullet::GetInstance()
@@ -69,6 +80,44 @@ void Bullet::DrawObject(HDC hdc)
 
 		if (hBulletList[i].isShot == true)
 			Rectangle(hdc, hBulletList[i].shotBullet.left, hBulletList[i].shotBullet.top, hBulletList[i].shotBullet.right, hBulletList[i].shotBullet.bottom);
+	}
+}
+
+void Bullet::RenderObject(HWND hWnd, HDC hdc)
+{
+	HDC hmemDc, hmemDc2;
+	HBITMAP hOldBitMap, hOldBitMap2;
+	int bx, by;
+
+	for (int i = 0; i < dMaxCnt; i++)
+	{
+		if (nBulletList[i].isShot == true)
+		{
+			hmemDc = CreateCompatibleDC(hdc);
+			hOldBitMap = (HBITMAP)SelectObject(hmemDc, nBulletList[i].hbitmap);
+
+			bx = nBulletList[i].bitmap.bmWidth;
+			by = nBulletList[i].bitmap.bmHeight;
+
+			TransparentBlt(hdc, nBulletList[i].shotBullet.left, nBulletList[i].shotBullet.top, bx, by, hmemDc, 0, 0, bx, by, RGB(255, 0, 255));
+
+			SelectObject(hmemDc, hOldBitMap);
+			DeleteDC(hmemDc);
+		}
+
+		if (hBulletList[i].isShot == true)
+		{
+			hmemDc2 = CreateCompatibleDC(hdc);
+			hOldBitMap2 = (HBITMAP)SelectObject(hmemDc2, hBulletList[i].hbitmap);
+
+			bx = hBulletList[i].bitmap.bmWidth;
+			by = hBulletList[i].bitmap.bmHeight;
+
+			TransparentBlt(hdc, hBulletList[i].shotBullet.left, hBulletList[i].shotBullet.top, bx, by, hmemDc2, 0, 0, bx, by, RGB(255, 0, 255));
+
+			SelectObject(hmemDc2, hOldBitMap2);
+			DeleteDC(hmemDc2);
+		}
 	}
 }
 

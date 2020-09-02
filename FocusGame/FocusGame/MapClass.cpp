@@ -66,21 +66,21 @@ Map::Map()
 	mapPos.push_back(tileMap);
 
 	// >> cannon test
-	// tileMap.type = eMapCannon_0;
-	// tileMap.pos = { 112, 112, 128, 128};
-	// mapPos.push_back(tileMap);
-	// 
-	// tileMap.type = eMapCannon_1;
-	// tileMap.pos = { 128, 112, 144, 128 };
-	// mapPos.push_back(tileMap);
-	// 
-	// tileMap.type = eMapCannon_2;
-	// tileMap.pos = { 128, 128, 144, 144 };
-	// mapPos.push_back(tileMap);
-	// 
-	// tileMap.type = eMapCannon_3;
-	// tileMap.pos = { 112, 128, 128, 144 };
-	// mapPos.push_back(tileMap);
+	tileMap.type = eMapCannon_0;
+	tileMap.pos = { 112, 112, 128, 128};
+	mapPos.push_back(tileMap);
+	
+	tileMap.type = eMapCannon_1;
+	tileMap.pos = { 128, 112, 144, 128 };
+	mapPos.push_back(tileMap);
+	
+	tileMap.type = eMapCannon_2;
+	tileMap.pos = { 128, 128, 144, 144 };
+	mapPos.push_back(tileMap);
+	
+	tileMap.type = eMapCannon_3;
+	tileMap.pos = { 112, 128, 128, 144 };
+	mapPos.push_back(tileMap);
 
 
 	tileMap.type = eMapCannon_4;
