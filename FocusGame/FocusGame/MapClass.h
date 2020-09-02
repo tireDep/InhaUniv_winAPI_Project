@@ -20,6 +20,10 @@ public:
 	~Map();
 	static Map* GetInstance();
 	void Update();
+
+	bool CheckOffBtn();
+	void CheckShotOffBtn(const RECT &hitPos);
+
 	void DrawObject(HDC hdc);
 
 	vector<TileMap> GetMapPos();

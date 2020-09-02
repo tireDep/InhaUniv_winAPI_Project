@@ -4,9 +4,14 @@
 
 enum MapType
 {
-	eMapBlock = 50, eMapObstacle = 100,
-	eMapCannon_0 = 150, eMapCannon_1 = 151, eMapCannon_2 = 152, eMapCannon_3 = 153,
-	eMapCannon_4 = 154, eMapCannon_5 = 155, eMapCannon_6 = 156, eMapCannon_7 = 157
+	eMapBlock = 50, eMapObstacle = 100, 
+	eMapCannon_0 = 150, eMapCannon_1 = 151, eMapCannon_2 = 152, eMapCannon_3 = 153,	// 일반
+	eMapCannon_4 = 154, eMapCannon_5 = 155, eMapCannon_6 = 156, eMapCannon_7 = 157,	// 유도
+
+	eMapGate_0 = 200, eMapGate_1 = 201, eMapGate_2 = 202, eMapGate_3 = 203,	// 게이트close?
+
+	eMapBtn_0 = 250, eMapBtn_1 = 251,	// 버튼(스위치)
+	eMapBtn_2 = 252, eMapBtn_3 = 253	// 버튼(블럭)
 };
 
 struct TileMap

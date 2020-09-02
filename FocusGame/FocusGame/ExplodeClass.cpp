@@ -2,6 +2,7 @@
 #include "ExplodeClass.h"
 #include "PlayerClass.h"
 #include "GameManager.h"
+#include "MapClass.h"
 
 #include<commdlg.h>
 
@@ -12,6 +13,7 @@
 
 #define dGameManager GameManager::GetInstance()
 #define dPlayer Player::GetInstance()
+#define dMap Map::GetInstance()
 
 using namespace std;
 
@@ -66,6 +68,8 @@ void Explode::CheckHitPlayer(explodStruct &effect)
 		dGameManger->SetIsPlayerLive(false);
 		// todo : player 사망 판정 & 스테이지 리셋
 	}
+	else
+		dMap->CheckShotOffBtn(effect.explodeRect);
 }
 
 void Explode::DrawObject(HDC hdc)

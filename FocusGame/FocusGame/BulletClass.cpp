@@ -2,6 +2,7 @@
 #include "PlayerClass.h"
 #include "BulletClass.h"
 #include "ExplodeClass.h"
+#include "MapClass.h"
 
 #define dShotSpeed 10
 #define dDegree 90
@@ -9,6 +10,7 @@
 
 #define dGameManager GameManager::GetInstance()
 #define dPlayer Player::GetInstance()
+#define dMap Map::GetInstance()
 
 #define dMapPos dGameManager->GetNowMap()
 #define dPlayerPos dGameManager->GetNowPlayerPos()
@@ -173,6 +175,7 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 		{
 			// >> ¸Ê¿¡ ºÎµúÈû
 			dExplode->StartExplode(bullet.centerPos);
+			dMap->CheckShotOffBtn(bullet.shotBullet);
 			ResetBullet(bullet);
 			break;
 		}

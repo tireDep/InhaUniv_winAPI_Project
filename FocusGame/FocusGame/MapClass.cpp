@@ -48,9 +48,9 @@ Map::Map()
 	//tileMap.pos = { 500, 500, 516, 516 };
 	//mapPos.push_back(tileMap);
 
-	tileMap.type = eMapObstacle;
-	tileMap.pos = { 500, 548, 516, 564 };
-	mapPos.push_back(tileMap);
+	// tileMap.type = eMapObstacle;
+	// tileMap.pos = { 500, 548, 516, 564 };
+	// mapPos.push_back(tileMap);
 
 	tileMap.type = eMapBlock;
 	tileMap.pos = { 300, 500, 316, 516 };
@@ -66,21 +66,21 @@ Map::Map()
 	mapPos.push_back(tileMap);
 
 	// >> cannon test
-	tileMap.type = eMapCannon_0;
-	tileMap.pos = { 112, 112, 128, 128};
-	mapPos.push_back(tileMap);
-
-	tileMap.type = eMapCannon_1;
-	tileMap.pos = { 128, 112, 144, 128 };
-	mapPos.push_back(tileMap);
-
-	tileMap.type = eMapCannon_2;
-	tileMap.pos = { 128, 128, 144, 144 };
-	mapPos.push_back(tileMap);
-
-	tileMap.type = eMapCannon_3;
-	tileMap.pos = { 112, 128, 128, 144 };
-	mapPos.push_back(tileMap);
+	// tileMap.type = eMapCannon_0;
+	// tileMap.pos = { 112, 112, 128, 128};
+	// mapPos.push_back(tileMap);
+	// 
+	// tileMap.type = eMapCannon_1;
+	// tileMap.pos = { 128, 112, 144, 128 };
+	// mapPos.push_back(tileMap);
+	// 
+	// tileMap.type = eMapCannon_2;
+	// tileMap.pos = { 128, 128, 144, 144 };
+	// mapPos.push_back(tileMap);
+	// 
+	// tileMap.type = eMapCannon_3;
+	// tileMap.pos = { 112, 128, 128, 144 };
+	// mapPos.push_back(tileMap);
 
 
 	tileMap.type = eMapCannon_4;
@@ -99,6 +99,38 @@ Map::Map()
 	tileMap.pos = { 704, 128, 720, 144 };
 	mapPos.push_back(tileMap);
 	// >> cannon test
+
+	// >> gate test
+	tileMap.type = eMapGate_0;
+	tileMap.pos = { 704, 528, 720, 544};
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapGate_1;
+	tileMap.pos = { 720, 528, 736, 544 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapGate_2;
+	tileMap.pos = { 720, 544, 736, 560 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapGate_3;
+	tileMap.pos = { 704, 544, 720, 560 };
+	mapPos.push_back(tileMap);
+	// >> gate test
+
+	// tileMap.type = eMapBtn_2;
+	tileMap.type = eMapBtn_2;
+	tileMap.pos = { 640, 544, 656, 560 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapBtn_2;
+	tileMap.pos = { 640, 560, 656, 576 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapBtn_2;
+	tileMap.pos = { 208, 288, 224, 304 };
+	mapPos.push_back(tileMap);
+	// >> btn
 
 	resetPos = mapPos;
 	// >> resetValue
@@ -127,6 +159,51 @@ void Map::Update()
 			dGameManager->SetIsPlayerLive(false);
 	}
 	// >> 가시 충돌 판정
+
+	// >> 스위치 off 판정
+	for (int i = 0; i < mapPos.size(); i++)
+	{
+		if (mapPos[i].type == eMapBtn_0 && IntersectRect(&area, &mapPos[i].pos, &playerPos))
+		{
+			mapPos[i].type = eMapBtn_1;
+			mapPos[i + 1].type = eMapBtn_3;	// 동시에 바뀌어야 함
+		}	// 스위치 버튼일 경우
+
+	}
+
+	if (CheckOffBtn())
+	{
+		vector<TileMap>::iterator it;
+		for (it = mapPos.begin(); it < mapPos.end();)
+		{
+			//todo : 애니메이션 종료 후?
+			if (it->type == eMapGate_0 || it->type == eMapGate_1 || it->type == eMapGate_2 || it->type == eMapGate_3)
+				it = mapPos.erase(it);
+			else
+				it++;
+		}
+	}
+	// >> 스위치 off 판정
+}
+
+bool Map::CheckOffBtn()
+{
+	for (int i = 0; i < mapPos.size(); i++)
+	{
+		if (mapPos[i].type == eMapBtn_2)
+			return false;
+	}
+	return true;
+}
+
+void Map::CheckShotOffBtn(const RECT &hitPos)
+{
+	RECT area;
+	for (int i = 0; i < mapPos.size(); i++)
+	{
+		if (IntersectRect(&area, &mapPos[i].pos, &hitPos) && mapPos[i].type == eMapBtn_2)
+			mapPos[i].type = eMapBtn_3;
+	}
 }
 
 void Map::DrawObject(HDC hdc)

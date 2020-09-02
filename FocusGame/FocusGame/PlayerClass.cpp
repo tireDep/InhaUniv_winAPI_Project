@@ -91,10 +91,11 @@ bool Player::CheckBtmGround(int &lengthDiff)
 	{
 		if (IntersectRect(&temp, &checkBtm[i].pos, &checkRect))
 		{
-			if (checkBtm[i].type == eMapBlock)	// 블록과 충돌할 경우 정지
+			if (checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3)	// 블록과 충돌할 경우 정지
 			{
 				isBtmGround = true;
 				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
+				// if (lengthDiff <= 8) lengthDiff = 0;
 				return false;
 			}
 		}
@@ -114,7 +115,8 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapBlock)
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
+				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
 			{
 				lengthDiff = checkBtm[i].pos.left - checkRect.right;
 				return false;
@@ -133,7 +135,8 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapBlock)
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
+				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
 			{
 				lengthDiff = checkBtm[i].pos.right - checkRect.left;
 				return false;
@@ -152,7 +155,8 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapBlock)
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
+				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
 			{
 				lengthDiff = checkBtm[i].pos.bottom - checkRect.top;
 				return false;
@@ -172,7 +176,8 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapBlock)
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
+				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
 			{
 				lengthDiff = checkBtm[i].pos.top - checkRect.bottom;
 				return false;
@@ -273,7 +278,8 @@ bool Player::CheckBlockMap()
 
 	for (int i = 0; i < tempMap.size(); i++)
 	{
-		if (IntersectRect(&area, &tempMap[i].pos, &conRect) && tempMap[i].type == eMapBlock)	// 블럭인 경우에만 지나갈 수 x
+		if (IntersectRect(&area, &tempMap[i].pos, &conRect) && 
+			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3))	// 블럭인 경우에만 지나갈 수 x
 		{
 			playerPos[0] = lastPlayerPos[0];
 			playerPos[1] = lastPlayerPos[1];
@@ -291,7 +297,8 @@ bool Player::CheckBlockMap()
 
 	for (int i = 0; i < tempMap.size(); i++)
 	{
-		if (IntersectRect(&area, &tempMap[i].pos, &conRect2) && tempMap[i].type == eMapBlock)	// 블럭인 경우에만 지나갈 수 x
+		if (IntersectRect(&area, &tempMap[i].pos, &conRect2) && 
+			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3))	// 블럭인 경우에만 지나갈 수 x
 		{
 			playerPos[0] = lastPlayerPos[0];
 			playerPos[1] = lastPlayerPos[1];
