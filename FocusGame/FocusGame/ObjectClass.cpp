@@ -26,3 +26,7 @@ void Object::Reset()
 
 }
 
+void Object::RenderObject(HWND hWnd, HDC hdc)
+{
+}
+

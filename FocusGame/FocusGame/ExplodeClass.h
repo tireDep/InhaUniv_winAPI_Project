@@ -19,7 +19,7 @@ public:
 	void CheckHitPlayer(explodStruct &effect);
 
 	void DrawObject(HDC hdc);
-	void DrawBitMap(HWND hWnd, HDC hdc);
+	void RenderObject(HWND hWnd, HDC hdc);
 	void SetNextFrame();
 
 	void StartExplode(POINT bulletPos);

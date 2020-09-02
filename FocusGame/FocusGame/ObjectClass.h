@@ -18,6 +18,6 @@ public:
 
 	virtual void Reset();
 
-	// virtual void RenderObject();
+	virtual void RenderObject(HWND hWnd, HDC hdc);
 };
 

@@ -82,7 +82,7 @@ void Explode::DrawObject(HDC hdc)
 	}
 }
 
-void Explode::DrawBitMap(HWND hWnd, HDC hdc)
+void Explode::RenderObject(HWND hWnd, HDC hdc)
 {
 	HDC finDC = CreateCompatibleDC(hdc);
 
