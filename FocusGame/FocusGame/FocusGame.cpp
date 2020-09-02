@@ -288,6 +288,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				obstacle[i]->DrawObject(memDc);
 
 			// bulletList->DrawObject(memDc);
+
+			player->RenderObject(hWnd, memDc);
 			bulletList->RenderObject(hWnd, memDc);
 			explodeList->RenderObject(hWnd, memDc);
 		}

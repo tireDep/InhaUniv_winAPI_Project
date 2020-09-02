@@ -56,6 +56,11 @@ private:
 
 	bool isBtmGround;
 
+	HBITMAP hPlayerBitmap;
+	HBITMAP hFocusBitmap;
+	BITMAP playerBitmap;
+	BITMAP focusBitmap;
+
 	Player();
 
 public:
@@ -74,6 +79,7 @@ public:
 	// focus 관련 충돌 함수
 
 	void DrawObject(HDC hdc);
+	void RenderObject(HWND hWnd, HDC hdc);
 
 	void CalcFocusMove();
 	bool FocusMomentum();
