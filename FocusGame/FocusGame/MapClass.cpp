@@ -41,12 +41,12 @@ Map::Map()
 		mapPos.push_back(tileMap);
 	}
 	
-	//tileMap.type = eMapBlock;
-	//tileMap.pos = { 500, 484, 516, 500 };
-	//mapPos.push_back(tileMap);
-	//
-	//tileMap.pos = { 500, 500, 516, 516 };
-	//mapPos.push_back(tileMap);
+	tileMap.type = eMapBlock;
+	tileMap.pos = { 500, 484, 516, 500 };
+	mapPos.push_back(tileMap);
+	
+	tileMap.pos = { 500, 500, 516, 516 };
+	mapPos.push_back(tileMap);
 
 	// tileMap.type = eMapObstacle;
 	// tileMap.pos = { 500, 548, 516, 564 };
@@ -119,17 +119,26 @@ Map::Map()
 	// >> gate test
 
 	// tileMap.type = eMapBtn_2;
-	tileMap.type = eMapBtn_2;
-	tileMap.pos = { 640, 544, 656, 560 };
-	mapPos.push_back(tileMap);
+	// tileMap.type = eMapBtn_2;
+	// tileMap.pos = { 640, 544, 656, 560 };
+	// mapPos.push_back(tileMap);
 
-	tileMap.type = eMapBtn_2;
+	tileMap.type = eMapBlock;
 	tileMap.pos = { 640, 560, 656, 576 };
 	mapPos.push_back(tileMap);
 
-	tileMap.type = eMapBtn_2;
-	tileMap.pos = { 208, 288, 224, 304 };
+	tileMap.type = eMapBlock;
+	tileMap.pos = { 224, 288, 224, 304 };
 	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapBlock;
+	tileMap.pos = { 208, 320, 224, 336 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapBlock;
+	tileMap.pos = { 208, 336, 224, 352 };
+	mapPos.push_back(tileMap);
+
 	// >> btn
 
 	resetPos = mapPos;

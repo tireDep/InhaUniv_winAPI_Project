@@ -69,6 +69,7 @@ void Player::Gravity()
 			playerPos[i].y += gravity * dTimeSec;
 
 		if (CheckBtmGround(diffNum))
+		// if(CollisionMap(playerPos,eMoveDown,diffNum))
 		{
 			for (int i = 0; i < 4; i++)
 				playerPos[i].y += diffNum + dTimeSec;
@@ -77,6 +78,9 @@ void Player::Gravity()
 		{
 			for (int i = 0; i < 4; i++)
 				playerPos[i].y -= diffNum + dTimeSec;
+			// CheckBtmGround(diffNum);
+			//for (int i = 0; i < 4; i++)
+			//	playerPos[i].y -= diffNum + dTimeSec;
 		}
 	}
 }
@@ -95,7 +99,9 @@ bool Player::CheckBtmGround(int &lengthDiff)
 			{
 				isBtmGround = true;
 				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
-				// if (lengthDiff <= 8) lengthDiff = 0;
+				// if (lengthDiff == 1 &&
+				// 	(checkBtm[i].pos.left >= checkRect.left && checkBtm[i].pos.right >= checkRect.right) || (checkBtm[i].pos.left <= checkRect.left && checkBtm[i].pos.right <= checkRect.right))
+				//  	lengthDiff = 17;
 				return false;
 			}
 		}
@@ -179,7 +185,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
 				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
 			{
-				lengthDiff = checkBtm[i].pos.top - checkRect.bottom;
+				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
 				return false;
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
@@ -507,10 +513,10 @@ void Player::CanMovePlayer()
 			}
 			// << 충돌 판정
 
-			printf("%d\n", underLineNum);
 			if (underLineNum > 0)
 			{
-				MovePlayer(playerPos, playerState, underLineNum, -1, 0);
+				MovePlayer(playerPos, playerState, underLineNum + 8, -1, 0); 
+				// 벽에 닿을 정도 보정
 			}
 			else
 			{
