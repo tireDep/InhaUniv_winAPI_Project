@@ -194,6 +194,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				// >> Reset
 				// todo : mapReset Ãß°¡
+				// while (1)
+				// {
+				// 	if (player->GetIsEndAni())
+				// 		break;
+				// }
+
+				if (player->GetIsEndAni() == false)
+					printf("Asdfzxcvjkdafhkjdfsahjkldafhjkdafsklhjadfskhj\n");
+
 				player->Reset();
 				map->Reset();
 
