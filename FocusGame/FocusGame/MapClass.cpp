@@ -48,9 +48,9 @@ Map::Map()
 	tileMap.pos = { 500, 500, 516, 516 };
 	mapPos.push_back(tileMap);
 
-	// tileMap.type = eMapObstacle;
-	// tileMap.pos = { 500, 548, 516, 564 };
-	// mapPos.push_back(tileMap);
+	tileMap.type = eMapObstacle;
+	tileMap.pos = { 500, 548, 516, 564 };
+	mapPos.push_back(tileMap);
 
 	tileMap.type = eMapBlock;
 	tileMap.pos = { 300, 500, 316, 516 };
