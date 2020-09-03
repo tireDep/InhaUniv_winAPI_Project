@@ -194,6 +194,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				// >> Reset
 				// todo : mapReset 추가
+				// while (1)
+				// {
+				// 	if (player->GetIsEndAni())
+				// 		break;
+				// }
+
+				if (player->GetIsEndAni() == false)
+					printf("Asdfzxcvjkdafhkjdfsahjkldafhjkdafsklhjadfskhj\n");
+
 				player->Reset();
 				map->Reset();
 
@@ -268,7 +277,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		memDc = CreateCompatibleDC(hdc);
 		hBit = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
 		oldBit = (HBITMAP)SelectObject(memDc, hBit);
-		PatBlt(memDc, rectView.left, rectView.top, rectView.right, rectView.bottom, WHITENESS);
+
+		HBRUSH hBrush, oldBrush;
+		hBrush = CreateSolidBrush(RGB(36, 36, 36));
+		oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
+
+		PatBlt(memDc, rectView.left, rectView.top, rectView.right, rectView.bottom, PATCOPY);
+		// PATCOPY : dc에 있는 브러시 색상 그대로 출력
+
+		SelectObject(memDc, oldBrush);
+		DeleteObject(hBrush);
 
 		if (gameManger->GetIsPlayerLive())
 		{
@@ -278,8 +296,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			for (int i = 0; i < obstacle.size(); i++)
 				obstacle[i]->DrawObject(memDc);
 
-			bulletList->DrawObject(memDc);
-			explodeList->DrawBitMap(hWnd, memDc);
+			// bulletList->DrawObject(memDc);
+
+			player->RenderObject(hWnd, memDc);
+			bulletList->RenderObject(hWnd, memDc);
+			explodeList->RenderObject(hWnd, memDc);
 		}
 		else
 		{

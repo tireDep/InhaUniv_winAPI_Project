@@ -2,8 +2,13 @@
 #include "FocusGame.h"
 #include "PlayerClass.h"
 
+#include <time.h>
+
 #define dAddFocusP 1.5
 #define dMinusFocusP 1
+
+#define dWalkMax 2
+#define dDeadMax 8
 
 #define dgameManager GameManager::GetInstance()
 
@@ -41,6 +46,19 @@ Player::Player()
 	SetPos(lastPlayerPos, centerPos.x, centerPos.y, efMoveSize);
 	lastMoveCenter.x = 0;
 	lastMoveCenter.y = 0;
+
+	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hFocusBitmap, sizeof(BITMAP), &focusBitmap);
+
+	hSpotBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focusSpot.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hSpotBitmap, sizeof(BITMAP), &spotBitmap);
+
+	hPlayerBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/player.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hPlayerBitmap, sizeof(BITMAP), &playerBitmap);
+
+	isRightSight = false;
+	nowFrame = 0;
+	isEndAni = false;
 }
 
 Player::~Player()
@@ -130,6 +148,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
 			{
 				// todo : 게임오버 추가
+				playerState = eDead;
 				dGameManger->SetIsPlayerLive(false);
 				return true;
 			}
@@ -150,6 +169,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
 			{
 				// todo : 게임오버 추가
+				playerState = eDead;
 				dGameManger->SetIsPlayerLive(false);
 				return true;
 			}
@@ -170,6 +190,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
 			{
 				// todo : 게임오버 추가
+				playerState = eDead;
 				dGameManger->SetIsPlayerLive(false);
 				return true;
 			}
@@ -191,6 +212,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
 			{
 				// todo : 게임오버 추가
+				playerState = eDead;
 				dGameManger->SetIsPlayerLive(false);
 				return true;
 			}
@@ -330,15 +352,172 @@ bool Player::CheckBlockMap()
 
 void Player::DrawObject(HDC hdc)
 {
-	Polygon(hdc, focusPos, 4);
+	// Polygon(hdc, focusPos, 4);
 	//RECT temp = ConversionRect(focusPos);
 	//Ellipse(hdc, temp.left, temp.top, temp.right, temp.bottom);
 	// todo : 반투명한 이미지로 대체
 
-	Polygon(hdc, playerPos, 4);
+	// Polygon(hdc, playerPos, 4);
 
-	if (playerState == eFocus)
-		Polygon(hdc, fMovePos, 4);
+//	if (playerState == eFocus)
+//		Polygon(hdc, fMovePos, 4);
+}
+
+void Player::RenderObject(HWND hWnd, HDC hdc)
+{
+	RECT focusRect = ConversionRect(focusPos);
+	RECT spotRect = ConversionRect(fMovePos);
+	
+	HDC focusStartDc;
+	HBITMAP hFocusStartBit;
+	HDC focusFinDc;
+	HBITMAP hFocusBit, hFocusBit2;
+	int bx, by;
+
+	HDC spotDc;
+	HBITMAP hSpotBit;
+	int spotX, spotY;
+
+	if (!GetIsFocusMode())
+	{
+		// 일반 상태
+		focusFinDc = CreateCompatibleDC(hdc);
+		hFocusBit = CreateCompatibleBitmap(hdc, 500, 500);	// bitmap size
+		hFocusBit2 = (HBITMAP)SelectObject(focusFinDc, hFocusBit);
+
+		focusStartDc = CreateCompatibleDC(hdc);
+		hFocusStartBit = (HBITMAP)SelectObject(focusStartDc, hFocusBitmap);
+
+		bx = focusBitmap.bmWidth;
+		by = 500;
+
+		BLENDFUNCTION bf;
+		bf.AlphaFormat = 0;
+		bf.BlendFlags = 0;
+		bf.BlendOp = AC_SRC_OVER;
+		bf.SourceConstantAlpha = 10;	// 투명도
+
+		StretchBlt(focusFinDc, 0, 0, 500, 500, focusStartDc, 0, 0, bx, by, SRCCOPY);	// 사이즈 조정
+
+		AlphaBlend(hdc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
+			focusFinDc, 0, 0, 500, 500, bf);	// 투명도
+
+		SelectObject(focusFinDc, hFocusBit2);
+		DeleteDC(focusFinDc);
+		DeleteObject(hFocusBit);
+		DeleteObject(hFocusBit2);
+
+		SelectObject(focusStartDc, hFocusStartBit);
+		DeleteDC(focusStartDc);
+	}
+	else
+	{
+		// 포커스 상태
+		focusFinDc = CreateCompatibleDC(hdc);
+		hFocusBit = CreateCompatibleBitmap(hdc, 500,500);
+		hFocusBit2 = (HBITMAP)SelectObject(focusFinDc, hFocusBit);
+
+		focusStartDc = CreateCompatibleDC(hdc);
+		hFocusStartBit = (HBITMAP)SelectObject(focusStartDc, hFocusBitmap);
+		
+		bx = focusBitmap.bmWidth;
+		by = 500;
+
+		spotDc = CreateCompatibleDC(hdc);
+		hSpotBit = (HBITMAP)SelectObject(spotDc, hSpotBitmap);
+		spotX = spotBitmap.bmWidth;
+		spotY = spotBitmap.bmHeight;
+
+		BLENDFUNCTION bf;
+		bf.AlphaFormat = 0;
+		bf.BlendFlags = 0;
+		bf.BlendOp = AC_SRC_OVER;
+		bf.SourceConstantAlpha = 100;	// 투명도
+
+		StretchBlt(focusFinDc, 0, 0, 500, 500, focusStartDc, 0, by, bx, by, SRCCOPY); // 사이즈 조정
+
+		AlphaBlend(hdc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
+			focusFinDc, 0, 0, 500, 500, bf);	// 투명도
+
+		// >> 포커스 좌표
+		HPEN hPen, oldPen;
+		hPen = CreatePen(PS_DOT, 1, RGB(36, 36, 36));
+		oldPen = (HPEN)SelectObject(hdc, hPen);
+
+		MoveToEx(hdc, centerPos.x, centerPos.y, NULL);
+		LineTo(hdc, fCenterPos.x, fCenterPos.y);
+
+		TransparentBlt(hdc, spotRect.left, spotRect.top, spotX, spotY, spotDc, 0, 0, spotX, spotY, RGB(255, 0, 255));
+
+		SelectObject(hdc, oldPen);
+		DeleteObject(hPen);
+		// >> 포커스 좌표
+
+		SelectObject(focusFinDc, hFocusBit2);
+		DeleteDC(focusFinDc);
+		DeleteObject(hFocusBit);
+		DeleteObject(hFocusBit2);
+
+		SelectObject(focusStartDc, hFocusStartBit);
+		DeleteDC(focusStartDc);
+
+		SelectObject(spotDc, hSpotBit);
+		DeleteDC(spotDc);
+	}
+
+	RECT playerRect = ConversionRect(playerPos);
+	HDC playerDc;
+	HBITMAP hPlayerBit;
+	int posX, posY;
+	POINT aniPos;
+
+	playerDc = CreateCompatibleDC(hdc);
+	hPlayerBit = (HBITMAP)SelectObject(playerDc, hPlayerBitmap);
+
+	posX = 16;
+	posY = 16;
+
+	if (!dgameManager->GetIsPlayerLive())
+	{
+		// printf("++++++++++++++++++++++++++++++++++++%d\n", nowFrame);
+		// aniPos = { nowFrame, 96 };
+		// nowFrame += 16;
+		// 
+		// if (nowFrame == dDeadMax * 16)
+		// {
+		// 	nowFrame = 0;
+		// 	isEndAni = true;
+		// }
+	}
+
+
+	if (playerState == eIdle)
+	{
+		printf("idle\n");
+		aniPos = { 0,0 };
+	}
+	else if (playerState == eMoveLeft || playerState == eMoveRight)
+	{
+		printf("leftright\n");
+		aniPos = { nowFrame, 32 };
+		nowFrame += 16;
+		if (nowFrame == dWalkMax * 16)
+			nowFrame = 0;
+	}
+	else if (playerState == eJump)
+		aniPos = { 0,64 };
+	else if (playerState == eFall)
+		aniPos = { 16,64 };
+	else if (playerState == eFocus)
+		aniPos = { 0,128 };
+
+	if (isRightSight == false)
+		aniPos.y += 16;	// 좌우방향 확인
+
+	TransparentBlt(hdc, playerRect.left, playerRect.top, posX, posY, playerDc, aniPos.x, aniPos.y, posX, posY, RGB(255, 0, 255));
+
+	SelectObject(playerDc, hPlayerBit);
+	DeleteDC(playerDc);
 }
 
 void Player::CalcFocusMove()
@@ -441,12 +620,21 @@ void Player::CanMovePlayer()
 {
 	CalcFocusMove();
 
+	if (GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_UP) >= 0
+		&& GetKeyState(VK_RIGHT) >= 0 && GetKeyState(VK_LEFT) >= 0  && GetKeyState(VK_SPACE) >= 0)
+	{
+		// 키가 다 떨어져 있을 경우 IDLE 상태(애니메이션 실행 X)
+		playerState = eIdle;
+		nowFrame = 0;
+	}
+
 	if (playerState != eFocus)
 	{
 		// 플레이어 이동
 		if (!isJump && (GetAsyncKeyState(VK_DOWN) & 0x8000))
 		{
 			moveDirection = eMoveDown;
+			playerState = eFall;
 			MovePlayer(playerPos, moveDirection, eMoveSpeed, 1, 0);
 
 			int diffNum = 0;
@@ -458,6 +646,8 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			moveDirection = eMoveRight;
+			playerState = eMoveRight;
+			isRightSight = true;
 			MovePlayer(playerPos, moveDirection, eMoveSpeed, 1, 0);
 
 			int diffNum = 0;
@@ -469,6 +659,8 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			moveDirection = eMoveLeft;
+			playerState = eMoveLeft;
+			isRightSight = false;
 			MovePlayer(playerPos, moveDirection, eMoveSpeed, -1, 0);
 
 			int diffNum = 0;
@@ -535,7 +727,7 @@ void Player::CanMovePlayer()
 			{
 				// jump키를 누르고 있지 x, 지면에 닿음 -> 변수 초기화, n번 점프 방지
 				isJump = false;
-				playerState = eIdle;
+				// playerState = eIdle;
 				jumpPower = eJumpPower;
 			}
 		}	// else_jump
@@ -578,6 +770,9 @@ void Player::CanMovePlayer()
 
 			CalcCenterPos();
 			SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
+
+			fCenterPos.x = centerPos.x;
+			fCenterPos.y = centerPos.y;
 		}
 		// 포커스
 	}
@@ -618,6 +813,8 @@ void Player::CanMovePlayer()
 		{
 			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+			fCenterPos.x = centerPos.x;
+			fCenterPos.y = centerPos.y;
 		}
 		
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
@@ -654,6 +851,7 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			moveDirection = eMoveLeft;
+			isRightSight = false;
 			int underLineNum = CheckFocusRange(moveDirection, -1);
 			// >> 충돌 판정
 
@@ -669,6 +867,7 @@ void Player::CanMovePlayer()
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			moveDirection = eMoveRight;
+			isRightSight = true;
 			int underLineNum = CheckFocusRange(moveDirection, 1);
 			// >> 충돌 판정
 
@@ -827,6 +1026,10 @@ void Player::Reset()
 	SetPos(lastPlayerPos, centerPos.x, centerPos.y, efMoveSize);
 	lastMoveCenter.x = 0;
 	lastMoveCenter.y = 0;
+
+	isRightSight = false;
+	nowFrame = 0;
+	isEndAni = false;
 }
 
 
@@ -846,4 +1049,9 @@ bool Player::GetIsFocusMode()
 		return true;
 	else
 		return false;
+}
+
+bool Player::GetIsEndAni()
+{
+	return isEndAni;
 }
