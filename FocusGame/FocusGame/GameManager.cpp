@@ -9,6 +9,8 @@ GameManager::GameManager()
 	isPlayerLive = true;
 	
 	nowScene = eGameScene;
+
+	isDrawRect = false;
 }
 
 GameManager::~GameManager()
@@ -18,8 +20,8 @@ GameManager::~GameManager()
 
 GameManager* GameManager::GetInstance()
 {
-	static GameManager gameManger;
-	return &gameManger;
+	static GameManager gameManager;
+	return &gameManager;
 }
 
 void GameManager::CalcScreenSize(HWND hWnd)
@@ -93,4 +95,17 @@ vector<TileMap> GameManager::GetNowMap()
 RECT GameManager::GetNowPlayerPos()
 {
 	return nowPlayerPos;
+}
+
+void GameManager::SetDrawRect(bool set)
+{
+	if (set == true)
+		isDrawRect = true;
+	else
+		isDrawRect = false;
+}
+
+bool GameManager::GetDrawRect()
+{
+	return isDrawRect;
 }

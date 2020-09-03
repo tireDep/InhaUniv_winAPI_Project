@@ -9,10 +9,13 @@ using namespace std;
 class Map : public Object
 {
 private:
-	GameManager *gameManger = GameManager::GetInstance();
+	GameManager *gameManager = GameManager::GetInstance();
 	
 	vector<TileMap> mapPos;
 	vector<TileMap> resetPos;
+
+	HBITMAP hMapBitmap;
+	BITMAP mapBitmap;
 
 	Map();
 
@@ -25,6 +28,7 @@ public:
 	void CheckShotOffBtn(const RECT &hitPos);
 
 	void DrawObject(HDC hdc);
+	void RenderObject(HWND hWnd, HDC hdc);
 
 	vector<TileMap> GetMapPos();
 	vector<parceCannon> CheckInCannon();

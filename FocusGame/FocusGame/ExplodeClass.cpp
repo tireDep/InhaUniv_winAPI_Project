@@ -51,10 +51,13 @@ Explode* Explode::GetInstance()
 
 void Explode::Update()
 {
-	for (int i = 0; i < dMaxCnt; i++)
+	if (!dPlayer->GetIsPlayerDead())
 	{
-		if (explodeList[i].isStart == true)
-			CheckHitPlayer(explodeList[i]);
+		for (int i = 0; i < dMaxCnt; i++)
+		{
+			if (explodeList[i].isStart == true)
+				CheckHitPlayer(explodeList[i]);
+		}
 	}
 }
 
@@ -64,21 +67,21 @@ void Explode::CheckHitPlayer(explodStruct &effect)
 	RECT playerPos = dPlayer->GetPlayerPos();
 	
 	if (IntersectRect(&area, &playerPos, &effect.explodeRect))
-	{
-		dGameManger->SetIsPlayerLive(false);
-		// todo : player 사망 판정 & 스테이지 리셋
-	}
+		dPlayer->SetIsPlayerDead(true);
 	else
 		dMap->CheckShotOffBtn(effect.explodeRect);
 }
 
 void Explode::DrawObject(HDC hdc)
 {
-	for (int i = 0; i < dMaxCnt; i++)
+	if (dGameManager->GetDrawRect())
 	{
-		if (explodeList[i].isStart == true)
-			Rectangle(hdc, explodeList[i].explodeRect.left, explodeList[i].explodeRect.top, 
-				explodeList[i].explodeRect.right, explodeList[i].explodeRect.bottom);
+		for (int i = 0; i < dMaxCnt; i++)
+		{
+			if (explodeList[i].isStart == true)
+				Rectangle(hdc, explodeList[i].explodeRect.left, explodeList[i].explodeRect.top,
+					explodeList[i].explodeRect.right, explodeList[i].explodeRect.bottom);
+		}
 	}
 }
 
