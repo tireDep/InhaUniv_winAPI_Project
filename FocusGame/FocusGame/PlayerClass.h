@@ -58,8 +58,11 @@ private:
 
 	HBITMAP hPlayerBitmap;
 	HBITMAP hFocusBitmap;
+	HBITMAP hSpotBitmap;
+
 	BITMAP playerBitmap;
 	BITMAP focusBitmap;
+	BITMAP spotBitmap;
 
 	Player();
 

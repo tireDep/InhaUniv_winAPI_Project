@@ -44,6 +44,9 @@ Player::Player()
 
 	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hFocusBitmap, sizeof(BITMAP), &focusBitmap);
+
+	hSpotBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focusSpot.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	GetObject(hSpotBitmap, sizeof(BITMAP), &spotBitmap);
 }
 
 Player::~Player()
@@ -340,24 +343,28 @@ void Player::DrawObject(HDC hdc)
 
 	Polygon(hdc, playerPos, 4);
 
-	if (playerState == eFocus)
-		Polygon(hdc, fMovePos, 4);
+//	if (playerState == eFocus)
+//		Polygon(hdc, fMovePos, 4);
 }
 
 void Player::RenderObject(HWND hWnd, HDC hdc)
 {
 	RECT focusRect = ConversionRect(focusPos);
+	RECT spotRect = ConversionRect(fMovePos);
 	
 	HDC focusStartDc;
 	HBITMAP hFocusStartBit;
-
 	HDC focusFinDc;
 	HBITMAP hFocusBit, hFocusBit2;
-
 	int bx, by;
+
+	HDC spotDc;
+	HBITMAP hSpotBit;
+	int spotX, spotY;
 
 	if (!GetIsFocusMode())
 	{
+		// 일반 상태
 		focusFinDc = CreateCompatibleDC(hdc);
 		hFocusBit = CreateCompatibleBitmap(hdc, 500, 500);	// bitmap size
 		hFocusBit2 = (HBITMAP)SelectObject(focusFinDc, hFocusBit);
@@ -389,15 +396,21 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	}
 	else
 	{
+		// 포커스 상태
 		focusFinDc = CreateCompatibleDC(hdc);
 		hFocusBit = CreateCompatibleBitmap(hdc, 500,500);
 		hFocusBit2 = (HBITMAP)SelectObject(focusFinDc, hFocusBit);
 
 		focusStartDc = CreateCompatibleDC(hdc);
 		hFocusStartBit = (HBITMAP)SelectObject(focusStartDc, hFocusBitmap);
-
+		
 		bx = focusBitmap.bmWidth;
 		by = 500;
+
+		spotDc = CreateCompatibleDC(hdc);
+		hSpotBit = (HBITMAP)SelectObject(spotDc, hSpotBitmap);
+		spotX = spotBitmap.bmWidth;
+		spotY = spotBitmap.bmHeight;
 
 		BLENDFUNCTION bf;
 		bf.AlphaFormat = 0;
@@ -410,6 +423,20 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 		AlphaBlend(hdc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
 			focusFinDc, 0, 0, 500, 500, bf);	// 투명도
 
+		// >> 포커스 좌표
+		HPEN hPen, oldPen;
+		hPen = CreatePen(PS_DOT, 1, RGB(36, 36, 36));
+		oldPen = (HPEN)SelectObject(hdc, hPen);
+
+		MoveToEx(hdc, centerPos.x, centerPos.y, NULL);
+		LineTo(hdc, fCenterPos.x, fCenterPos.y);
+
+		TransparentBlt(hdc, spotRect.left, spotRect.top, spotX, spotY, spotDc, 0, 0, spotX, spotY, RGB(255, 0, 255));
+
+		SelectObject(hdc, oldPen);
+		DeleteObject(hPen);
+		// >> 포커스 좌표
+
 		SelectObject(focusFinDc, hFocusBit2);
 		DeleteDC(focusFinDc);
 		DeleteObject(hFocusBit);
@@ -417,6 +444,9 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 
 		SelectObject(focusStartDc, hFocusStartBit);
 		DeleteDC(focusStartDc);
+
+		SelectObject(spotDc, hSpotBit);
+		DeleteDC(spotDc);
 	}
 }
 
@@ -657,6 +687,9 @@ void Player::CanMovePlayer()
 
 			CalcCenterPos();
 			SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
+
+			fCenterPos.x = centerPos.x;
+			fCenterPos.y = centerPos.y;
 		}
 		// 포커스
 	}
@@ -697,6 +730,8 @@ void Player::CanMovePlayer()
 		{
 			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+			fCenterPos.x = centerPos.x;
+			fCenterPos.y = centerPos.y;
 		}
 		
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
