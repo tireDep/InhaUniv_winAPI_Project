@@ -309,37 +309,23 @@ bool Player::CheckBlockMap()
 		if (IntersectRect(&area, &tempMap[i].pos, &conRect) && 
 			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3))	// 블럭인 경우에만 지나갈 수 x
 		{
-			playerPos[0] = lastPlayerPos[0];
-			playerPos[1] = lastPlayerPos[1];
-			playerPos[2] = lastPlayerPos[2];
-			playerPos[3] = lastPlayerPos[3];
+			ReturnLastPos();	// 포커스 좌표가 블럭에 위치할 때
+			return false;
+		}
 
-			lastMoveCenter.x = 0;
-			lastMoveCenter.y = 0;
-
-			playerState = eIdle;
-
+		if (IntersectRect(&area, &tempMap[i].pos, &conRect2) &&
+			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3))	// 블럭인 경우에만 지나갈 수 x
+		{
+			ReturnLastPos();	// 플레이어 좌표가 블럭에 위치할 때
 			return false;
 		}
 	}
 
-	for (int i = 0; i < tempMap.size(); i++)
+	RECT playerRect = ConversionRect(playerPos);
+	if (playerRect.left < 0 || playerRect.right>eTrueWinWidth || playerRect.top<0 || playerRect.bottom>eTrueWinHeight)
 	{
-		if (IntersectRect(&area, &tempMap[i].pos, &conRect2) && 
-			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3))	// 블럭인 경우에만 지나갈 수 x
-		{
-			playerPos[0] = lastPlayerPos[0];
-			playerPos[1] = lastPlayerPos[1];
-			playerPos[2] = lastPlayerPos[2];
-			playerPos[3] = lastPlayerPos[3];
-
-			lastMoveCenter.x = 0;
-			lastMoveCenter.y = 0;
-
-			playerState = eIdle;
-
-			return false;
-		}
+		ReturnLastPos();	// 이동한 좌표가 맵을 벗어날 때
+		return false;
 	}
 
 	lastPlayerPos[0] = playerPos[0];
@@ -537,17 +523,7 @@ void Player::CalcFocusMove()
 				lastMoveCenter.y--;
 			}
 			else
-			{
-				playerState = eIdle;
-				lastMoveCenter = { 0,0 };
-
-				playerPos[0] = lastPlayerPos[0];
-				playerPos[1] = lastPlayerPos[1];
-				playerPos[2] = lastPlayerPos[2];
-				playerPos[3] = lastPlayerPos[3];
-				// 맵에 끼이는 것 방지
-			}
-
+				ReturnLastPos(); // 맵에 끼이는 것 방지
 		}
 	}
 }
@@ -993,6 +969,19 @@ RECT Player::ConversionRect(POINT pos[])
 	conversion.bottom = pos[2].y;
 
 	return conversion;
+}
+
+void Player::ReturnLastPos()
+{
+	playerPos[0] = lastPlayerPos[0];
+	playerPos[1] = lastPlayerPos[1];
+	playerPos[2] = lastPlayerPos[2];
+	playerPos[3] = lastPlayerPos[3];
+
+	lastMoveCenter.x = 0;
+	lastMoveCenter.y = 0;
+
+	playerState = eIdle;
 }
 
 void Player::Reset()

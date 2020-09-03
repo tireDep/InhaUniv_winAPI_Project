@@ -103,6 +103,7 @@ public:
 
 	RECT ConversionRect(POINT pos[]);
 
+	void ReturnLastPos();
 	void Reset();
 
 	RECT GetPlayerPos();
