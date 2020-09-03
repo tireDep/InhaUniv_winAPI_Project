@@ -359,9 +359,8 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	if (!GetIsFocusMode())
 	{
 		focusFinDc = CreateCompatibleDC(hdc);
-		hFocusBit = CreateCompatibleBitmap(focusFinDc, eTrueWinWidth, eTrueWinHeight);
+		hFocusBit = CreateCompatibleBitmap(hdc, 500, 500);	// bitmap size
 		hFocusBit2 = (HBITMAP)SelectObject(focusFinDc, hFocusBit);
-		//PatBlt(focusFinDc, 0, 0, eTrueWinWidth, eTrueWinHeight, WHITENESS);
 
 		focusStartDc = CreateCompatibleDC(hdc);
 		hFocusStartBit = (HBITMAP)SelectObject(focusStartDc, hFocusBitmap);
@@ -373,19 +372,12 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 		bf.AlphaFormat = 0;
 		bf.BlendFlags = 0;
 		bf.BlendOp = AC_SRC_OVER;
-		bf.SourceConstantAlpha = 25;	// 투명도
+		bf.SourceConstantAlpha = 10;	// 투명도
 
-		// StretchBlt(focusFinDc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
-		// 	focusStartDc, 0, by, bx, by, SRCCOPY);
-
-		StretchBlt(focusFinDc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
-			focusStartDc, 0, by, bx, by, SRCCOPY);
-
-		// AlphaBlend(hdc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
-		// 	focusFinDc, 0, 0, 25, 25, bf);
+		StretchBlt(focusFinDc, 0, 0, 500, 500, focusStartDc, 0, 0, bx, by, SRCCOPY);	// 사이즈 조정
 
 		AlphaBlend(hdc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
-			focusFinDc, 0, 0, 25, 25, bf);
+			focusFinDc, 0, 0, 500, 500, bf);	// 투명도
 
 		SelectObject(focusFinDc, hFocusBit2);
 		DeleteDC(focusFinDc);
@@ -398,9 +390,8 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	else
 	{
 		focusFinDc = CreateCompatibleDC(hdc);
-		hFocusBit = CreateCompatibleBitmap(focusFinDc, eTrueWinWidth, eTrueWinHeight);
+		hFocusBit = CreateCompatibleBitmap(hdc, 500,500);
 		hFocusBit2 = (HBITMAP)SelectObject(focusFinDc, hFocusBit);
-		//PatBlt(focusFinDc, 0, 0, eTrueWinWidth, eTrueWinHeight, WHITENESS);
 
 		focusStartDc = CreateCompatibleDC(hdc);
 		hFocusStartBit = (HBITMAP)SelectObject(focusStartDc, hFocusBitmap);
@@ -414,11 +405,10 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 		bf.BlendOp = AC_SRC_OVER;
 		bf.SourceConstantAlpha = 100;	// 투명도
 
-		StretchBlt(focusFinDc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
-			focusStartDc, 0, by, bx, by, SRCCOPY);
+		StretchBlt(focusFinDc, 0, 0, 500, 500, focusStartDc, 0, by, bx, by, SRCCOPY); // 사이즈 조정
 
 		AlphaBlend(hdc, focusRect.left, focusRect.top, focusRect.right - focusRect.left, focusRect.bottom - focusRect.top,
-			focusFinDc, 0, 25, 25, 25, bf);
+			focusFinDc, 0, 0, 500, 500, bf);	// 투명도
 
 		SelectObject(focusFinDc, hFocusBit2);
 		DeleteDC(focusFinDc);
@@ -427,7 +417,6 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 
 		SelectObject(focusStartDc, hFocusStartBit);
 		DeleteDC(focusStartDc);
-
 	}
 }
 
