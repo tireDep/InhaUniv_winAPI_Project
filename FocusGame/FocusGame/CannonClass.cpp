@@ -3,7 +3,7 @@
 #include "BulletClass.h"
 #include "CannonClass.h"
 
-#define hitRange 15
+#define hitRange 5
 #define countDown 3
 #define shootedDown 2
 #define hitRangeDown 1
@@ -11,6 +11,7 @@
 
 #define degree 90
 
+#define dPlayer Player::GetInstance()
 #define dGameManager GameManager::GetInstance()
 #define dBulletList Bullet::GetInstance()
 
@@ -51,7 +52,7 @@ Cannon::Cannon(parceCannon set)
 	centerPos.x = set.pos.x;
 	centerPos.y = set.pos.y;
 
-	shotCd = { centerPos.x - 16, centerPos.y - 24, centerPos.x + 16, centerPos.y - 16 };
+	shotCd = { centerPos.x - 16, centerPos.y - 30, centerPos.x + 16, centerPos.y - 20 };
 
 	timer = tmTime->tm_sec;
 	countDownSec = countDown;
@@ -81,27 +82,52 @@ Cannon::~Cannon()
 
 void Cannon::Update()
 {
-	CheckInPlayer();
+	if(!dPlayer->GetIsPlayerDead())
+		CheckInPlayer();
 }
 
 void Cannon::DrawObject(HDC hdc)
 {
+	if (dGameManager->GetDrawRect())
+	{
+		SelectObject(hdc, GetStockObject(NULL_BRUSH));
+		Rectangle(hdc, hitRect.left, hitRect.top, hitRect.right, hitRect.bottom);	// test
+		Rectangle(hdc, testShot.left, testShot.top, testShot.right, testShot.bottom);	// test_testShot
+	}
+
+	HPEN hPen, oldPen;
+	HBRUSH hBrush, oldBrush;
+
+	hPen = CreatePen(PS_SOLID, 1, RGB(36, 36, 36));
+	oldPen = (HPEN)SelectObject(hdc, hPen);
 
 	if (isShooted)
 	{
-		SelectObject(hdc, GetStockObject(GRAY_BRUSH));
+		// hBrush = CreateSolidBrush(RGB(150, 150, 150));
+		hBrush = CreateSolidBrush(RGB(128, 42, 42));
+		oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+
+		// SelectObject(hdc, GetStockObject(DKGRAY_BRUSH));
 		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);	// test_shootdGage
+
+		SelectObject(hdc, oldBrush);
+		DeleteObject(hBrush);
 	}
 
 	if (isPlayer)
 	{
-		SelectObject(hdc, GetStockObject(BLACK_BRUSH));
+		hBrush = CreateSolidBrush(RGB(16, 16, 16));
+		oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+
+		// SelectObject(hdc, GetStockObject(BLACK_BRUSH));
 		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);	// test_shootdGage
+
+		SelectObject(hdc, oldBrush);
+		DeleteObject(hBrush);
 	}
 	
-	// SelectObject(hdc, GetStockObject(NULL_BRUSH));
-	// Rectangle(hdc, hitRect.left, hitRect.top, hitRect.right, hitRect.bottom);	// test
-	// Rectangle(hdc, testShot.left, testShot.top, testShot.right, testShot.bottom);	// test_testShot
+	SelectObject(hdc, oldPen);
+	DeleteObject(hPen);
 }
 
 void Cannon::CheckInPlayer()
@@ -296,7 +322,7 @@ void Cannon::Reset()
 	testShot.right = centerPos.x + eBlockSize * 0.5;
 	testShot.bottom = centerPos.y + eBlockSize * 0.5;
 
-	shotCd = { centerPos.x - 16, centerPos.y - 24, centerPos.x + 16, centerPos.y - 16 };
+	shotCd = { centerPos.x - 16, centerPos.y - 30, centerPos.x + 16, centerPos.y - 20 };
 
 	tempCenter.x = -1;
 	tempCenter.y = -1;

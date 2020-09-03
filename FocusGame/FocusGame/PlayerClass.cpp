@@ -8,7 +8,9 @@
 #define dMinusFocusP 1
 
 #define dWalkMax 2
-#define dDeadMax 8
+#define dDeadMax 4
+
+#define dCountDown 1
 
 #define dgameManager GameManager::GetInstance()
 
@@ -59,6 +61,9 @@ Player::Player()
 	isRightSight = false;
 	nowFrame = 0;
 	isEndAni = false;
+
+	timer = 0;
+	countDownSec = dCountDown;
 }
 
 Player::~Player()
@@ -74,8 +79,16 @@ Player* Player::GetInstance()
 
 void Player::Update()
 {
-	Gravity();
-	CanMovePlayer();
+	if (playerState != eDead)
+	{
+		Gravity();
+		CanMovePlayer();
+	}
+	else
+	{
+		if(isEndAni)
+			dgameManager->SetIsPlayerLive(false);
+	}
 }
 
 void Player::Gravity()
@@ -106,7 +119,7 @@ void Player::Gravity()
 bool Player::CheckBtmGround(int &lengthDiff)
 {
 	RECT temp;
-	vector<TileMap> checkBtm = dGameManger->GetNowMap();
+	vector<TileMap> checkBtm = dgameManager->GetNowMap();
 	RECT checkRect = ConversionRect(playerPos);
 
 	for (int i = 0; i < checkBtm.size(); i++)
@@ -132,7 +145,7 @@ bool Player::CheckBtmGround(int &lengthDiff)
 bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 {
 	RECT areaRect;
-	vector<TileMap> checkBtm = dGameManger->GetNowMap();
+	vector<TileMap> checkBtm = dgameManager->GetNowMap();
 	RECT checkRect = ConversionRect(pos);
 
 	if (direction == eMoveRight)
@@ -145,11 +158,11 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				lengthDiff = checkBtm[i].pos.left - checkRect.right;
 				return false;
 			}
-			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
 				// todo : 게임오버 추가
 				playerState = eDead;
-				dGameManger->SetIsPlayerLive(false);
+				//dgameManager->SetIsPlayerLive(false);
 				return true;
 			}
 		}
@@ -166,11 +179,11 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				lengthDiff = checkBtm[i].pos.right - checkRect.left;
 				return false;
 			}
-			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
 				// todo : 게임오버 추가
 				playerState = eDead;
-				dGameManger->SetIsPlayerLive(false);
+				//dgameManager->SetIsPlayerLive(false);
 				return true;
 			}
 		}
@@ -187,11 +200,11 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				lengthDiff = checkBtm[i].pos.bottom - checkRect.top;
 				return false;
 			}
-			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
 				// todo : 게임오버 추가
 				playerState = eDead;
-				dGameManger->SetIsPlayerLive(false);
+				//dgameManager->SetIsPlayerLive(false);
 				return true;
 			}
 
@@ -209,11 +222,11 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
 				return false;
 			}
-			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapObstacle)
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
 				// todo : 게임오버 추가
 				playerState = eDead;
-				dGameManger->SetIsPlayerLive(false);
+				//dgameManager->SetIsPlayerLive(false);
 				return true;
 			}
 		}
@@ -299,7 +312,7 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 bool Player::CheckBlockMap()
 {
 	RECT area;
-	vector<TileMap> tempMap = dGameManger->GetNowMap();
+	vector<TileMap> tempMap = dgameManager->GetNowMap();
 	RECT conRect = ConversionRect(fMovePos);
 	RECT conRect2 = ConversionRect(playerPos);
 	// ※ : 포커스 좌표로 잡아야 맨 위 블럭도 판정 가능
@@ -338,15 +351,15 @@ bool Player::CheckBlockMap()
 
 void Player::DrawObject(HDC hdc)
 {
-	// Polygon(hdc, focusPos, 4);
-	//RECT temp = ConversionRect(focusPos);
-	//Ellipse(hdc, temp.left, temp.top, temp.right, temp.bottom);
-	// todo : 반투명한 이미지로 대체
+	if (dgameManager->GetDrawRect())
+	{
+		Polygon(hdc, focusPos, 4);
 
-	// Polygon(hdc, playerPos, 4);
+		Polygon(hdc, playerPos, 4);
 
-//	if (playerState == eFocus)
-//		Polygon(hdc, fMovePos, 4);
+		if (playerState == eFocus)
+			Polygon(hdc, fMovePos, 4);
+	}
 }
 
 void Player::RenderObject(HWND hWnd, HDC hdc)
@@ -455,7 +468,7 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	HDC playerDc;
 	HBITMAP hPlayerBit;
 	int posX, posY;
-	POINT aniPos;
+	POINT aniPos = { 0,0 };
 
 	playerDc = CreateCompatibleDC(hdc);
 	hPlayerBit = (HBITMAP)SelectObject(playerDc, hPlayerBitmap);
@@ -463,19 +476,30 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	posX = 16;
 	posY = 16;
 
-	// if (!dgameManager->GetIsPlayerLive())
 	if(playerState==eDead)
 	{
-		printf("tastetstatatet");
-		// printf("++++++++++++++++++++++++++++++++++++%d\n", nowFrame);
-		// aniPos = { nowFrame, 96 };
-		// nowFrame += 16;
-		// 
-		// if (nowFrame == dDeadMax * 16)
-		// {
-		// 	nowFrame = 0;
-		// 	isEndAni = true;
-		// }
+		aniPos = { nowFrame, 96 };
+		
+		time(&nowTime);
+		tmTime = localtime(&nowTime);
+
+		if (timer != tmTime->tm_sec)
+		{
+			timer = tmTime->tm_sec;
+			countDownSec--;
+		}
+
+		if (countDownSec <= 0)
+		{
+			countDownSec = dCountDown;
+			nowFrame += 16;
+		}
+
+		if (nowFrame == dDeadMax * 16)
+		{
+			nowFrame = 0;
+			isEndAni = true;
+		}
 	}
 
 	if (!dgameManager->GetIsPause())
@@ -1022,6 +1046,9 @@ void Player::Reset()
 	isRightSight = false;
 	nowFrame = 0;
 	isEndAni = false;
+
+	timer = 0;
+	countDownSec = dCountDown;
 }
 
 
@@ -1046,4 +1073,20 @@ bool Player::GetIsFocusMode()
 bool Player::GetIsEndAni()
 {
 	return isEndAni;
+}
+
+void Player::SetIsPlayerDead(bool set)
+{
+	if (set == true)
+		playerState = eDead;
+	else 
+		playerState = eIdle;
+}
+
+bool Player::GetIsPlayerDead()
+{
+	if (playerState == eDead)
+		return true;
+	else
+		return false;
 }
