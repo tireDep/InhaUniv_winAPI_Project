@@ -463,8 +463,10 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	posX = 16;
 	posY = 16;
 
-	if (!dgameManager->GetIsPlayerLive())
+	// if (!dgameManager->GetIsPlayerLive())
+	if(playerState==eDead)
 	{
+		printf("tastetstatatet");
 		// printf("++++++++++++++++++++++++++++++++++++%d\n", nowFrame);
 		// aniPos = { nowFrame, 96 };
 		// nowFrame += 16;
@@ -476,26 +478,27 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 		// }
 	}
 
-
-	if (playerState == eIdle)
+	if (!dgameManager->GetIsPause())
 	{
-		printf("idle\n");
+		if (playerState == eIdle)
+			aniPos = { 0,0 };
+		else if (playerState == eMoveLeft || playerState == eMoveRight)
+		{
+			printf("leftright\n");
+			aniPos = { nowFrame, 32 };
+			nowFrame += 16;
+			if (nowFrame == dWalkMax * 16)
+				nowFrame = 0;
+		}
+		else if (playerState == eJump)
+			aniPos = { 0,64 };
+		else if (playerState == eFall)
+			aniPos = { 16,64 };
+		else if (playerState == eFocus)
+			aniPos = { 0,128 };
+	}
+	else
 		aniPos = { 0,0 };
-	}
-	else if (playerState == eMoveLeft || playerState == eMoveRight)
-	{
-		printf("leftright\n");
-		aniPos = { nowFrame, 32 };
-		nowFrame += 16;
-		if (nowFrame == dWalkMax * 16)
-			nowFrame = 0;
-	}
-	else if (playerState == eJump)
-		aniPos = { 0,64 };
-	else if (playerState == eFall)
-		aniPos = { 16,64 };
-	else if (playerState == eFocus)
-		aniPos = { 0,128 };
 
 	if (isRightSight == false)
 		aniPos.y += 16;	// 좌우방향 확인
@@ -596,8 +599,8 @@ void Player::CanMovePlayer()
 {
 	CalcFocusMove();
 
-	if (GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_UP) >= 0
-		&& GetKeyState(VK_RIGHT) >= 0 && GetKeyState(VK_LEFT) >= 0  && GetKeyState(VK_SPACE) >= 0)
+	if (GetKeyState(0x41) >= 0 && GetKeyState(VK_DOWN) >= 0 && GetKeyState(VK_UP) >= 0
+		&& GetKeyState(VK_RIGHT) >= 0 && GetKeyState(VK_LEFT) >= 0  && GetKeyState(VK_SPACE) >= 0 )
 	{
 		// 키가 다 떨어져 있을 경우 IDLE 상태(애니메이션 실행 X)
 		playerState = eIdle;

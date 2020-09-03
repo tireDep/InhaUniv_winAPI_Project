@@ -290,6 +290,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		if (gameManger->GetIsPlayerLive())
 		{
+			if (gameManger->GetIsPause())
+			{
+				// >> 일시정지 표시
+				HPEN hPen, oldPen;
+				hPen = CreatePen(BS_SOLID, 1, RGB(150, 150, 150));
+				oldPen = (HPEN)SelectObject(memDc, hPen);
+				
+				hBrush = CreateSolidBrush(RGB(150, 150, 150));
+				oldBrush=(HBRUSH)SelectObject(memDc, hBrush);
+
+				Rectangle(memDc, 20, 20, 70, 70);
+
+				SelectObject(memDc, oldBrush);
+				DeleteObject(hBrush);
+
+				hBrush = CreateSolidBrush(RGB(50, 50, 50));
+				oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
+				
+				Rectangle(memDc, 30, 30, 40, 60);
+				Rectangle(memDc, 50, 30, 60, 60);
+
+				SelectObject(memDc, oldPen);
+				DeleteObject(hPen);
+
+				SelectObject(memDc, oldBrush);
+				DeleteObject(hBrush);
+			}
+
 			for (int i = 0; i<object.size(); i++)
 				object[i]->DrawObject(memDc);
 
