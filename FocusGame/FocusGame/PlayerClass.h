@@ -3,7 +3,7 @@
 #include "ObjectClass.h"
 #include "GameManager.h"
 
-#define dGameManger GameManager::GetInstance()
+#define dgameManager GameManager::GetInstance()
 
 using namespace std;
 
@@ -68,6 +68,12 @@ private:
 	int nowFrame;
 	bool isEndAni;
 
+	time_t nowTime;
+	struct tm *tmTime;
+
+	int timer;
+	int countDownSec;
+
 	Player();
 
 public:
@@ -110,5 +116,8 @@ public:
 	RECT GetFocusPos();
 	bool GetIsFocusMode();
 	bool GetIsEndAni();
+
+	void SetIsPlayerDead(bool set);
+	bool GetIsPlayerDead();
 };
 

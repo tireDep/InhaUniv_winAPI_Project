@@ -28,7 +28,6 @@ Explode::Explode()
 
 		temp.curFrame = 1;
 		temp.maxFrame = dMaxFrame;
-		temp.addNum = 0;
 
 		temp.hAniImg = (HBITMAP)LoadImage(NULL, TEXT("../Image/explode.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 		GetObject(temp.hAniImg, sizeof(BITMAP), &temp.bitAni);
@@ -51,10 +50,13 @@ Explode* Explode::GetInstance()
 
 void Explode::Update()
 {
-	for (int i = 0; i < dMaxCnt; i++)
+	if (!dPlayer->GetIsPlayerDead())
 	{
-		if (explodeList[i].isStart == true)
-			CheckHitPlayer(explodeList[i]);
+		for (int i = 0; i < dMaxCnt; i++)
+		{
+			if (explodeList[i].isStart == true)
+				CheckHitPlayer(explodeList[i]);
+		}
 	}
 }
 
@@ -64,21 +66,21 @@ void Explode::CheckHitPlayer(explodStruct &effect)
 	RECT playerPos = dPlayer->GetPlayerPos();
 	
 	if (IntersectRect(&area, &playerPos, &effect.explodeRect))
-	{
-		dGameManger->SetIsPlayerLive(false);
-		// todo : player 사망 판정 & 스테이지 리셋
-	}
+		dPlayer->SetIsPlayerDead(true);
 	else
 		dMap->CheckShotOffBtn(effect.explodeRect);
 }
 
 void Explode::DrawObject(HDC hdc)
 {
-	for (int i = 0; i < dMaxCnt; i++)
+	if (dGameManager->GetDrawRect())
 	{
-		if (explodeList[i].isStart == true)
-			Rectangle(hdc, explodeList[i].explodeRect.left, explodeList[i].explodeRect.top, 
-				explodeList[i].explodeRect.right, explodeList[i].explodeRect.bottom);
+		for (int i = 0; i < dMaxCnt; i++)
+		{
+			if (explodeList[i].isStart == true)
+				Rectangle(hdc, explodeList[i].explodeRect.left, explodeList[i].explodeRect.top,
+					explodeList[i].explodeRect.right, explodeList[i].explodeRect.bottom);
+		}
 	}
 }
 
@@ -119,11 +121,7 @@ void Explode::SetNextFrame()
 		if (explodeList[i].isStart == true)
 		{
 			if (IntersectRect(&area, &explodeList[i].explodeRect, &dPlayer->GetFocusPos()) && dPlayer->GetIsFocusMode())
-			{
-				// explodeList[i].addNum += 0.05;
-				// explodeList[i].curFrame += explodeList[i].addNum;
 				continue;	// 포커스 모드 & 영역 포함일 시 폭발 일시 정지
-			}
 			else
 				explodeList[i].curFrame++;
 
@@ -167,6 +165,5 @@ void Explode::ResetExplode(explodStruct &effect)
 	effect.isStart = false;
 
 	effect.curFrame = 1;
-	effect.maxFrame = 7;
-	effect.addNum = 0;
+	effect.maxFrame = dMaxFrame;
 }

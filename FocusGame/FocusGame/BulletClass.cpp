@@ -66,20 +66,24 @@ Bullet* Bullet::GetInstance()
 
 void Bullet::Update()
 {
-	CheckShot();
+	if(!dPlayer->GetIsPlayerDead())
+		CheckShot();
 }
 
 void Bullet::DrawObject(HDC hdc)
 {
-	SelectObject(hdc, GetStockObject(BLACK_BRUSH));
-
-	for (int i = 0; i < dMaxCnt; i++)
+	if (dGameManager->GetDrawRect())
 	{
-		if (nBulletList[i].isShot == true)
-			Rectangle(hdc, nBulletList[i].shotBullet.left, nBulletList[i].shotBullet.top, nBulletList[i].shotBullet.right, nBulletList[i].shotBullet.bottom);
+		SelectObject(hdc, GetStockObject(BLACK_BRUSH));
 
-		if (hBulletList[i].isShot == true)
-			Rectangle(hdc, hBulletList[i].shotBullet.left, hBulletList[i].shotBullet.top, hBulletList[i].shotBullet.right, hBulletList[i].shotBullet.bottom);
+		for (int i = 0; i < dMaxCnt; i++)
+		{
+			if (nBulletList[i].isShot == true)
+				Rectangle(hdc, nBulletList[i].shotBullet.left, nBulletList[i].shotBullet.top, nBulletList[i].shotBullet.right, nBulletList[i].shotBullet.bottom);
+
+			if (hBulletList[i].isShot == true)
+				Rectangle(hdc, hBulletList[i].shotBullet.left, hBulletList[i].shotBullet.top, hBulletList[i].shotBullet.right, hBulletList[i].shotBullet.bottom);
+		}
 	}
 }
 
@@ -181,7 +185,7 @@ void Bullet::CheckShot()
 	for (int i = 0; i < dMaxCnt; i++)
 	{
 		if (nBulletList[i].isShot == true)
-			CalcBullet(nBulletList[i], nBulletList[i].centerPos, playerCenter, nBulletList[i].type); // MoveShot(nBulletList[i]);
+			CalcBullet(nBulletList[i], nBulletList[i].centerPos, playerCenter, nBulletList[i].type);
 
 		if (hBulletList[i].isShot == true)
 		{
@@ -235,9 +239,7 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 			dExplode->StartExplode(bullet.centerPos);
 			ResetBullet(bullet);
 
-			dGameManger->SetIsPlayerLive(false);
-			// todo : 폭발 이펙트 & hit 판정
-			// todo : 플레이어 사망 판정, 스테이지 리셋
+			dPlayer->SetIsPlayerDead(true);
 			break;
 		}
 	}

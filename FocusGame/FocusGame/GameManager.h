@@ -32,6 +32,8 @@ private:
 
 	bool isPlayerLive;
 
+	bool isDrawRect;
+
 	GameManager();
 
 public:
@@ -57,5 +59,8 @@ public:
 
 	vector<TileMap> GetNowMap();
 	RECT GetNowPlayerPos();
+
+	void SetDrawRect(bool set);
+	bool GetDrawRect();
 };
 

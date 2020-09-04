@@ -135,7 +135,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	GameManager *gameManger = GameManager::GetInstance();
+	GameManager *gameManager = GameManager::GetInstance();
 	Map *map = Map::GetInstance();
 	Player *player = Player::GetInstance();
 	Bullet *bulletList = Bullet::GetInstance();
@@ -147,7 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	// setObject
 	if (object.size() == 0)	// 플레이어 상태 변경시?
 	{
-		gameManger->SetIsPlayerLive(true);
+		gameManager->SetIsPlayerLive(true);
 		object.push_back(player);
 
 		// >> 맵에 대포가 존재하는지 판단
@@ -178,31 +178,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		SetTimer(hWnd, 100, 100, NULL);	// resetGame
 
-		gameManger->CalcScreenSize(hWnd);
+		gameManager->CalcScreenSize(hWnd);
 		break;
 
 	case WM_TIMER:
-		if (gameManger->GetSceneNum() == eGameScene)
+		if (gameManager->GetSceneNum() == eGameScene)
 		{
-			bool isPlayerLive = gameManger->GetIsPlayerLive();
-
-			// if (wParam == 50)	// animation Timer
-			//	explodeList->SetNextFrame();
-			
-			// todo : dead animation 끝나고 실행되어야 함
-			if (!gameManger->GetIsPause() && wParam == 100 && !isPlayerLive)
+			bool isPlayerLive = gameManager->GetIsPlayerLive();
+			if (!gameManager->GetIsPause() && wParam == 100 && !isPlayerLive)
 			{
-				// >> Reset
-				// todo : mapReset 추가
-				// while (1)
-				// {
-				// 	if (player->GetIsEndAni())
-				// 		break;
-				// }
-
-				if (player->GetIsEndAni() == false)
-					printf("Asdfzxcvjkdafhkjdfsahjkldafhjkdafsklhjadfskhj\n");
-
 				player->Reset();
 				map->Reset();
 
@@ -230,15 +214,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 
 					if (countDown <= 0)
-						gameManger->SetIsPlayerLive(true);
+					{
+						gameManager->SetIsPlayerLive(true);
+						player->SetIsPlayerDead(false);
+					}
 				}
 				// >> 화면 전환 타이머
 			}
 			
-			if (!gameManger->GetIsPause() && wParam == 0 && isPlayerLive)
+			if (!gameManager->GetIsPause() && wParam == 0 && isPlayerLive)
 			{
-				gameManger->SetNowMap(map->GetMapPos());
-				gameManger->SetNowPlayerPos(player->GetPlayerPos());
+				gameManager->SetNowMap(map->GetMapPos());
+				gameManager->SetNowPlayerPos(player->GetPlayerPos());
 
 				for (int i = 0; i<object.size(); i++)
 					object[i]->Update();
@@ -257,9 +244,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_CHAR:
 		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
-		{
-			gameManger->SetIsPause();
-		}
+			gameManager->SetIsPause();
+
+		if (GetAsyncKeyState(VK_TAB) & 0x0001 && gameManager->GetDrawRect() == false)
+			gameManager->SetDrawRect(true);
+		else
+			gameManager->SetDrawRect(false);
 
 		InvalidateRect(hWnd, NULL, false);
 		break;
@@ -272,7 +262,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HDC memDc;
 		HBITMAP hBit, oldBit;
 
-		RECT rectView = gameManger->GetScreenSize();
+		RECT rectView = gameManager->GetScreenSize();
 
 		memDc = CreateCompatibleDC(hdc);
 		hBit = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
@@ -288,19 +278,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		SelectObject(memDc, oldBrush);
 		DeleteObject(hBrush);
 
-		if (gameManger->GetIsPlayerLive())
+		if (gameManager->GetIsPlayerLive())
 		{
+			if (gameManager->GetIsPause())
+			{
+				// >> 일시정지 표시
+				HPEN hPen, oldPen;
+				hPen = CreatePen(BS_SOLID, 1, RGB(150, 150, 150));
+				oldPen = (HPEN)SelectObject(memDc, hPen);
+				
+				hBrush = CreateSolidBrush(RGB(150, 150, 150));
+				oldBrush=(HBRUSH)SelectObject(memDc, hBrush);
+
+				Rectangle(memDc, 20, 20, 70, 70);
+
+				SelectObject(memDc, oldBrush);
+				DeleteObject(hBrush);
+
+				hBrush = CreateSolidBrush(RGB(50, 50, 50));
+				oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
+				
+				Rectangle(memDc, 30, 30, 40, 60);
+				Rectangle(memDc, 50, 30, 60, 60);
+
+				SelectObject(memDc, oldPen);
+				DeleteObject(hPen);
+
+				SelectObject(memDc, oldBrush);
+				DeleteObject(hBrush);
+			}
+
+			map->RenderObject(hWnd, memDc);
+			player->RenderObject(hWnd, memDc);
+
+			bulletList->RenderObject(hWnd, memDc);
+			explodeList->RenderObject(hWnd, memDc);
+
 			for (int i = 0; i<object.size(); i++)
 				object[i]->DrawObject(memDc);
 
 			for (int i = 0; i < obstacle.size(); i++)
 				obstacle[i]->DrawObject(memDc);
 
-			// bulletList->DrawObject(memDc);
-
-			player->RenderObject(hWnd, memDc);
-			bulletList->RenderObject(hWnd, memDc);
-			explodeList->RenderObject(hWnd, memDc);
+			bulletList->DrawObject(memDc);
+			explodeList->DrawObject(memDc);
 		}
 		else
 		{
