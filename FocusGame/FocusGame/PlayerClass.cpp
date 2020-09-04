@@ -126,7 +126,9 @@ bool Player::CheckBtmGround(int &lengthDiff)
 	{
 		if (IntersectRect(&temp, &checkBtm[i].pos, &checkRect))
 		{
-			if (checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3)	// 블록과 충돌할 경우 정지
+			if (checkBtm[i].type == eMapBlock 
+				|| checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
+				|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical)	// 블록과 충돌할 경우 정지
 			{
 				isBtmGround = true;
 				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
@@ -153,7 +155,8 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
 			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
-				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
+				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
+					|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical))
 			{
 				lengthDiff = checkBtm[i].pos.left - checkRect.right;
 				return false;
@@ -174,7 +177,8 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
 			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
-				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
+				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
+					|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical))
 			{
 				lengthDiff = checkBtm[i].pos.right - checkRect.left;
 				return false;
@@ -195,7 +199,8 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
 			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
-				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
+				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
+					|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical))
 			{
 				lengthDiff = checkBtm[i].pos.bottom - checkRect.top;
 				return false;
@@ -217,7 +222,8 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
 			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
-				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3))
+				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
+					|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical))
 			{
 				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
 				return false;
@@ -320,14 +326,16 @@ bool Player::CheckBlockMap()
 	for (int i = 0; i < tempMap.size(); i++)
 	{
 		if (IntersectRect(&area, &tempMap[i].pos, &conRect) && 
-			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3))	// 블럭인 경우에만 지나갈 수 x
+			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3
+				|| tempMap[i].type == eMapGateCloseHorizen || tempMap[i].type == eMapGateCloseVertical))	// 블럭인 경우에만 지나갈 수 x
 		{
 			ReturnLastPos();	// 포커스 좌표가 블럭에 위치할 때
 			return false;
 		}
 
 		if (IntersectRect(&area, &tempMap[i].pos, &conRect2) &&
-			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3))	// 블럭인 경우에만 지나갈 수 x
+			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3
+				|| tempMap[i].type == eMapGateCloseHorizen || tempMap[i].type == eMapGateCloseVertical))	// 블럭인 경우에만 지나갈 수 x
 		{
 			ReturnLastPos();	// 플레이어 좌표가 블럭에 위치할 때
 			return false;
@@ -676,7 +684,7 @@ void Player::CanMovePlayer()
 		// 플레이어 이동
 
 		// 점프
-		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) )	// 점프 시작
+		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
 			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;

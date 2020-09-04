@@ -28,7 +28,6 @@ Explode::Explode()
 
 		temp.curFrame = 1;
 		temp.maxFrame = dMaxFrame;
-		temp.addNum = 0;
 
 		temp.hAniImg = (HBITMAP)LoadImage(NULL, TEXT("../Image/explode.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 		GetObject(temp.hAniImg, sizeof(BITMAP), &temp.bitAni);
@@ -122,11 +121,7 @@ void Explode::SetNextFrame()
 		if (explodeList[i].isStart == true)
 		{
 			if (IntersectRect(&area, &explodeList[i].explodeRect, &dPlayer->GetFocusPos()) && dPlayer->GetIsFocusMode())
-			{
-				// explodeList[i].addNum += 0.05;
-				// explodeList[i].curFrame += explodeList[i].addNum;
 				continue;	// 포커스 모드 & 영역 포함일 시 폭발 일시 정지
-			}
 			else
 				explodeList[i].curFrame++;
 
@@ -170,6 +165,5 @@ void Explode::ResetExplode(explodStruct &effect)
 	effect.isStart = false;
 
 	effect.curFrame = 1;
-	effect.maxFrame = 7;
-	effect.addNum = 0;
+	effect.maxFrame = dMaxFrame;
 }

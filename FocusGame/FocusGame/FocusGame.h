@@ -9,7 +9,7 @@ enum MapType
 	eMapCannon_4 = 154, eMapCannon_5 = 155, eMapCannon_6 = 156, eMapCannon_7 = 157,	// 유도
 
 	eMapGate_0 = 200, eMapGate_1 = 201, eMapGate_2 = 202, eMapGate_3 = 203,	// 게이트close?
-	eMapGateOpen = 204,
+	eMapGateOpen = 204, eMapGateCloseVertical = 205, eMapGateCloseHorizen = 206,
 
 	eMapBtn_0 = 250, eMapBtn_1 = 251,	// 버튼(스위치)
 	eMapBtn_2 = 252, eMapBtn_3 = 253	// 버튼(블럭)
@@ -52,7 +52,6 @@ struct explodStruct
 	bool isStart;
 	int maxFrame;
 	int curFrame;
-	float addNum;
 };
 
 #define dNormal -1

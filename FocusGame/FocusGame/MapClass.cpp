@@ -135,6 +135,43 @@ Map::Map()
 
 	// >> btn
 
+	/*tileMap.type = eMapGateCloseVertical;
+	tileMap.pos = { 200,500,216,516 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapGateCloseVertical;
+	tileMap.pos = { 200,516,216,532 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapGateCloseVertical;
+	tileMap.pos = { 200,532,216,548 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapGateCloseVertical;
+	tileMap.pos = { 200,548,216,564 };
+	mapPos.push_back(tileMap);
+
+	tileMap.type = eMapGateCloseVertical;
+	tileMap.pos = { 200,564,216,580 };
+	mapPos.push_back(tileMap);
+*/
+
+	tileMap.type = eMapGateCloseHorizen;
+	tileMap.pos = { 224,560,240,576 };
+	mapPos.push_back(tileMap);
+	
+	tileMap.type = eMapGateCloseHorizen;
+	tileMap.pos = { 240,560,256,576 };
+	mapPos.push_back(tileMap);
+	
+	tileMap.type = eMapGateCloseHorizen;
+	tileMap.pos = { 256,560,272,576 };
+	mapPos.push_back(tileMap);
+	
+	tileMap.type = eMapGateCloseHorizen;
+	tileMap.pos = { 272,560,288,576 };
+	mapPos.push_back(tileMap);
+
 	resetPos = mapPos;
 	// >> resetValue
 }
@@ -278,6 +315,11 @@ void Map::RenderObject(HWND hWnd, HDC hdc)
 			pos = { 32,96 };
 		else if (mapPos[i].type == eMapCannon_7)
 			pos = { 48,96 };
+
+		else if (mapPos[i].type == eMapGateCloseVertical)
+			pos = { 0,112 };
+		else if (mapPos[i].type == eMapGateCloseHorizen)
+			pos = { 16,112 };
 
 		TransparentBlt(hdc, mapPos[i].pos.left, mapPos[i].pos.top, blength.x, blength.y, hMapDc, pos.x, pos.y, blength.x, blength.y, RGB(255, 0, 255));
 	}
