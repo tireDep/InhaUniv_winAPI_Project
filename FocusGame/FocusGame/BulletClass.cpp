@@ -202,7 +202,7 @@ void Bullet::MoveShot(BulletSctruct &bullet)
 	RECT focusPos = dPlayer->GetFocusPos();
 	bool isFocus = dPlayer->GetIsFocusMode();
 	if (isFocus && IntersectRect(&area, &focusPos, &bullet.shotBullet))
-		mulNum = 0.25;// bullet.speed = dShotSpeed * 0.5 * 0.5;
+		mulNum = 0.25; // bullet.speed = dShotSpeed * 0.5 * 0.5;
 	else
 		mulNum = 1; // bullet.speed = dShotSpeed;
 	// >> 포커스 내부 판정

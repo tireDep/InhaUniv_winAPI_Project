@@ -100,7 +100,6 @@ void Player::Gravity()
 			playerPos[i].y += gravity * dTimeSec;
 
 		if (CheckBtmGround(diffNum))
-		// if(CollisionMap(playerPos,eMoveDown,diffNum))
 		{
 			for (int i = 0; i < 4; i++)
 				playerPos[i].y += diffNum + dTimeSec;
@@ -109,9 +108,6 @@ void Player::Gravity()
 		{
 			for (int i = 0; i < 4; i++)
 				playerPos[i].y -= diffNum + dTimeSec;
-			// CheckBtmGround(diffNum);
-			//for (int i = 0; i < 4; i++)
-			//	playerPos[i].y -= diffNum + dTimeSec;
 		}
 	}
 }
@@ -126,15 +122,10 @@ bool Player::CheckBtmGround(int &lengthDiff)
 	{
 		if (IntersectRect(&temp, &checkBtm[i].pos, &checkRect))
 		{
-			if (checkBtm[i].type == eMapBlock 
-				|| checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
-				|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical)	// 블록과 충돌할 경우 정지
+			if (CheckTileMap(checkBtm[i]))
 			{
 				isBtmGround = true;
 				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
-				// if (lengthDiff == 1 &&
-				// 	(checkBtm[i].pos.left >= checkRect.left && checkBtm[i].pos.right >= checkRect.right) || (checkBtm[i].pos.left <= checkRect.left && checkBtm[i].pos.right <= checkRect.right))
-				//  	lengthDiff = 17;
 				return false;
 			}
 		}
@@ -154,18 +145,14 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
-				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
-					|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical))
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && CheckTileMap(checkBtm[i]))
 			{
 				lengthDiff = checkBtm[i].pos.left - checkRect.right;
 				return false;
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				// todo : 게임오버 추가
 				playerState = eDead;
-				//dgameManager->SetIsPlayerLive(false);
 				return true;
 			}
 		}
@@ -176,18 +163,14 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
-				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
-					|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical))
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && CheckTileMap(checkBtm[i]))
 			{
 				lengthDiff = checkBtm[i].pos.right - checkRect.left;
 				return false;
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				// todo : 게임오버 추가
 				playerState = eDead;
-				//dgameManager->SetIsPlayerLive(false);
 				return true;
 			}
 		}
@@ -198,18 +181,14 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
-				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
-					|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical))
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && CheckTileMap(checkBtm[i]))
 			{
 				lengthDiff = checkBtm[i].pos.bottom - checkRect.top;
 				return false;
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				// todo : 게임오버 추가
 				playerState = eDead;
-				//dgameManager->SetIsPlayerLive(false);
 				return true;
 			}
 
@@ -221,18 +200,14 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 	{
 		for (int i = 0; i < checkBtm.size(); i++)
 		{
-			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && 
-				(checkBtm[i].type == eMapBlock || checkBtm[i].type == eMapGate_0 || checkBtm[i].type == eMapGate_1 || checkBtm[i].type == eMapGate_2 || checkBtm[i].type == eMapGate_3 || checkBtm[i].type == eMapBtn_2 || checkBtm[i].type == eMapBtn_3
-					|| checkBtm[i].type == eMapGateCloseHorizen || checkBtm[i].type == eMapGateCloseVertical))
+			if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && CheckTileMap(checkBtm[i]))
 			{
 				lengthDiff = checkRect.bottom - checkBtm[i].pos.top;
 				return false;
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				// todo : 게임오버 추가
 				playerState = eDead;
-				//dgameManager->SetIsPlayerLive(false);
 				return true;
 			}
 		}
@@ -325,17 +300,13 @@ bool Player::CheckBlockMap()
 
 	for (int i = 0; i < tempMap.size(); i++)
 	{
-		if (IntersectRect(&area, &tempMap[i].pos, &conRect) && 
-			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3
-				|| tempMap[i].type == eMapGateCloseHorizen || tempMap[i].type == eMapGateCloseVertical))	// 블럭인 경우에만 지나갈 수 x
+		if (IntersectRect(&area, &tempMap[i].pos, &conRect) && CheckTileMap(tempMap[i]))
 		{
 			ReturnLastPos();	// 포커스 좌표가 블럭에 위치할 때
 			return false;
 		}
 
-		if (IntersectRect(&area, &tempMap[i].pos, &conRect2) &&
-			(tempMap[i].type == eMapBlock || tempMap[i].type == eMapGate_0 || tempMap[i].type == eMapGate_1 || tempMap[i].type == eMapGate_2 || tempMap[i].type == eMapGate_3 || tempMap[i].type == eMapBtn_2 || tempMap[i].type == eMapBtn_3
-				|| tempMap[i].type == eMapGateCloseHorizen || tempMap[i].type == eMapGateCloseVertical))	// 블럭인 경우에만 지나갈 수 x
+		if (IntersectRect(&area, &tempMap[i].pos, &conRect2) && CheckTileMap(tempMap[i]))
 		{
 			ReturnLastPos();	// 플레이어 좌표가 블럭에 위치할 때
 			return false;
@@ -362,7 +333,6 @@ void Player::DrawObject(HDC hdc)
 	if (dgameManager->GetDrawRect())
 	{
 		Polygon(hdc, focusPos, 4);
-
 		Polygon(hdc, playerPos, 4);
 
 		if (playerState == eFocus)
@@ -516,7 +486,6 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 			aniPos = { 0,0 };
 		else if (playerState == eMoveLeft || playerState == eMoveRight)
 		{
-			printf("leftright\n");
 			aniPos = { nowFrame, 32 };
 			nowFrame += 16;
 			if (nowFrame == dWalkMax * 16)
@@ -654,7 +623,7 @@ void Player::CanMovePlayer()
 			else
 				MovePlayer(playerPos, moveDirection, diffNum, -1, dCorrection);
 		}
-		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8000) // && !isJump 
 		{
 			moveDirection = eMoveRight;
 			playerState = eMoveRight;
@@ -667,7 +636,7 @@ void Player::CanMovePlayer()
 			else
 				MovePlayer(playerPos, moveDirection, diffNum, 1, -dCorrection);
 		}
-		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+		if (GetAsyncKeyState(VK_LEFT) & 0x8000)	// && !isJump 
 		{
 			moveDirection = eMoveLeft;
 			playerState = eMoveLeft;
@@ -946,6 +915,16 @@ int Player::CheckFocusRange(int direction, int mulNum)
 	}
 
 	return num;
+}
+
+bool Player::CheckTileMap(TileMap tile)
+{
+	if (tile.type == eMapBlock
+		|| tile.type == eMapGate_0 || tile.type == eMapGate_1 || tile.type == eMapGate_2 || tile.type == eMapGate_3 || tile.type == eMapBtn_2 || tile.type == eMapBtn_3
+		|| tile.type == eMapGateCloseHorizen || tile.type == eMapGateCloseVertical)	// 블록과 충돌할 경우 정지
+		return true;
+	else
+		return false;
 }
 
 void Player::SetPos(POINT pos[], int xPos, int yPos, int addNum)

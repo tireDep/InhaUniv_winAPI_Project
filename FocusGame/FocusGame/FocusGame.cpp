@@ -148,7 +148,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	if (object.size() == 0)	// 플레이어 상태 변경시?
 	{
 		gameManager->SetIsPlayerLive(true);
-		object.push_back(player);
 
 		// >> 맵에 대포가 존재하는지 판단
 		vector<parceCannon> tempSet = map->CheckInCannon();
@@ -161,8 +160,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		// >> 맵에 대포가 존재하는지 판단
-		
+
 		object.push_back(map);
+
+		object.push_back(player);
 	}
 	// setObject
 
@@ -308,26 +309,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				DeleteObject(hBrush);
 			}
 
-			map->RenderObject(hWnd, memDc);
-			player->RenderObject(hWnd, memDc);
+			// map->RenderObject(hWnd, memDc);
+			// player->RenderObject(hWnd, memDc);
+
+			for (int i = 0; i<object.size(); i++)
+				object[i]->RenderObject(hWnd, memDc);
 
 			bulletList->RenderObject(hWnd, memDc);
 			explodeList->RenderObject(hWnd, memDc);
 
+			// >> drawObject
 			for (int i = 0; i<object.size(); i++)
 				object[i]->DrawObject(memDc);
-
+			
 			for (int i = 0; i < obstacle.size(); i++)
 				obstacle[i]->DrawObject(memDc);
-
+			
 			bulletList->DrawObject(memDc);
 			explodeList->DrawObject(memDc);
+			// >> drawObject
 		}
 		else
 		{
 			SelectObject(memDc, GetStockObject(BLACK_BRUSH));
 			Rectangle(memDc, 0, 0, eTrueWinWidth, eTrueWinHeight);
-			// todo : 이미지로 띄우기
+			// todo : 이미지로 띄우기(continue_UI)
 		}
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);

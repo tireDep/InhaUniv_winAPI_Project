@@ -100,6 +100,7 @@ public:
 	void MovePlayer(POINT pos[], int direction, int num, float mulNum, float addNum);
 
 	int CheckFocusRange(int direction, int mulNum);
+	bool CheckTileMap(TileMap tile);
 	// 이동 관련 함수
 
 	void SetPos(POINT pos[], int xPos, int yPos, int addNum);

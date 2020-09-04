@@ -103,12 +103,10 @@ void Cannon::DrawObject(HDC hdc)
 
 	if (isShooted)
 	{
-		// hBrush = CreateSolidBrush(RGB(150, 150, 150));
 		hBrush = CreateSolidBrush(RGB(128, 42, 42));
 		oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 
-		// SelectObject(hdc, GetStockObject(DKGRAY_BRUSH));
-		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);	// test_shootdGage
+		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);
 
 		SelectObject(hdc, oldBrush);
 		DeleteObject(hBrush);
@@ -119,8 +117,7 @@ void Cannon::DrawObject(HDC hdc)
 		hBrush = CreateSolidBrush(RGB(16, 16, 16));
 		oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 
-		// SelectObject(hdc, GetStockObject(BLACK_BRUSH));
-		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);	// test_shootdGage
+		Rectangle(hdc, shotCd.left, shotCd.top, shotCd.right, shotCd.bottom);
 
 		SelectObject(hdc, oldBrush);
 		DeleteObject(hBrush);
@@ -128,6 +125,11 @@ void Cannon::DrawObject(HDC hdc)
 	
 	SelectObject(hdc, oldPen);
 	DeleteObject(hPen);
+}
+
+void Cannon::RenderObject(HWND hWnd, HDC hdc)
+{
+	
 }
 
 void Cannon::CheckInPlayer()
@@ -150,11 +152,6 @@ void Cannon::CheckInPlayer()
 		float calc = sqrt(float(playerCenter.x - tempCenter.x) * float(playerCenter.x - tempCenter.x) + float(playerCenter.y - tempCenter.y)*float(playerCenter.y - tempCenter.y));
 		// 두 점 사이의 거리
 
-		// POINT lastVec;
-		// lastVec.x = nextSpot.x;
-		// lastVec.y = nextSpot.y;
-		// 탄의 원래 속도 벡터를 저장
-
 		if (calc)
 		{
 			nextSpot.x = (playerCenter.x - tempCenter.x) / calc * tShotSpeed;
@@ -166,48 +163,6 @@ void Cannon::CheckInPlayer()
 			nextSpot.y = tShotSpeed;
 		}
 		// >> 캐릭터 방향으로 속도 벡터 계산
-
-		// float rad = M_PI / 180 * degree;
-		// POINT nextSpot2;
-		// nextSpot2.x = cos(rad)*lastVec.x - sin(rad)*lastVec.y;
-		// nextSpot2.y = sin(rad)*lastVec.x + cos(rad)*lastVec.y;
-		// // >> 시계방향으로 선회할 때의 상한 각도에 해당하는 속도 벡터 계산
-		// 
-		// // >> 캐릭터 방향 선회인지 제한각도만큼만 선회인지 계산
-		// if (lastVec.x * nextSpot.x + lastVec.y * nextSpot.y >= lastVec.x * nextSpot2.x + lastVec.y * nextSpot2.y)
-		// {
-		// 	 // >> 캐릭터가 선회 가능한 범위 일 경우 캐릭터 방향으로 선회
-		// 	 nextSpot.x = nextSpot.x;
-		// 	 nextSpot.y = nextSpot.y;
-		// }
-		// else
-		// {
-		// 	 // >> 캐릭터가 선회 가능한 범위 밖에 있을 경우
-		// 
-		// 	 POINT nextSpot3;
-		// 	 nextSpot3.x = cos(rad) * lastVec.x + sin(rad) * lastVec.y;
-		// 	 nextSpot3.y = -sin(rad) * lastVec.x + cos(rad) * lastVec.y;
-		// 	 // >> 시계 반대방향으로 선회할 때의 상한 각도에 해당하는 속도벡터 계산
-		// 
-		// 	 POINT posVec;
-		// 	 posVec.x = playerCenter.x - centerPos.x;
-		// 	 posVec.y = playerCenter.y - centerPos.y;
-		// 	 // >> 총알에서 캐릭터까지의 상대위치벡터 계산
-		// 
-		// 	 // >> 시계방향 선회인지 반시계방향 선회인지 계산
-		// 	 if (posVec.x * nextSpot2.x + posVec.y * nextSpot2.y >= posVec.x * nextSpot3.x + posVec.y * nextSpot3.y)
-		// 	 {
-		// 		 // >> 시계방향 선회
-		// 		 nextSpot.x = nextSpot2.x;
-		// 		 nextSpot.x = nextSpot2.y;
-		// 	 }
-		// 	 else
-		// 	 {
-		// 		 // 반시계방향 선회
-		// 		 nextSpot.x = nextSpot3.x;
-		// 		 nextSpot.x = nextSpot3.y;
-		// 	 }
-		// }
 
 		MoveTestShot();
 	}

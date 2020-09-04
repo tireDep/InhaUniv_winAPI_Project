@@ -42,6 +42,7 @@ public:
 
 	void Update();
 	void DrawObject(HDC hdc);
+	void RenderObject(HWND hWnd, HDC hdc);
 
 	void CheckInPlayer();
 	void MoveTestShot();
