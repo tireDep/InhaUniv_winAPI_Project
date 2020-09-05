@@ -36,4 +36,6 @@ public:
 	vector<parceCannon> CheckInCannon();
 
 	void Reset();
+
+	void ReadMapData();
 };
