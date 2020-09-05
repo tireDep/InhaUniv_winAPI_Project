@@ -1,21 +1,28 @@
 #include "stdafx.h"
 #include "GameManager.h"
 
+#include <fstream>
+
+#define dKeyCode 'k'
+
+using namespace std;
+
 GameManager::GameManager()
 {
-	nowScene = eMainScene;
+	// nowScene = eMainScene;
+	nowScene = eGameScene;
 
 	isPause = false;
 	isPlayerLive = true;
-	
-	nowScene = eGameScene;
 
 	isDrawRect = false;
+
+	ReadSaveData();
 }
 
 GameManager::~GameManager()
 {
-
+	WriteSaveData();
 }
 
 GameManager* GameManager::GetInstance()
@@ -27,6 +34,47 @@ GameManager* GameManager::GetInstance()
 void GameManager::CalcScreenSize(HWND hWnd)
 {
 	GetClientRect(hWnd, &screenSize);
+}
+
+void GameManager::ReadSaveData()
+{
+	ifstream readFile;
+	readFile.open("saveData.dat", ios::in | ios::binary);
+	if (readFile.is_open())
+	{
+		// 자료 읽어오기
+		readFile.read((char*)&nowStage, sizeof(int));
+		readFile.read((char*)&nowFocusLv, sizeof(int));
+
+		// decode
+		nowStage = (nowStage / dKeyCode) - dKeyCode;
+		nowFocusLv = (nowFocusLv / dKeyCode) - dKeyCode;
+	}
+	else
+	{
+		// nowStage = 0;
+		// nowFocusLv = 0;
+
+		nowStage = 0;
+		nowFocusLv = 50;
+		// 임시 숫자
+	}
+	readFile.close();
+}
+
+void GameManager::WriteSaveData()
+{
+	ofstream saveFile;
+	saveFile.open("saveData.dat", ios::out | ios::binary);
+
+	// encode
+	nowStage = (0 + dKeyCode) * dKeyCode;
+	nowFocusLv = (250 + dKeyCode) * dKeyCode;
+
+	saveFile.write((char*)&nowStage, sizeof(int));
+	saveFile.write((char*)&nowFocusLv, sizeof(int));
+
+	saveFile.close();
 }
 
 void GameManager::SetSceneNum(int num)
@@ -105,7 +153,22 @@ void GameManager::SetDrawRect(bool set)
 		isDrawRect = false;
 }
 
+void GameManager::SetNowStage(int set)
+{
+	nowStage = set;
+}
+
 bool GameManager::GetDrawRect()
 {
 	return isDrawRect;
+}
+
+int GameManager::GetNowStage()
+{
+	return nowStage;
+}
+
+int GameManager::GetFocusLv()
+{
+	return nowFocusLv;
 }

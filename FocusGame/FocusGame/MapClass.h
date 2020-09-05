@@ -30,6 +30,8 @@ public:
 	void DrawObject(HDC hdc);
 	void RenderObject(HWND hWnd, HDC hdc);
 
+	void SetNextStage();
+
 	vector<TileMap> GetMapPos();
 	vector<parceCannon> CheckInCannon();
 

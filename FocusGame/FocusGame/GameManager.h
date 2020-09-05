@@ -34,6 +34,10 @@ private:
 
 	bool isDrawRect;
 
+	int nowStage;
+	int nowFocusLv;
+	// todo : saveData
+
 	GameManager();
 
 public:
@@ -41,6 +45,9 @@ public:
 	static GameManager* GetInstance();
 
 	void CalcScreenSize(HWND hWnd);
+
+	void ReadSaveData();
+	void WriteSaveData();
 
 	void SetSceneNum(int num);
 	void SetIsPause();
@@ -56,11 +63,14 @@ public:
 	int GetNowScene();
 
 	RECT GetScreenSize();
-
 	vector<TileMap> GetNowMap();
 	RECT GetNowPlayerPos();
 
 	void SetDrawRect(bool set);
+	void SetNowStage(int set);
+
 	bool GetDrawRect();
+	int GetNowStage();
+	int GetFocusLv();
 };
 

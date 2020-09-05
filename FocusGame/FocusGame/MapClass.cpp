@@ -191,29 +191,42 @@ void Map::Update()
 {
 	if (!dPlayer->GetIsPlayerDead())
 	{
-		// >> 가시 충돌 판정
 		RECT area;
 		RECT playerPos = dPlayer->GetPlayerPos();
 
 		for (int i = 0; i < mapPos.size(); i++)
 		{
+			// >> 가시 충돌 판정
 			if (mapPos[i].type == eMapSpike && IntersectRect(&area, &mapPos[i].pos, &playerPos))
 			{
 				dPlayer->SetIsPlayerDead(true);
 				break;
 			}
-		}
-		// >> 가시 충돌 판정
 
-		// >> 스위치 off 판정
-		for (int i = 0; i < mapPos.size(); i++)
-		{
+			// >> 스위치 off 판정
+			if (mapPos[i].type == eMapBtn_0 && IntersectRect(&area, &mapPos[i].pos, &playerPos))
+			{
+				mapPos[i].type = eMapBtn_1;
+				// mapPos[i + 1].type = eMapBtn_3;	// 동시에 바뀌어야 함
+				for (int j = 0; j < mapPos.size(); j++)
+				{
+					if (mapPos[j].pos.top == mapPos[i].pos.bottom && mapPos[j].type == eMapBtn_2)
+						mapPos[j].type = eMapBtn_3;
+				}
+				// >> 바로 밑에 있는 버튼이 꺼지도록 판정 변경
+			}
+
+			// >> 스위치 off 판정
 			if (mapPos[i].type == eMapBtn_0 && IntersectRect(&area, &mapPos[i].pos, &playerPos))
 			{
 				mapPos[i].type = eMapBtn_1;
 				mapPos[i + 1].type = eMapBtn_3;	// 동시에 바뀌어야 함
-			}	// 스위치 버튼일 경우
+			}
 
+			if (mapPos[i].type == eMapGateOpen && IntersectRect(&area, &mapPos[i].pos, &playerPos))
+			{
+				SetNextStage();
+			}
 		}
 
 		if (CheckOffBtn())
@@ -326,6 +339,14 @@ void Map::RenderObject(HWND hWnd, HDC hdc)
 
 	SelectObject(hMapDc, hMapBit);
 	DeleteDC(hMapDc);
+}
+
+void Map::SetNextStage()
+{
+	// todo : read Stage
+	// todo : setPlayerResen
+
+	dGameManager->SetNowStage(dGameManager->GetNowStage() + 1);
 }
 
 vector<TileMap> Map::GetMapPos()

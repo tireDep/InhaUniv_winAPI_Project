@@ -144,29 +144,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static vector<Obstacle *>obstacle;
 	static vector<Object *> object;
 
-	// setObject
-	if (object.size() == 0)	// 플레이어 상태 변경시?
-	{
-		gameManager->SetIsPlayerLive(true);
-
-		// >> 맵에 대포가 존재하는지 판단
-		vector<parceCannon> tempSet = map->CheckInCannon();
-		if (tempSet.size() > 0)
-		{
-			for (int i = 0; i < tempSet.size(); i++)
-			{
-				Cannon *addCannon = new Cannon(tempSet[i]);
-				obstacle.push_back(addCannon);
-			}
-		}
-		// >> 맵에 대포가 존재하는지 판단
-
-		object.push_back(map);
-
-		object.push_back(player);
-	}
-	// setObject
-
     switch (message)
     {
 	case WM_CREATE:
@@ -174,12 +151,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		freopen("CONOUT$", "wt", stdout);
 
 		SetTimer(hWnd, 0, 25, NULL);	// playeGame
-
 		SetTimer(hWnd, 50, 50, NULL);	// animationFrame 
-
 		SetTimer(hWnd, 100, 100, NULL);	// resetGame
 
 		gameManager->CalcScreenSize(hWnd);
+		gameManager->SetIsPlayerLive(true);
+
+		// {
+		// 	// >> 맵에 대포가 존재하는지 판단
+		// 	vector<parceCannon> tempSet = map->CheckInCannon();
+		// 	if (tempSet.size() > 0)
+		// 	{
+		// 		for (int i = 0; i < tempSet.size(); i++)
+		// 		{
+		// 			Cannon *addCannon = new Cannon(tempSet[i]);
+		// 			obstacle.push_back(addCannon);
+		// 		}
+		// 	}
+		// 	// >> 맵에 대포가 존재하는지 판단
+		// }
+
+		object.push_back(map);
+		object.push_back(player);
+
 		break;
 
 	case WM_TIMER:
@@ -276,64 +270,68 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PatBlt(memDc, rectView.left, rectView.top, rectView.right, rectView.bottom, PATCOPY);
 		// PATCOPY : dc에 있는 브러시 색상 그대로 출력
 
-		SelectObject(memDc, oldBrush);
-		DeleteObject(hBrush);
-
-		if (gameManager->GetIsPlayerLive())
+		if (gameManager->GetNowScene() == eGameScene)
 		{
-			if (gameManager->GetIsPause())
+
+			SelectObject(memDc, oldBrush);
+			DeleteObject(hBrush);
+
+			if (gameManager->GetIsPlayerLive())
 			{
-				// >> 일시정지 표시
-				HPEN hPen, oldPen;
-				hPen = CreatePen(BS_SOLID, 1, RGB(150, 150, 150));
-				oldPen = (HPEN)SelectObject(memDc, hPen);
-				
-				hBrush = CreateSolidBrush(RGB(150, 150, 150));
-				oldBrush=(HBRUSH)SelectObject(memDc, hBrush);
+				if (gameManager->GetIsPause())
+				{
+					// >> 일시정지 표시
+					HPEN hPen, oldPen;
+					hPen = CreatePen(BS_SOLID, 1, RGB(150, 150, 150));
+					oldPen = (HPEN)SelectObject(memDc, hPen);
 
-				Rectangle(memDc, 20, 20, 70, 70);
+					hBrush = CreateSolidBrush(RGB(150, 150, 150));
+					oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
 
-				SelectObject(memDc, oldBrush);
-				DeleteObject(hBrush);
+					Rectangle(memDc, 20, 20, 70, 70);
 
-				hBrush = CreateSolidBrush(RGB(50, 50, 50));
-				oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
-				
-				Rectangle(memDc, 30, 30, 40, 60);
-				Rectangle(memDc, 50, 30, 60, 60);
+					SelectObject(memDc, oldBrush);
+					DeleteObject(hBrush);
 
-				SelectObject(memDc, oldPen);
-				DeleteObject(hPen);
+					hBrush = CreateSolidBrush(RGB(50, 50, 50));
+					oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
 
-				SelectObject(memDc, oldBrush);
-				DeleteObject(hBrush);
+					Rectangle(memDc, 30, 30, 40, 60);
+					Rectangle(memDc, 50, 30, 60, 60);
+
+					SelectObject(memDc, oldPen);
+					DeleteObject(hPen);
+
+					SelectObject(memDc, oldBrush);
+					DeleteObject(hBrush);
+				}
+
+				// map->RenderObject(hWnd, memDc);
+				// player->RenderObject(hWnd, memDc);
+
+				for (int i = 0; i<object.size(); i++)
+					object[i]->RenderObject(hWnd, memDc);
+
+				bulletList->RenderObject(hWnd, memDc);
+				explodeList->RenderObject(hWnd, memDc);
+
+				// >> drawObject
+				for (int i = 0; i<object.size(); i++)
+					object[i]->DrawObject(memDc);
+
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->DrawObject(memDc);
+
+				bulletList->DrawObject(memDc);
+				explodeList->DrawObject(memDc);
+				// >> drawObject
 			}
-
-			// map->RenderObject(hWnd, memDc);
-			// player->RenderObject(hWnd, memDc);
-
-			for (int i = 0; i<object.size(); i++)
-				object[i]->RenderObject(hWnd, memDc);
-
-			bulletList->RenderObject(hWnd, memDc);
-			explodeList->RenderObject(hWnd, memDc);
-
-			// >> drawObject
-			for (int i = 0; i<object.size(); i++)
-				object[i]->DrawObject(memDc);
-			
-			for (int i = 0; i < obstacle.size(); i++)
-				obstacle[i]->DrawObject(memDc);
-			
-			bulletList->DrawObject(memDc);
-			explodeList->DrawObject(memDc);
-			// >> drawObject
-		}
-		else
-		{
-			SelectObject(memDc, GetStockObject(BLACK_BRUSH));
-			Rectangle(memDc, 0, 0, eTrueWinWidth, eTrueWinHeight);
-			// todo : 이미지로 띄우기(continue_UI)
+			else
+			{
+				SelectObject(memDc, GetStockObject(BLACK_BRUSH));
+				Rectangle(memDc, 0, 0, eTrueWinWidth, eTrueWinHeight);
+				// todo : 이미지로 띄우기(continue_UI)
+			}
 		}
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);

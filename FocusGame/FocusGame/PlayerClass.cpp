@@ -16,38 +16,7 @@
 
 Player::Player()
 {
-	// todo : 플레이어 정보가 파싱된 위치로 이동해야 함
-	SetPos(playerPos, eTrueWinWidth / 2, eTrueWinHeight / 2, ePlayerSize);
-
-	resetPlayerPos[0] = playerPos[0];
-	resetPlayerPos[1] = playerPos[1];
-	resetPlayerPos[2] = playerPos[2];
-	resetPlayerPos[3] = playerPos[3];
-
-	playerState = eIdle;
-	isJump = false;
-	jumpPower = 0;
-
-	isBtmGround = false;
-
-	moveDirection = eIdle;
-	moveSpeed = eMoveSpeed;
-	gravity = eGravity;
-
-	isCharging = false;
-	focusGauge = eFocusLv3;
-	focusLv = eFocusLv3;
-	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
-
-	CalcCenterPos();
-
-	SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
-	SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
-	CalcFCenterPos();
-
-	SetPos(lastPlayerPos, centerPos.x, centerPos.y, efMoveSize);
-	lastMoveCenter.x = 0;
-	lastMoveCenter.y = 0;
+	Reset();
 
 	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hFocusBitmap, sizeof(BITMAP), &focusBitmap);
@@ -57,13 +26,6 @@ Player::Player()
 
 	hPlayerBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/player.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hPlayerBitmap, sizeof(BITMAP), &playerBitmap);
-
-	isRightSight = false;
-	nowFrame = 0;
-	isEndAni = false;
-
-	timer = 0;
-	countDownSec = dCountDown;
 }
 
 Player::~Player()
@@ -1000,10 +962,18 @@ void Player::ReturnLastPos()
 
 void Player::Reset()
 {
-	playerPos[0] = resetPlayerPos[0];
-	playerPos[1] = resetPlayerPos[1];
-	playerPos[2] = resetPlayerPos[2];
-	playerPos[3] = resetPlayerPos[3];
+	// todo : 플레이어 정보가 파싱된 위치로 이동해야 함
+	SetPos(playerPos, eTrueWinWidth / 2, eTrueWinHeight / 2, ePlayerSize);
+
+	// resetPlayerPos[0] = playerPos[0];
+	// resetPlayerPos[1] = playerPos[1];
+	// resetPlayerPos[2] = playerPos[2];
+	// resetPlayerPos[3] = playerPos[3];
+
+	// playerPos[0] = resetPlayerPos[0];
+	// playerPos[1] = resetPlayerPos[1];
+	// playerPos[2] = resetPlayerPos[2];
+	// playerPos[3] = resetPlayerPos[3];
 
 	playerState = eIdle;
 	isJump = false;
@@ -1016,9 +986,8 @@ void Player::Reset()
 	gravity = eGravity;
 	
 	isCharging = false;
-	focusGauge = eFocusLv3;
-	focusLv = eFocusLv3;
-	// todo : 첫 시작은 0으로 해야함 -> 추후 아이템 구현시 수정
+	focusGauge = dgameManager->GetFocusLv();
+	focusLv = dgameManager->GetFocusLv();
 	
 	CalcCenterPos();
 	
