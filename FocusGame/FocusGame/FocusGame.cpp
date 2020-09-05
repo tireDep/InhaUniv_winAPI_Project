@@ -180,10 +180,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (gameManager->GetSceneNum() == eGameScene)
 		{
 			bool isPlayerLive = gameManager->GetIsPlayerLive();
+
+			if (!gameManager->GetIsPause() && map->GetIsNextStage())
+			{
+				map->SetNextStage();
+				player->Reset();
+				map->SetIsNextStage(false);
+			}
+
 			if (!gameManager->GetIsPause() && wParam == 100 && !isPlayerLive)
 			{
-				player->Reset();
-				map->Reset();
+				for (int i = 0; i < object.size(); i++)
+					object[i]->Reset();
 
 				for (int i = 0; i < obstacle.size(); i++)
 					obstacle[i]->Reset();
@@ -316,8 +324,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				explodeList->RenderObject(hWnd, memDc);
 
 				// >> drawObject
-				for (int i = 0; i<object.size(); i++)
-					object[i]->DrawObject(memDc);
+				// for (int i = 0; i<object.size(); i++)
+				// 	object[i]->DrawObject(memDc);
+				player->DrawObject(memDc);
+				map->DrawObject(memDc);
 
 				for (int i = 0; i < obstacle.size(); i++)
 					obstacle[i]->DrawObject(memDc);

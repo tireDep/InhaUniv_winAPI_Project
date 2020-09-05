@@ -13,9 +13,12 @@ private:
 	
 	vector<TileMap> mapPos;
 	vector<TileMap> resetPos;
+	POINT resenSpot;
 
 	HBITMAP hMapBitmap;
 	BITMAP mapBitmap;
+
+	bool isNextStage;
 
 	Map();
 
@@ -38,4 +41,9 @@ public:
 	void Reset();
 
 	void ReadMapData();
+
+	POINT GetResenSpot();
+
+	void SetIsNextStage(bool set);
+	bool GetIsNextStage();
 };

@@ -40,7 +40,7 @@ private:
 	POINT lastPlayerPos[4];
 	POINT lastMoveCenter;
 
-	// POINT resetPlayerPos[4];
+	POINT resenPos;
 
 	int moveDirection;
 	int moveSpeed;

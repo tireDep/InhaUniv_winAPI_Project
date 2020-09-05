@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "FocusGame.h"
 #include "PlayerClass.h"
+#include "MapClass.h"
 
 #include <time.h>
 
@@ -13,6 +14,7 @@
 #define dCountDown 1
 
 #define dgameManager GameManager::GetInstance()
+#define dMap Map::GetInstance()
 
 Player::Player()
 {
@@ -963,17 +965,7 @@ void Player::ReturnLastPos()
 void Player::Reset()
 {
 	// todo : 플레이어 정보가 파싱된 위치로 이동해야 함
-	SetPos(playerPos, eTrueWinWidth / 2, eTrueWinHeight / 2, ePlayerSize);
-
-	// resetPlayerPos[0] = playerPos[0];
-	// resetPlayerPos[1] = playerPos[1];
-	// resetPlayerPos[2] = playerPos[2];
-	// resetPlayerPos[3] = playerPos[3];
-
-	// playerPos[0] = resetPlayerPos[0];
-	// playerPos[1] = resetPlayerPos[1];
-	// playerPos[2] = resetPlayerPos[2];
-	// playerPos[3] = resetPlayerPos[3];
+	SetPos(playerPos, dMap->GetResenSpot().x, dMap->GetResenSpot().y, ePlayerSize);
 
 	playerState = eIdle;
 	isJump = false;

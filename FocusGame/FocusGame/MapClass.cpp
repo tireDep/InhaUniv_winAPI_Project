@@ -16,6 +16,7 @@ Map::Map()
 	hMapBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/tile.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hMapBitmap, sizeof(BITMAP), &mapBitmap);
 
+	isNextStage = false;
 	ReadMapData();
 	// todo : 플레이어 기록에 따른 맵 파싱 필요
 	// TileMap tileMap;
@@ -175,9 +176,6 @@ Map::Map()
 	// tileMap.type = eMapGateCloseHorizen;
 	// tileMap.pos = { 272,560,288,576 };
 	// mapPos.push_back(tileMap);
-
-	resetPos = mapPos;
-	// >> resetValue
 }
 
 Map::~Map()
@@ -227,10 +225,9 @@ void Map::Update()
 				mapPos[i + 1].type = eMapBtn_3;	// 동시에 바뀌어야 함
 			}
 
+			// >> 다음 스테이지 불러오기
 			if (mapPos[i].type == eMapGateOpen && IntersectRect(&area, &mapPos[i].pos, &playerPos))
-			{
-				SetNextStage();
-			}
+				isNextStage = true;
 		}
 
 		if (CheckOffBtn())
@@ -351,6 +348,10 @@ void Map::SetNextStage()
 	// todo : setPlayerResen
 
 	dGameManager->SetNowStage(dGameManager->GetNowStage() + 1);
+	mapPos.clear();
+	resetPos.clear();
+	
+	ReadMapData();
 }
 
 vector<TileMap> Map::GetMapPos()
@@ -407,6 +408,8 @@ void Map::ReadMapData()
 		tileMap.type = 0;
 
 		// >> 간단한 파싱
+		mapFile >> resenSpot.x >> resenSpot.y; // 플레이어 리젠 위치 
+
 		while (!mapFile.eof())
 		{
 			mapFile >> tileMap.type >> tileMap.pos.left >> tileMap.pos.top >> tileMap.pos.right >> tileMap.pos.bottom;
@@ -414,13 +417,13 @@ void Map::ReadMapData()
 		}
 		// >> 간단한 파싱
 
-		string temp;
-		mapFile.seekg(0, std::ios::end);
-		int size = mapFile.tellg();
-
-		temp.resize(size);
-		mapFile.seekg(0, std::ios::beg);
-		mapFile.read(&temp[0], size);
+		// string temp;
+		// mapFile.seekg(0, std::ios::end);
+		// int size = mapFile.tellg();
+		// 
+		// temp.resize(size);
+		// mapFile.seekg(0, std::ios::beg);
+		// mapFile.read(&temp[0], size);
 
 
 	}
@@ -430,4 +433,22 @@ void Map::ReadMapData()
 	}
 
 	mapFile.close();
+
+	resetPos = mapPos;
+	// >> resetValue
+}
+
+POINT Map::GetResenSpot()
+{
+	return resenSpot;
+}
+
+void Map::SetIsNextStage(bool set)
+{
+	isNextStage = set;
+}
+
+bool Map::GetIsNextStage()
+{
+	return isNextStage;
 }
