@@ -8,8 +8,7 @@
 #define shootedDown 2
 #define hitRangeDown 1
 #define tShotSpeed 10
-
-#define degree 90
+// todo : savedata?
 
 #define dPlayer Player::GetInstance()
 #define dGameManager GameManager::GetInstance()
@@ -250,7 +249,7 @@ void Cannon::CheckHit()
 	RECT area;
 	for (int i = 0; i < dMapPos.size(); i++)
 	{
-		if (IntersectRect(&area, &dMapPos[i].pos, &testShot) && dMapPos[i].type == eMapBlock)
+		if (IntersectRect(&area, &dMapPos[i].pos, &testShot) && CheckTileMap(dMapPos[i]))
 		{
 			// >> ¸Ê¿¡ ºÎµúÈû
 			isCanShoot = false;
@@ -265,6 +264,17 @@ void Cannon::CheckHit()
 			break;
 		}
 	}
+}
+
+bool Cannon::CheckTileMap(TileMap mapTile)
+{
+	if (mapTile.type == eMapBlock || mapTile.type == eMapSpike || 
+		mapTile.type == eMapGate_0 || mapTile.type == eMapGate_1 || mapTile.type == eMapGate_2 || mapTile.type == eMapGate_3 ||
+		mapTile.type == eMapBtn_0 || mapTile.type == eMapBtn_1 || mapTile.type == eMapBtn_2 || mapTile.type == eMapBtn_3 || 
+		mapTile.type == eMapGateCloseVertical || mapTile.type == eMapGateCloseHorizen )
+		return true;
+	else
+		return false;
 }
 
 void Cannon::Reset()

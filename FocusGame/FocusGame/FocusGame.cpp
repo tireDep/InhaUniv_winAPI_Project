@@ -157,22 +157,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		gameManager->CalcScreenSize(hWnd);
 		gameManager->SetIsPlayerLive(true);
 
-		// {
-		// 	// >> 맵에 대포가 존재하는지 판단
-		// 	vector<parceCannon> tempSet = map->CheckInCannon();
-		// 	if (tempSet.size() > 0)
-		// 	{
-		// 		for (int i = 0; i < tempSet.size(); i++)
-		// 		{
-		// 			Cannon *addCannon = new Cannon(tempSet[i]);
-		// 			obstacle.push_back(addCannon);
-		// 		}
-		// 	}
-		// 	// >> 맵에 대포가 존재하는지 판단
-		// }
-
 		object.push_back(map);
 		object.push_back(player);
+
+		Obstacle::AddWeapon(obstacle, map->CheckInCannon());
 
 		break;
 
@@ -185,6 +173,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				map->SetNextStage();
 				player->Reset();
+
+				Obstacle::AddWeapon(obstacle, map->CheckInCannon());
+
 				map->SetIsNextStage(false);
 			}
 
@@ -314,9 +305,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					DeleteObject(hBrush);
 				}
 
-				// map->RenderObject(hWnd, memDc);
-				// player->RenderObject(hWnd, memDc);
-
 				for (int i = 0; i<object.size(); i++)
 					object[i]->RenderObject(hWnd, memDc);
 
@@ -324,8 +312,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				explodeList->RenderObject(hWnd, memDc);
 
 				// >> drawObject
-				// for (int i = 0; i<object.size(); i++)
-				// 	object[i]->DrawObject(memDc);
 				player->DrawObject(memDc);
 				map->DrawObject(memDc);
 
@@ -375,7 +361,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
 		FreeConsole();
 
-		Obstacle::DeleteAllData(obstacle);	// 후에 수정 예정
+		Obstacle::DeleteAllData(obstacle);
+		// todo : 수정 가능하면 수정해 볼 것
 
 		KillTimer(hWnd, 0);
 		KillTimer(hWnd, 50);
