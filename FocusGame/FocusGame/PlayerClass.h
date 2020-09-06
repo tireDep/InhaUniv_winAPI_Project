@@ -18,7 +18,7 @@ enum state
 enum playerSet
 {
 	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 15, eFouceGauge = 0,
-	eFocusLv0 = 0, eFocusLv1 = 100, eFocusLv2 = 150, eFocusLv3 = 250,
+	eFocusLv0 = 0, eFocusLv1 = 50, eFocusLv2 = 150, eFocusLv3 = 250,
 
 	eGravity = 160, eJumpPower = 70
 	// ※ : 수치는 조정 가능..
@@ -40,7 +40,7 @@ private:
 	POINT lastPlayerPos[4];
 	POINT lastMoveCenter;
 
-	POINT resetPlayerPos[4];
+	POINT resenPos;
 
 	int moveDirection;
 	int moveSpeed;

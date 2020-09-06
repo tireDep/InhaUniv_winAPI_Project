@@ -47,6 +47,7 @@ public:
 	void CheckInPlayer();
 	void MoveTestShot();
 	void CheckHit();
+	bool CheckTileMap(TileMap mapTile);
 
 	void Reset();
 };

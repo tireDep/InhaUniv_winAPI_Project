@@ -27,6 +27,7 @@ public:
 	void CheckShot();
 	void MoveShot(BulletSctruct &bullet);
 	void CheckHit(BulletSctruct &bullet);
+	bool CheckTileMap(TileMap mapTile);
 	
 	void Reset();
 	void ResetBullet(BulletSctruct &bullet);

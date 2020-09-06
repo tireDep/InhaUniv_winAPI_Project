@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "ObjectClass.h"
+#include "FocusGame.h"
 
 using namespace std;
 
@@ -14,10 +15,11 @@ public:
 
 	virtual void Update();
 	virtual void DrawObject(HDC hdc);
+	virtual void RenderObject(HWND hWnd, HDC hdc);
 
-	void AddCannon(vector<int> set);
+	static void AddWeapon(vector<Obstacle *> &obstacle, vector<parceCannon> cannonSet);
 
 	virtual void Reset();
 
-	static void DeleteAllData(vector<Obstacle *> vec);
+	static void DeleteAllData(vector<Obstacle *> &vec);
 };

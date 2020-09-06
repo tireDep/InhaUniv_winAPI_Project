@@ -13,9 +13,12 @@ private:
 	
 	vector<TileMap> mapPos;
 	vector<TileMap> resetPos;
+	POINT resenSpot;
 
 	HBITMAP hMapBitmap;
 	BITMAP mapBitmap;
+
+	bool isNextStage;
 
 	Map();
 
@@ -30,8 +33,17 @@ public:
 	void DrawObject(HDC hdc);
 	void RenderObject(HWND hWnd, HDC hdc);
 
+	void SetNextStage();
+
 	vector<TileMap> GetMapPos();
 	vector<parceCannon> CheckInCannon();
 
 	void Reset();
+
+	void ReadMapData();
+
+	POINT GetResenSpot();
+
+	void SetIsNextStage(bool set);
+	bool GetIsNextStage();
 };

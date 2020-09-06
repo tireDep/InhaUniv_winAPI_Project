@@ -8,7 +8,8 @@
 #pragma comment(lib, "msimg32.lib")
 
 #define dShotSpeed 10
-#define dDegree 90
+// todo : savedata?
+
 #define dMaxCnt 100
 
 #define dGameManager GameManager::GetInstance()
@@ -224,7 +225,7 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 
 	for (int i = 0; i < dMapPos.size(); i++)
 	{
-		if (IntersectRect(&area, &dMapPos[i].pos, &bullet.shotBullet) && dMapPos[i].type == eMapBlock)
+		if (IntersectRect(&area, &dMapPos[i].pos, &bullet.shotBullet) && CheckTileMap(dMapPos[i]))
 		{
 			// >> ¸Ê¿¡ ºÎµúÈû
 			dExplode->StartExplode(bullet.centerPos);
@@ -242,7 +243,21 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 			dPlayer->SetIsPlayerDead(true);
 			break;
 		}
+
+		if (bullet.shotBullet.top < 0 || bullet.shotBullet.left < 0 || bullet.shotBullet.right > eTrueWinWidth || bullet.shotBullet.bottom>eTrueWinHeight)
+			ResetBullet(bullet);	// ÃÑ¾ËÀÌ ¸ÊÀ» ¹þ¾î³¯ °æ¿ì off
 	}
+}
+
+bool Bullet::CheckTileMap(TileMap mapTile)
+{
+	if (mapTile.type == eMapBlock || mapTile.type == eMapSpike ||
+		mapTile.type == eMapGate_0 || mapTile.type == eMapGate_1 || mapTile.type == eMapGate_2 || mapTile.type == eMapGate_3 ||
+		mapTile.type == eMapBtn_0 || mapTile.type == eMapBtn_1 || mapTile.type == eMapBtn_2 || mapTile.type == eMapBtn_3 ||
+		mapTile.type == eMapGateCloseVertical || mapTile.type == eMapGateCloseHorizen)
+		return true;
+	else
+		return false;
 }
 
 void Bullet::Reset()
