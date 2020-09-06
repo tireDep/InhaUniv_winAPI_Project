@@ -43,11 +43,11 @@ Player* Player::GetInstance()
 
 void Player::Update()
 {
+	Gravity();
+	// >> 플레이어 죽음과 상관 없이 중력의 영향을 받아야 함
+
 	if (playerState != eDead)
-	{
-		Gravity();
 		CanMovePlayer();
-	}
 	else
 	{
 		if(isEndAni)
@@ -58,6 +58,10 @@ void Player::Update()
 void Player::Gravity()
 {
 	int diffNum = 0;
+
+	if (playerState != eFocus)
+		CheckOut(playerPos, eMoveDown);	// >> 맵 밖으로 떨어지지 않게 보정 
+
 	if (playerState != eFocus || playerState != eJump)
 	{
 		for (int i = 0; i < 4; i++)
@@ -586,6 +590,8 @@ void Player::CanMovePlayer()
 				MovePlayer(playerPos, moveDirection, diffNum, 1, dCorrection);
 			else
 				MovePlayer(playerPos, moveDirection, diffNum, -1, dCorrection);
+
+			CheckOut(playerPos, moveDirection);
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000) // && !isJump 
 		{
@@ -599,6 +605,8 @@ void Player::CanMovePlayer()
 				MovePlayer(playerPos, moveDirection, diffNum, -1, -dCorrection);
 			else
 				MovePlayer(playerPos, moveDirection, diffNum, 1, -dCorrection);
+
+			CheckOut(playerPos, moveDirection);
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)	// && !isJump 
 		{
@@ -612,6 +620,8 @@ void Player::CanMovePlayer()
 				MovePlayer(playerPos, moveDirection, diffNum, -1, 0);
 			else
 				MovePlayer(playerPos, moveDirection, diffNum, 1, 0);
+
+			CheckOut(playerPos, moveDirection);
 
 		}
 		// 플레이어 이동
@@ -646,6 +656,8 @@ void Player::CanMovePlayer()
 					underLineNum++;
 				else
 					underLineNum--;
+
+				// CheckOut(playerPos, eMoveUp);	// >> 맵 밖으로 떨어지지 않게 보정 
 			}
 			// << 충돌 판정
 

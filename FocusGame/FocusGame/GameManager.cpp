@@ -54,6 +54,7 @@ void GameManager::ReadSaveData()
 	{
 		// nowStage = 0;
 		// nowFocusLv = 0;
+		// 실제 데이터
 
 		nowStage = 0;
 		nowFocusLv = 50;
@@ -68,8 +69,8 @@ void GameManager::WriteSaveData()
 	saveFile.open("saveData.dat", ios::out | ios::binary);
 
 	// encode
-	nowStage = (0 + dKeyCode) * dKeyCode;
-	nowFocusLv = (250 + dKeyCode) * dKeyCode;
+	nowStage = (nowStage + dKeyCode) * dKeyCode;
+	nowFocusLv = (nowFocusLv + dKeyCode) * dKeyCode;
 
 	saveFile.write((char*)&nowStage, sizeof(int));
 	saveFile.write((char*)&nowFocusLv, sizeof(int));
@@ -156,6 +157,11 @@ void GameManager::SetDrawRect(bool set)
 void GameManager::SetNowStage(int set)
 {
 	nowStage = set;
+}
+
+void GameManager::SetFocusLv(int set)
+{
+	nowFocusLv = set;
 }
 
 bool GameManager::GetDrawRect()

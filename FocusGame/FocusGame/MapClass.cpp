@@ -429,7 +429,19 @@ void Map::ReadMapData()
 	}
 	else
 	{
-		// todo : stageClear
+		// >> 불러올 맵이 없다 => All Clear
+
+		// todo : stageClear -> endScene -> MainScene
+		// todo : 맨 처음 초기값으로 세팅해주어야 함
+
+		// dGameManager->SetNowStage(0);
+		// dGameManager->SetFocusLv(0);
+		// 실제 값
+
+		dGameManager->SetNowStage(0);
+		dGameManager->SetFocusLv(250);
+		// 임시 값
+		// todo : 수정 예정
 	}
 
 	mapFile.close();

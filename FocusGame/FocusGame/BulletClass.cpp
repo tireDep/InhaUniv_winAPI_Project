@@ -243,6 +243,9 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 			dPlayer->SetIsPlayerDead(true);
 			break;
 		}
+
+		if (bullet.shotBullet.top < 0 || bullet.shotBullet.left < 0 || bullet.shotBullet.right > eTrueWinWidth || bullet.shotBullet.bottom>eTrueWinHeight)
+			ResetBullet(bullet);	// ÃÑ¾ËÀÌ ¸ÊÀ» ¹þ¾î³¯ °æ¿ì off
 	}
 }
 

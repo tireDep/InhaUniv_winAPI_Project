@@ -68,6 +68,7 @@ public:
 
 	void SetDrawRect(bool set);
 	void SetNowStage(int set);
+	void SetFocusLv(int set);
 
 	bool GetDrawRect();
 	int GetNowStage();
