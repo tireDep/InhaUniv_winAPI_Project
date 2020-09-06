@@ -12,7 +12,7 @@ enum BaicsWindowSize
 
 enum SceneNum
 {
-	eMainScene = 0, eGameScene = 50, eResultScene = 150, eExit = 9999,
+	eMainScene = 0, eChangeScene = 25, eGameScene = 50, eResultScene = 150, eExit = 9999,
 };
 
 enum BasicNum

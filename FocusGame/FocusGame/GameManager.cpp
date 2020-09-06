@@ -9,8 +9,7 @@ using namespace std;
 
 GameManager::GameManager()
 {
-	// nowScene = eMainScene;
-	nowScene = eGameScene;
+	nowScene = eMainScene;
 
 	isPause = false;
 	isPlayerLive = true;

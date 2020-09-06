@@ -444,6 +444,7 @@ void Map::ReadMapData()
 
 		dGameManager->SetNowStage(0);
 		dGameManager->SetFocusLv(250);
+		dGameManager->SetNowScene(eResultScene);
 		// 임시 값
 		// todo : 수정 예정
 	}
