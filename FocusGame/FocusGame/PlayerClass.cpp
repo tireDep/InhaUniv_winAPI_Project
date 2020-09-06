@@ -210,7 +210,8 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 		{
 			for (int i = 0; i < mapPos.size(); i++)
 			{
-				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type == eMapGateOpen)
+				if ((mapPos[i].pos.left == checkRect.left && mapPos[i].pos.right == checkRect.right && mapPos[i].pos.top == checkRect.top && mapPos[i].pos.bottom == checkRect.bottom)
+					&& mapPos[i].type == eMapGateOpen)
 					return true;
 			}
 
@@ -227,12 +228,12 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 		{
 			for (int i = 0; i < mapPos.size(); i++)
 			{
-				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type == eMapGateOpen)
+				if ((mapPos[i].pos.left == checkRect.left && mapPos[i].pos.right == checkRect.right && mapPos[i].pos.top == checkRect.top && mapPos[i].pos.bottom == checkRect.bottom)
+					&& mapPos[i].type == eMapGateOpen)
 					return true;
 			}
 
 			lengthDiff = eLimitR - checkRect.right;
-
 			return false;
 		}
 		else
@@ -245,12 +246,12 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 		{
 			for (int i = 0; i < mapPos.size(); i++)
 			{
-				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type == eMapGateOpen)
+				if ((mapPos[i].pos.left == checkRect.left && mapPos[i].pos.right == checkRect.right && mapPos[i].pos.top == checkRect.top && mapPos[i].pos.bottom == checkRect.bottom)
+					&& mapPos[i].type == eMapGateOpen)
 					return true;
 			}
 
 			lengthDiff = eLimitB - checkRect.bottom;
-
 			return false;
 		}
 		else
@@ -263,12 +264,12 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 		{
 			for (int i = 0; i < mapPos.size(); i++)
 			{
-				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type == eMapGateOpen)
+				if ((mapPos[i].pos.left == checkRect.left && mapPos[i].pos.right == checkRect.right && mapPos[i].pos.top == checkRect.top && mapPos[i].pos.bottom == checkRect.bottom) && 
+					mapPos[i].type == eMapGateOpen)
 					return true;
 			}
 
 			lengthDiff = eLimitT - checkRect.top;
-
 			return false;
 		}
 		else
@@ -675,7 +676,7 @@ void Player::CanMovePlayer()
 				else
 					underLineNum--;
 
-				// CheckOut(playerPos, eMoveUp);	// >> 맵 밖으로 떨어지지 않게 보정 
+				CheckOut(playerPos, eMoveUp);	// >> 맵 밖으로 떨어지지 않게 보정 
 			}
 			// << 충돌 판정
 
@@ -842,6 +843,7 @@ void Player::CanMovePlayer()
 		{
 			moveDirection = eMoveRight;
 			isRightSight = true;
+
 			int underLineNum = CheckFocusRange(moveDirection, 1);
 			// >> 충돌 판정
 
@@ -849,7 +851,6 @@ void Player::CanMovePlayer()
 				MovePlayer(fMovePos, moveDirection, underLineNum, 1, 0);
 			else
 				MovePlayer(fMovePos, moveDirection, 0, 1, -1);
-
 			CheckOut(fMovePos, moveDirection);
 			CalcFCenterPos();
 		}
@@ -876,6 +877,7 @@ int Player::CheckFocusRange(int direction, int mulNum)
 	RECT calcRect = ConversionRect(fMovePos);
 	int num = 0;
 
+	// todo : 판정 추가
 	if (direction == eMoveUp || direction == eMoveDown)
 	{
 		for (int i = 1; i < eMoveSpeed; i++)
