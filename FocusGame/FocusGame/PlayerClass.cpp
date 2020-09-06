@@ -124,7 +124,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				return true;
 			}
 		}
-			return true;
+		return true;
 	}
 
 	if (direction == eMoveLeft)
@@ -210,11 +210,8 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 		{
 			for (int i = 0; i < mapPos.size(); i++)
 			{
-				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type != eMapBlock)
-				{
-					printf("Can Escape\n");
+				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type == eMapGateOpen)
 					return true;
-				}
 			}
 
 			lengthDiff = eLimitL - checkRect.left;
@@ -228,7 +225,14 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 	{
 		if (checkRect.right >= eLimitR)
 		{
+			for (int i = 0; i < mapPos.size(); i++)
+			{
+				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type == eMapGateOpen)
+					return true;
+			}
+
 			lengthDiff = eLimitR - checkRect.right;
+
 			return false;
 		}
 		else
@@ -239,7 +243,14 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 	{
 		if (checkRect.bottom >= eLimitB)
 		{
+			for (int i = 0; i < mapPos.size(); i++)
+			{
+				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type == eMapGateOpen)
+					return true;
+			}
+
 			lengthDiff = eLimitB - checkRect.bottom;
+
 			return false;
 		}
 		else
@@ -250,7 +261,14 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 	{ 
 		if (checkRect.top <= eLimitT)
 		{
+			for (int i = 0; i < mapPos.size(); i++)
+			{
+				if (IntersectRect(&area, &checkRect, &mapPos[i].pos) && mapPos[i].type == eMapGateOpen)
+					return true;
+			}
+
 			lengthDiff = eLimitT - checkRect.top;
+
 			return false;
 		}
 		else
@@ -265,7 +283,7 @@ bool Player::CheckBlockMap()
 	RECT conRect = ConversionRect(fMovePos);
 	RECT conRect2 = ConversionRect(playerPos);
 	// ※ : 포커스 좌표로 잡아야 맨 위 블럭도 판정 가능
-
+	
 	for (int i = 0; i < tempMap.size(); i++)
 	{
 		if (IntersectRect(&area, &tempMap[i].pos, &conRect) && CheckTileMap(tempMap[i]))
@@ -482,9 +500,9 @@ void Player::CalcFocusMove()
 {
 	if (lastMoveCenter.x != 0 && lastMoveCenter.y != 0 && playerState != eFocus)
 	{
-		bool isCanMove = CheckBlockMap();	// 이동위치가 블록이 아닐 경우에만 판단함
+		bool isCanMoveCheck = CheckBlockMap();	// 이동위치가 블록이 아닐 경우에만 판단함
 
-		if (isCanMove)
+		if (isCanMoveCheck)
 		{
 			bool isMomentum = FocusMomentum();
 
@@ -707,7 +725,6 @@ void Player::CanMovePlayer()
 			lastPlayerPos[3] = playerPos[3];
 			// 운동량 계산을 위한 변수 값 저장
 
-
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
 		}
 
@@ -753,6 +770,7 @@ void Player::CanMovePlayer()
 		{
 			CalcFCenterPos();
 			SetPos(playerPos, fCenterPos.x, fCenterPos.y, ePlayerSize);
+			CheckBlockMap(); // >> 이동위치가 블록이 아닐 경우에만 이동
 			playerState = eIdle;
 		}
 

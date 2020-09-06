@@ -209,20 +209,13 @@ void Map::Update()
 			if (mapPos[i].type == eMapBtn_0 && IntersectRect(&area, &mapPos[i].pos, &playerPos))
 			{
 				mapPos[i].type = eMapBtn_1;
-				// mapPos[i + 1].type = eMapBtn_3;	// 동시에 바뀌어야 함
 				for (int j = 0; j < mapPos.size(); j++)
 				{
-					if (mapPos[j].pos.top == mapPos[i].pos.bottom && mapPos[j].type == eMapBtn_2)
+					if (mapPos[j].pos.top == mapPos[i].pos.bottom && mapPos[j].pos.left == mapPos[i].pos.left && mapPos[j].pos.right == mapPos[i].pos.right
+						&& mapPos[j].type == eMapBtn_2)
 						mapPos[j].type = eMapBtn_3;
 				}
 				// >> 바로 밑에 있는 버튼이 꺼지도록 판정 변경
-			}
-
-			// >> 스위치 off 판정
-			if (mapPos[i].type == eMapBtn_0 && IntersectRect(&area, &mapPos[i].pos, &playerPos))
-			{
-				mapPos[i].type = eMapBtn_1;
-				mapPos[i + 1].type = eMapBtn_3;	// 동시에 바뀌어야 함
 			}
 
 			// >> 다음 스테이지 불러오기
@@ -256,10 +249,21 @@ bool Map::CheckOffBtn()
 void Map::CheckShotOffBtn(const RECT &hitPos)
 {
 	RECT area;
+	bool isOff;
 	for (int i = 0; i < mapPos.size(); i++)
 	{
+		isOff = true;
 		if (IntersectRect(&area, &mapPos[i].pos, &hitPos) && mapPos[i].type == eMapBtn_2)
-			mapPos[i].type = eMapBtn_3;
+		{
+			for (int j = 0; j < mapPos.size(); j++)
+			{
+				if (mapPos[i].pos.top == mapPos[j].pos.bottom && mapPos[i].pos.left == mapPos[j].pos.left && mapPos[i].pos.right == mapPos[j].pos.right)
+					isOff = false;	// >> 위에 무언가가 있을 경우 꺼지면 x
+			}
+			
+			if (isOff)
+				mapPos[i].type = eMapBtn_3;
+		}
 	}
 }
 
