@@ -2,12 +2,14 @@
 #include "MapClass.h"
 #include "PlayerClass.h"
 #include "GameManager.h"
+#include "UIClass.h"
 
 #include <fstream>
 #include <string>
 
 #define dGameManager GameManager::GetInstance()
 #define dPlayer Player::GetInstance()
+#define dUI UI::GetInstance()
 
 using namespace std;
 
@@ -16,8 +18,8 @@ Map::Map()
 	hMapBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/tile.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hMapBitmap, sizeof(BITMAP), &mapBitmap);
 
-	isNextStage = false;
-	ReadMapData();
+	// isNextStage = false;
+	// ReadMapData();
 	// todo : 플레이어 기록에 따른 맵 파싱 필요
 	// TileMap tileMap;
 
@@ -351,7 +353,18 @@ void Map::SetNextStage()
 	// todo : read Stage
 	// todo : setPlayerResen
 
-	dGameManager->SetNowStage(dGameManager->GetNowStage() + 1);
+	if (dGameManager->GetNowStage() == -1)
+		dUI->SetIsGoMain(false);	// >> 엔딩 본 후 재 실행 시
+
+	if (dUI->GetIsGoMain() == false)
+		dGameManager->SetNowStage(dGameManager->GetNowStage() + 1);
+	else
+	{
+		// >> 일시정지 후 메인화면에서 다시 넘어온 경우
+		dGameManager->SetNowStage(dGameManager->GetNowStage());
+		dUI->SetIsGoMain(false);
+	}
+
 	mapPos.clear();
 	resetPos.clear();
 	
@@ -434,18 +447,21 @@ void Map::ReadMapData()
 	else
 	{
 		// >> 불러올 맵이 없다 => All Clear
+		// >> 맨 처음 초기값 세팅
+		// >> stageClear -> endScene -> MainScene
 
-		// todo : stageClear -> endScene -> MainScene
-		// todo : 맨 처음 초기값으로 세팅해주어야 함
-
-		// dGameManager->SetNowStage(0);
+		// dGameManager->SetNowStage(-1);	
+		// // >> 맵을 불러오면서 +1 이기 때문에 0 stage 시작을 위해 -1 초기화
 		// dGameManager->SetFocusLv(0);
-		// 실제 값
+		// // >> 초기 상태
 
-		dGameManager->SetNowStage(0);
+		dGameManager->SetNowStage(-1);
+		// >> 맵을 불러오면서 +1 이기 때문에 0 stage 시작을 위해 -1 초기화
 		dGameManager->SetFocusLv(250);
+		// >> 임시값
+		// todo : 아이템 추가 필요
+
 		dGameManager->SetNowScene(eResultScene);
-		// 임시 값
 		// todo : 수정 예정
 	}
 
@@ -453,6 +469,8 @@ void Map::ReadMapData()
 
 	resetPos = mapPos;
 	// >> resetValue
+	
+	isNextStage = false;
 }
 
 POINT Map::GetResenSpot()

@@ -167,24 +167,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_TIMER:
-		// if (gameManager->GetNowScene() == eChangeScene)
-		// {
-		// 	map->SetNextStage();
-		// 	player->Reset();
-		// 
-		// 	Obstacle::AddWeapon(obstacle, map->CheckInCannon());
-		// 
-		// 	map->SetIsNextStage(false);
-		// }
-		// todo : 상태 바뀔 때 파싱되어야 함
-		// todo : 게임 클리어시 재 시작할때 맨 처음부터 시작하지 x, 수정할 것
-
 		if (gameManager->GetSceneNum() == eGameScene)
 		{
 			bool isPlayerLive = gameManager->GetIsPlayerLive();
 
 			if (!gameManager->GetIsPause() && map->GetIsNextStage())
 			{
+				bulletList->Reset();
+				explodeList->Reset();
+
 				map->SetNextStage();
 				player->Reset();
 
@@ -270,7 +261,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_CHAR:
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001 && gameManager->GetSceneNum() == eGameScene)
 			gameManager->SetIsPause();
 
 		if (GetAsyncKeyState(VK_TAB) & 0x0001 && gameManager->GetDrawRect() == false)
