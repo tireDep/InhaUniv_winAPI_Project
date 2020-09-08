@@ -5,8 +5,12 @@
 
 #pragma once
 
+#define _AFXDLL
 #define _CRT_SECURE_NO_WARNINGS
 #define _USE_MATH_DEFINES
+
+#include <afx.h>
+#include <afxwin.h>
 
 #include "targetver.h"
 

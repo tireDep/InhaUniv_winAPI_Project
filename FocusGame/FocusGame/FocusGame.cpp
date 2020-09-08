@@ -12,6 +12,7 @@
 #include "BulletClass.h"
 #include "ExplodeClass.h"
 #include "UIClass.h"
+#include "SoundSystem.h"
 
 using namespace std;
 // << --------------------------
@@ -142,6 +143,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	Bullet *bulletList = Bullet::GetInstance();
 	Explode *explodeList = Explode::GetInstance();
 	UI *ui = UI::GetInstance();
+	SoundSystem *soundSys = SoundSystem::GetInstance();
 	
 	static vector<Obstacle *>obstacle;
 	static vector<Object *> object;
