@@ -11,6 +11,7 @@
 #include "CannonClass.h"
 #include "BulletClass.h"
 #include "ExplodeClass.h"
+#include "UIClass.h"
 
 using namespace std;
 // << --------------------------
@@ -140,6 +141,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	Player *player = Player::GetInstance();
 	Bullet *bulletList = Bullet::GetInstance();
 	Explode *explodeList = Explode::GetInstance();
+	UI *ui = UI::GetInstance();
 	
 	static vector<Obstacle *>obstacle;
 	static vector<Object *> object;
@@ -171,6 +173,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (!gameManager->GetIsPause() && map->GetIsNextStage())
 			{
+				bulletList->Reset();
+				explodeList->Reset();
+
 				map->SetNextStage();
 				player->Reset();
 
@@ -236,8 +241,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		InvalidateRect(hWnd, NULL, false);
 		break;
 
+	case WM_LBUTTONDOWN:
+		if (gameManager->GetIsPause() && gameManager->GetNowScene() == eGameScene)
+		{
+			POINT input;
+			input.x = LOWORD(lParam);
+			input.y = HIWORD(lParam);
+			ui->CheckPushBtn(input);
+		}
+		break;
+
+	case WM_KEYDOWN:
+		if (gameManager->GetSceneNum() == eMainScene)
+		{
+			gameManager->SetSceneNum(eChangeScene);
+			// todo : 화면전환 애니메이션 후 씬 넘버 변경
+			// todo : 키입력이 게임화면까지 넘어감
+		}
+		break;
+
 	case WM_CHAR:
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001 && gameManager->GetSceneNum() == eGameScene)
 			gameManager->SetIsPause();
 
 		if (GetAsyncKeyState(VK_TAB) & 0x0001 && gameManager->GetDrawRect() == false)
@@ -268,43 +292,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		PatBlt(memDc, rectView.left, rectView.top, rectView.right, rectView.bottom, PATCOPY);
 		// PATCOPY : dc에 있는 브러시 색상 그대로 출력
+		if (gameManager->GetNowScene() == eMainScene || gameManager->GetNowScene() == eChangeScene)
+			ui->RenderObject(hWnd, memDc);
 
-		if (gameManager->GetNowScene() == eGameScene)
+		else if (gameManager->GetNowScene() == eGameScene)
 		{
-
 			SelectObject(memDc, oldBrush);
 			DeleteObject(hBrush);
 
 			if (gameManager->GetIsPlayerLive())
 			{
-				if (gameManager->GetIsPause())
-				{
-					// >> 일시정지 표시
-					HPEN hPen, oldPen;
-					hPen = CreatePen(BS_SOLID, 1, RGB(150, 150, 150));
-					oldPen = (HPEN)SelectObject(memDc, hPen);
-
-					hBrush = CreateSolidBrush(RGB(150, 150, 150));
-					oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
-
-					Rectangle(memDc, 20, 20, 70, 70);
-
-					SelectObject(memDc, oldBrush);
-					DeleteObject(hBrush);
-
-					hBrush = CreateSolidBrush(RGB(50, 50, 50));
-					oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
-
-					Rectangle(memDc, 30, 30, 40, 60);
-					Rectangle(memDc, 50, 30, 60, 60);
-
-					SelectObject(memDc, oldPen);
-					DeleteObject(hPen);
-
-					SelectObject(memDc, oldBrush);
-					DeleteObject(hBrush);
-				}
-
 				for (int i = 0; i<object.size(); i++)
 					object[i]->RenderObject(hWnd, memDc);
 
@@ -322,13 +319,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				explodeList->DrawObject(memDc);
 				// >> drawObject
 			}
-			else
-			{
-				SelectObject(memDc, GetStockObject(BLACK_BRUSH));
-				Rectangle(memDc, 0, 0, eTrueWinWidth, eTrueWinHeight);
-				// todo : 이미지로 띄우기(continue_UI)
-			}
+
+			ui->RenderObject(hWnd, memDc);
 		}
+
+		else if(gameManager->GetSceneNum() == eResultScene)
+			ui->RenderObject(hWnd, memDc);
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
 

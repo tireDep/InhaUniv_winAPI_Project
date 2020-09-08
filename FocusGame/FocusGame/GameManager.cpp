@@ -9,8 +9,7 @@ using namespace std;
 
 GameManager::GameManager()
 {
-	// nowScene = eMainScene;
-	nowScene = eGameScene;
+	nowScene = eMainScene;
 
 	isPause = false;
 	isPlayerLive = true;
@@ -52,13 +51,9 @@ void GameManager::ReadSaveData()
 	}
 	else
 	{
-		// nowStage = 0;
-		// nowFocusLv = 0;
-		// 실제 데이터
-
-		nowStage = 0;
+		nowStage = -1;
 		nowFocusLv = 50;
-		// 임시 숫자
+		// focusLv ==> 임시값
 	}
 	readFile.close();
 }

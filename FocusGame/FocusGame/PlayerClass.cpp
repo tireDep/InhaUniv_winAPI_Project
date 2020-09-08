@@ -18,7 +18,7 @@
 
 Player::Player()
 {
-	Reset();
+	// Reset();
 
 	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hFocusBitmap, sizeof(BITMAP), &focusBitmap);
