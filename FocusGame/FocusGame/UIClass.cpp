@@ -100,6 +100,14 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 	}
 	else if (dGameManager->GetNowScene() == eGameScene)
 	{
+		if (dGameManager->GetNowStage() == 0)
+		{
+			nowFrame = { eTrueWinWidth, eTrueWinHeight * 2 };
+			TransparentBlt(hdc, 0, 0, pos.x, pos.y, uiDc, nowFrame.x, nowFrame.y, pos.x, pos.y, RGB(255, 0, 255));
+		}
+
+		// todo : 아이템 처음 획득 시 안내 UI 추가
+
 		if (!dGameManager->GetIsPlayerLive())
 		{
 			nowFrame = { 0,eTrueWinHeight * 2 };
