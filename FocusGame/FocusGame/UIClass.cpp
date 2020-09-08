@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "UIClass.h"
+#include "SoundSystem.h"
 
 #define dCountDown 2
 #define dEndDown 1
@@ -11,6 +12,7 @@
 
 #define dMap Map::GetInstance()
 #define dGameManager GameManager::GetInstance()
+#define dSoundSys SoundSystem::GetInstance()
 
 UI::UI()
 {
@@ -124,6 +126,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 	{
 		if (!isEndScene)
 		{
+			dSoundSys->SetIsStop(true);
 			isEndScene = true;
 			nowFrame = { 0,eTrueWinHeight * 4 }; // >> 맨 처음 들어왔을 때
 		}
@@ -163,6 +166,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 			countDownSec = dCountDown;
 			nowFrame = { 0,0 };
 			dMap->SetIsNextStage(true);
+			dSoundSys->SetIsStop(false);
 			dGameManager->SetSceneNum(eMainScene);
 		}
 	}

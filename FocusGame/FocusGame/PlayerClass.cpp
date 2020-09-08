@@ -2,6 +2,7 @@
 #include "FocusGame.h"
 #include "PlayerClass.h"
 #include "MapClass.h"
+#include "SoundSystem.h"
 
 #include <time.h>
 
@@ -15,6 +16,7 @@
 
 #define dgameManager GameManager::GetInstance()
 #define dMap Map::GetInstance()
+#define dSoundSys SoundSystem::GetInstance()
 
 Player::Player()
 {
@@ -59,7 +61,7 @@ void Player::Gravity()
 {
 	int diffNum = 0;
 
-	if (playerState != eFocus)
+	if (playerState != eFocus && playerState != eDead) // >> 포커스 모드일 때 죽으면 승천(?) 하는거 방지
 		CheckOut(playerPos, eMoveDown);	// >> 맵 밖으로 떨어지지 않게 보정 
 
 	if (playerState != eFocus || playerState != eJump)
@@ -120,7 +122,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				playerState = eDead;
+				SetIsPlayerDead(true);
 				return true;
 			}
 		}
@@ -138,7 +140,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				playerState = eDead;
+				SetIsPlayerDead(true);
 				return true;
 			}
 		}
@@ -156,7 +158,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				playerState = eDead;
+				SetIsPlayerDead(true);
 				return true;
 			}
 
@@ -175,7 +177,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				playerState = eDead;
+				SetIsPlayerDead(true);
 				return true;
 			}
 		}
@@ -1061,6 +1063,8 @@ void Player::SetIsPlayerDead(bool set)
 		playerState = eDead;
 	else 
 		playerState = eIdle;
+
+	dSoundSys->SetIsPause(set);
 }
 
 bool Player::GetIsPlayerDead()

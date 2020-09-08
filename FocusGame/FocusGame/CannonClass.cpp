@@ -81,8 +81,10 @@ Cannon::~Cannon()
 
 void Cannon::Update()
 {
-	if(!dPlayer->GetIsPlayerDead())
+	if (!dPlayer->GetIsPlayerDead() && dGameManager->GetIsPlayerLive())
 		CheckInPlayer();
+	else
+		Reset();
 }
 
 void Cannon::DrawObject(HDC hdc)
@@ -203,8 +205,8 @@ void Cannon::CheckInPlayer()
 		{
 			shottedDownSec = shootedDown;
 			dBulletList->Shoot(centerPos, playerCenter, type);
-			// 발사 경고 후 발사
 			isShooted = false;
+			// 발사 경고 후 발사
 		}
 	}
 
@@ -293,4 +295,8 @@ void Cannon::Reset()
 	tempCenter.y = -1;
 
 	isPlayer = false;
+
+	if (dPlayer->GetIsPlayerDead() && !dGameManager->GetIsPlayerLive())
+		isShooted = false;
 }
+

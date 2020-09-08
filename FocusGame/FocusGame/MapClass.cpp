@@ -434,6 +434,10 @@ void Map::ReadMapData()
 		}
 		// >> °£´ÜÇÑ ÆÄ½Ì
 
+		tileMap.type = eMapSpike;
+		tileMap.pos = { 500, 548, 516, 564 };
+		mapPos.push_back(tileMap);
+
 		// string temp;
 		// mapFile.seekg(0, std::ios::end);
 		// int size = mapFile.tellg();
