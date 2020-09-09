@@ -4,6 +4,19 @@
 #include "stdafx.h"
 #include "FocusGame.h"
 
+// >> --------------------------
+#include "MapClass.h"
+#include "PlayerClass.h"
+#include "GameManager.h"
+#include "CannonClass.h"
+#include "BulletClass.h"
+#include "ExplodeClass.h"
+#include "UIClass.h"
+#include "SoundSystem.h"
+
+using namespace std;
+// << --------------------------
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -98,7 +111,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, eWindowWidth, eWindowHeight, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
@@ -121,10 +134,219 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	GameManager *gameManager = GameManager::GetInstance();
+	Map *map = Map::GetInstance();
+	Player *player = Player::GetInstance();
+	Bullet *bulletList = Bullet::GetInstance();
+	Explode *explodeList = Explode::GetInstance();
+	UI *ui = UI::GetInstance();
+	SoundSystem *soundSys = SoundSystem::GetInstance();
+	
+	static vector<Obstacle *>obstacle;
+	static vector<Object *> object;
+
     switch (message)
     {
+	case WM_CREATE:
+		AllocConsole();
+		freopen("CONOUT$", "wt", stdout);
+
+		SetTimer(hWnd, 0, 25, NULL);	// playeGame
+		SetTimer(hWnd, 50, 50, NULL);	// animationFrame 
+		SetTimer(hWnd, 100, 100, NULL);	// resetGame
+
+		gameManager->CalcScreenSize(hWnd);
+		gameManager->SetIsPlayerLive(true);
+
+		// object.push_back(ui);
+		object.push_back(soundSys);
+
+		object.push_back(map);
+		object.push_back(player);
+
+		Obstacle::AddWeapon(obstacle, map->CheckInCannon());
+
+		break;
+
+	case WM_TIMER:
+		if (gameManager->GetSceneNum() == eGameScene)
+		{
+			bool isPlayerLive = gameManager->GetIsPlayerLive();
+
+			if (!gameManager->GetIsPause() && map->GetIsNextStage())
+			{
+				bulletList->Reset();
+				explodeList->Reset();
+
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->Reset();
+
+				map->SetNextStage();
+				player->Reset();
+
+				Obstacle::AddWeapon(obstacle, map->CheckInCannon());
+
+				map->SetIsNextStage(false);
+			}
+
+			if (!gameManager->GetIsPause() && wParam == 100 && !isPlayerLive)
+			{
+				// >> 화면 전환 타이머
+				time_t nowTime;
+				struct tm *tmTime = localtime(&nowTime);
+				float checkTime = 0;
+				float countDown = 2;
+
+				while (countDown > 0)
+				{
+					time(&nowTime);
+					tmTime = localtime(&nowTime); 
+					if (tmTime->tm_sec != checkTime)
+					{
+						checkTime = tmTime->tm_sec;
+						countDown--;
+					}
+
+					if (countDown <= 0)
+					{
+						for (int i = 0; i < object.size(); i++)
+							object[i]->Reset();
+
+						for (int i = 0; i < obstacle.size(); i++)
+							obstacle[i]->Reset();
+
+						bulletList->Reset();
+						explodeList->Reset();
+						// >> Reset
+
+						soundSys->PlaySoundEffect();
+						soundSys->SetIsPause(false);
+						gameManager->SetIsPlayerLive(true);
+						player->SetIsPlayerDead(false);
+					}
+				}
+				// >> 화면 전환 타이머
+			}
+			
+			if (!gameManager->GetIsPause() && wParam == 0 && isPlayerLive)
+			{
+				gameManager->SetNowMap(map->GetMapPos());
+				gameManager->SetNowPlayerPos(player->GetPlayerPos());
+
+				for (int i = 0; i<object.size(); i++)
+					object[i]->Update();
+
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->Update();
+
+				bulletList->Update();
+				explodeList->Update();
+				explodeList->SetNextFrame();
+			}
+		}
+
+		InvalidateRect(hWnd, NULL, false);
+		break;
+
+	case WM_LBUTTONDOWN:
+		if (gameManager->GetIsPause() && gameManager->GetNowScene() == eGameScene)
+		{
+			POINT input;
+			input.x = LOWORD(lParam);
+			input.y = HIWORD(lParam);
+			ui->CheckPushBtn(input);
+		}
+		break;
+
+	case WM_KEYDOWN:
+		if (gameManager->GetSceneNum() == eMainScene)
+		{
+			gameManager->SetSceneNum(eChangeScene);
+			// todo : 화면전환 애니메이션 후 씬 넘버 변경
+			// todo : 키입력이 게임화면까지 넘어감
+		}
+		break;
+
+	case WM_CHAR:
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001 && gameManager->GetSceneNum() == eGameScene)
+			gameManager->SetIsPause();
+
+		if (GetAsyncKeyState(VK_TAB) & 0x0001 && gameManager->GetDrawRect() == false)
+			gameManager->SetDrawRect(true);
+		else
+			gameManager->SetDrawRect(false);
+
+		InvalidateRect(hWnd, NULL, false);
+		break;
+
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
+
+		HDC memDc;
+		HBITMAP hBit, oldBit;
+
+		RECT rectView = gameManager->GetScreenSize();
+
+		memDc = CreateCompatibleDC(hdc);
+		hBit = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
+		oldBit = (HBITMAP)SelectObject(memDc, hBit);
+
+		HBRUSH hBrush, oldBrush;
+		hBrush = CreateSolidBrush(RGB(36, 36, 36));
+		oldBrush = (HBRUSH)SelectObject(memDc, hBrush);
+
+		PatBlt(memDc, rectView.left, rectView.top, rectView.right, rectView.bottom, PATCOPY);
+		// PATCOPY : dc에 있는 브러시 색상 그대로 출력
+		if (gameManager->GetNowScene() == eMainScene || gameManager->GetNowScene() == eChangeScene)
+			ui->RenderObject(hWnd, memDc);
+
+		else if (gameManager->GetNowScene() == eGameScene)
+		{
+			SelectObject(memDc, oldBrush);
+			DeleteObject(hBrush);
+
+			if (gameManager->GetIsPlayerLive())
+			{
+				for (int i = 0; i<object.size(); i++)
+					object[i]->RenderObject(hWnd, memDc);
+
+				bulletList->RenderObject(hWnd, memDc);
+				explodeList->RenderObject(hWnd, memDc);
+
+				// >> drawObject
+				player->DrawObject(memDc);
+				map->DrawObject(memDc);
+
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->DrawObject(memDc);
+
+				bulletList->DrawObject(memDc);
+				explodeList->DrawObject(memDc);
+				// >> drawObject
+			}
+			ui->RenderObject(hWnd, memDc);
+		}
+
+		else if (gameManager->GetSceneNum() == eResultScene)
+		{
+			ui->RenderObject(hWnd, memDc);
+		}
+
+		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
+
+		SelectObject(memDc, oldBit);
+		DeleteObject(hBit);
+		DeleteDC(memDc);
+
+		EndPaint(hWnd, &ps);
+	}
+	break;
+
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -142,15 +364,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
-            EndPaint(hWnd, &ps);
-        }
-        break;
+   
     case WM_DESTROY:
+		FreeConsole();
+
+		Obstacle::DeleteAllData(obstacle);
+		// todo : 수정 가능하면 수정해 볼 것
+
+		KillTimer(hWnd, 0);
+		KillTimer(hWnd, 50);
+		KillTimer(hWnd, 100);
+
         PostQuitMessage(0);
         break;
     default:

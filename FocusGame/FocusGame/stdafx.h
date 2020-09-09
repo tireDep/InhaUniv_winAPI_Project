@@ -5,6 +5,13 @@
 
 #pragma once
 
+#define _AFXDLL
+#define _CRT_SECURE_NO_WARNINGS
+#define _USE_MATH_DEFINES
+
+#include <afx.h>
+#include <afxwin.h>
+
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
@@ -17,5 +24,6 @@
 #include <memory.h>
 #include <tchar.h>
 
-
+#include <iostream>
+#include <vector>
 // TODO: reference additional headers your program requires here
