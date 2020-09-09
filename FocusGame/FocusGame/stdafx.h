@@ -11,6 +11,8 @@
 
 #include <afx.h>
 #include <afxwin.h>
+// >> window보다 먼저 include 되어야 함
+// >> mci함수 관련(사운드)
 
 #include "targetver.h"
 

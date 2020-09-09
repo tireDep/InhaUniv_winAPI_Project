@@ -161,7 +161,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		gameManager->CalcScreenSize(hWnd);
 		gameManager->SetIsPlayerLive(true);
 
-		// object.push_back(ui);
 		object.push_back(soundSys);
 
 		object.push_back(map);
@@ -233,9 +232,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			
 			if (!gameManager->GetIsPause() && wParam == 0 && isPlayerLive)
 			{
-				gameManager->SetNowMap(map->GetMapPos());
-				gameManager->SetNowPlayerPos(player->GetPlayerPos());
-
 				for (int i = 0; i<object.size(); i++)
 					object[i]->Update();
 
@@ -265,7 +261,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (gameManager->GetSceneNum() == eMainScene)
 		{
 			gameManager->SetSceneNum(eChangeScene);
-			// todo : 화면전환 애니메이션 후 씬 넘버 변경
 			// todo : 키입력이 게임화면까지 넘어감
 		}
 		break;
@@ -369,7 +364,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		FreeConsole();
 
 		Obstacle::DeleteAllData(obstacle);
-		// todo : 수정 가능하면 수정해 볼 것
 
 		KillTimer(hWnd, 0);
 		KillTimer(hWnd, 50);

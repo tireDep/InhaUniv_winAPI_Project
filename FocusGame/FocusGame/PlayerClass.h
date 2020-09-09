@@ -3,8 +3,6 @@
 #include "ObjectClass.h"
 #include "GameManager.h"
 
-#define dgameManager GameManager::GetInstance()
-
 using namespace std;
 
 enum state
@@ -17,7 +15,7 @@ enum state
 
 enum playerSet
 {
-	ePlayerSize = 8, efMoveSize = 8, eMoveSpeed = 15, eFouceGauge = 0,
+	ePlayerSize = 8, eMoveSpeed = 15, eFouceGauge = 0,
 	eFocusLv0 = 0, eFocusLv1 = 50, eFocusLv2 = 150, eFocusLv3 = 250,
 
 	eGravity = 160, eJumpPower = 70

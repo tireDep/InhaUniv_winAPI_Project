@@ -2,6 +2,11 @@
 
 #include "resource.h"
 
+enum BasicNum
+{
+	eBlockSize = 16
+};
+
 enum MapType
 {
 	eMapBlock = 50, eMapSpike = 100,

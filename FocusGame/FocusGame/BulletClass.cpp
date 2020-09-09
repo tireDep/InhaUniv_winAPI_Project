@@ -16,12 +16,7 @@
 #define dGameManager GameManager::GetInstance()
 #define dPlayer Player::GetInstance()
 #define dMap Map::GetInstance()
-
-#define dMapPos dGameManager->GetNowMap()
-#define dPlayerPos dGameManager->GetNowPlayerPos()
-
 #define dExplode Explode::GetInstance()
-
 #define dSoundSys SoundSystem::GetInstance()
 
 Bullet::Bullet()
@@ -185,8 +180,8 @@ void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const 
 void Bullet::CheckShot()
 {
 	POINT playerCenter;
-	playerCenter.x = (dPlayerPos.left + dPlayerPos.right) * 0.5;
-	playerCenter.y = (dPlayerPos.top + dPlayerPos.bottom) * 0.5;
+	playerCenter.x = (dPlayer->GetPlayerPos().left + dPlayer->GetPlayerPos().right) * 0.5;
+	playerCenter.y = (dPlayer->GetPlayerPos().top + dPlayer->GetPlayerPos().bottom) * 0.5;
 
 	for (int i = 0; i < dMaxCnt; i++)
 	{
@@ -208,9 +203,9 @@ void Bullet::MoveShot(BulletSctruct &bullet)
 	RECT focusPos = dPlayer->GetFocusPos();
 	bool isFocus = dPlayer->GetIsFocusMode();
 	if (isFocus && IntersectRect(&area, &focusPos, &bullet.shotBullet))
-		mulNum = 0.25; // bullet.speed = dShotSpeed * 0.5 * 0.5;
+		mulNum = 0.25;
 	else
-		mulNum = 1; // bullet.speed = dShotSpeed;
+		mulNum = 1;
 	// >> Æ÷Ä¿½º ³»ºÎ ÆÇÁ¤
 
 	bullet.centerPos.x += bullet.nextSpot.x * mulNum;
@@ -228,9 +223,9 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 {
 	RECT area;
 
-	for (int i = 0; i < dMapPos.size(); i++)
+	for (int i = 0; i < dMap->GetMapPos().size(); i++)
 	{
-		if (IntersectRect(&area, &dMapPos[i].pos, &bullet.shotBullet) && CheckTileMap(dMapPos[i]))
+		if (IntersectRect(&area, &dMap->GetMapPos()[i].pos, &bullet.shotBullet) && CheckTileMap(dMap->GetMapPos()[i]))
 		{
 			// >> ¸Ê¿¡ ºÎµúÈû
 			dExplode->StartExplode(bullet.centerPos);
@@ -239,7 +234,7 @@ void Bullet::CheckHit(BulletSctruct &bullet)
 			break;
 		}
 
-		if (IntersectRect(&area, &dPlayerPos, &bullet.shotBullet))
+		if (IntersectRect(&area, &dPlayer->GetPlayerPos(), &bullet.shotBullet))
 		{
 			// >> ÇÃ·¹ÀÌ¾î¿¡ ºÎµúÈû
 			dExplode->StartExplode(bullet.centerPos);
