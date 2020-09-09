@@ -30,12 +30,18 @@
     <ClInclude Include="FocusMapTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MapClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FocusMapTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MapClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

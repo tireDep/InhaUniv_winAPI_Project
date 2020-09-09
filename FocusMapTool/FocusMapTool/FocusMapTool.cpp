@@ -4,6 +4,10 @@
 #include "stdafx.h"
 #include "FocusMapTool.h"
 
+// >>
+#include "MapClass.h"
+// >>
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -98,7 +102,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      100, 100, eWindowWidth, eWindowHeight, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
@@ -123,6 +127,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	Map *map = Map::GetInstance();
+
     switch (message)
     {
     case WM_COMMAND:
@@ -146,7 +152,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
+
+			map->RenderMap(hWnd, hdc);
+
             EndPaint(hWnd, &ps);
         }
         break;
