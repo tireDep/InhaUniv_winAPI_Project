@@ -8,7 +8,7 @@
 #include<commdlg.h>
 #pragma comment(lib, "msimg32.lib")
 
-#define dShotSpeed 10
+#define dShotSpeed 12
 // todo : savedata?
 
 #define dMaxCnt 100

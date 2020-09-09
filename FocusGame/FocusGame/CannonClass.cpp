@@ -8,7 +8,7 @@
 #define countDown 3
 #define shootedDown 2
 #define hitRangeDown 1
-#define tShotSpeed 10
+#define tShotSpeed 15
 // todo : savedata?
 
 #define dMap Map::GetInstance()

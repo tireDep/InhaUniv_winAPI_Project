@@ -735,7 +735,7 @@ void Player::CanMovePlayer()
 			moveSpeed = eMoveSpeed;
 			gravity = eGravity;
 
-			if (focusGauge < focusLv)
+			if (focusGauge < maxFocusGauge)
 				focusGauge += dAddFocusP;
 
 			if (focusGauge <= eSmallFocus || GetKeyState(0x41) < 0)	// 계속 누르고 있으면 포커스 모드 실행 x
@@ -1012,8 +1012,8 @@ void Player::Reset()
 	gravity = eGravity;
 	
 	isCharging = false;
-	focusGauge = dGameManager->GetFocusLv();
 	focusLv = dGameManager->GetFocusLv();
+	SetFocusGauge();
 	
 	CalcCenterPos();
 	
@@ -1076,4 +1076,29 @@ bool Player::GetIsPlayerDead()
 		return true;
 	else
 		return false;
+}
+
+void Player::SetFocusLv()
+{
+	focusLv++;
+	SetFocusGauge();
+}
+
+int Player::GetFocusLv()
+{
+	return focusLv;
+}
+
+void Player::SetFocusGauge()
+{
+	focusGauge = 0;
+
+	if (focusLv == 0)
+		focusGauge = 0;
+	else
+	{
+		for (int i = 0; i < focusLv; i++)
+			focusGauge += 75;
+	}
+	maxFocusGauge = focusGauge;
 }

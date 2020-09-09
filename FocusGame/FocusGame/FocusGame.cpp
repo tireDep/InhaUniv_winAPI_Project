@@ -177,6 +177,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (!gameManager->GetIsPause() && map->GetIsNextStage())
 			{
+				if (!ui->GetIsGoMain()) 
+					gameManager->SetFocusLv(player->GetFocusLv());
+
 				bulletList->Reset();
 				explodeList->Reset();
 

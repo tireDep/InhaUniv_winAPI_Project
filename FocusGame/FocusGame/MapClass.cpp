@@ -202,6 +202,14 @@ void Map::Update()
 
 		for (int i = 0; i < mapPos.size(); i++)
 		{
+			// >> 아이템 충돌 판정
+			if (mapPos[i].type == eMapItem && IntersectRect(&area, &mapPos[i].pos, &playerPos))
+			{
+				dPlayer->SetFocusLv();
+				mapPos.erase(mapPos.begin() + i);
+				break;
+			}
+
 			// >> 가시 충돌 판정
 			if (mapPos[i].type == eMapSpike && IntersectRect(&area, &mapPos[i].pos, &playerPos))
 			{
@@ -351,6 +359,9 @@ void Map::RenderObject(HWND hWnd, HDC hdc)
 		else if (mapPos[i].type == eMapGateCloseHorizen)
 			pos = { 16,112 };
 
+		else if (mapPos[i].type == eMapItem)
+			pos = { 0,128 };
+
 		TransparentBlt(hdc, mapPos[i].pos.left, mapPos[i].pos.top, blength.x, blength.y, hMapDc, pos.x, pos.y, blength.x, blength.y, RGB(255, 0, 255));
 	}
 
@@ -444,9 +455,9 @@ void Map::ReadMapData()
 		}
 		// >> 간단한 파싱
 
-		tileMap.type = eMapSpike;
-		tileMap.pos = { 500, 548, 516, 564 };
-		mapPos.push_back(tileMap);
+		// tileMap.type = eMapSpike;
+		// tileMap.pos = { 500, 548, 516, 564 };
+		// mapPos.push_back(tileMap);
 
 		tileMap.type = eMapHalfBlock;
 		tileMap.pos = { 480, 496, 496, 512 };
@@ -460,6 +471,14 @@ void Map::ReadMapData()
 		tileMap.pos = { 448, 496, 464, 512 };
 		mapPos.push_back(tileMap);
 
+		tileMap.type = eMapItem;
+		tileMap.pos = { 368, 496, 384, 512 };
+		mapPos.push_back(tileMap);
+
+		tileMap.type = eMapItem;
+		tileMap.pos = { 336, 496, 352, 512 };
+		mapPos.push_back(tileMap);
+
 		dSoundSys->PlaySoundEffect();
 	}
 	else
@@ -468,19 +487,10 @@ void Map::ReadMapData()
 		// >> 맨 처음 초기값 세팅
 		// >> stageClear -> endScene -> MainScene
 
-		// dGameManager->SetNowStage(-1);	
-		// // >> 맵을 불러오면서 +1 이기 때문에 0 stage 시작을 위해 -1 초기화
-		// dGameManager->SetFocusLv(0);
-		// // >> 초기 상태
-
-		dGameManager->SetNowStage(-1);
+		dGameManager->SetNowStage(-1);	
 		// >> 맵을 불러오면서 +1 이기 때문에 0 stage 시작을 위해 -1 초기화
-		dGameManager->SetFocusLv(250);
-		// >> 임시값
-		// todo : 아이템 추가 필요
-
+		dGameManager->SetFocusLv(0);
 		dGameManager->SetNowScene(eResultScene);
-		// todo : 수정 예정
 	}
 
 	mapFile.close();

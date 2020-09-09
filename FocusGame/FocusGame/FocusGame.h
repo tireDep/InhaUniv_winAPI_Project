@@ -17,7 +17,9 @@ enum MapType
 	eMapGateOpen = 204, eMapGateCloseVertical = 205, eMapGateCloseHorizen = 206,
 
 	eMapBtn_0 = 250, eMapBtn_1 = 251,	// 버튼(스위치)
-	eMapBtn_2 = 252, eMapBtn_3 = 253	// 버튼(블럭)
+	eMapBtn_2 = 252, eMapBtn_3 = 253,	// 버튼(블럭)
+
+	eMapItem = 300
 };
 
 struct TileMap
