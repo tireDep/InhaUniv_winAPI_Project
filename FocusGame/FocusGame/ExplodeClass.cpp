@@ -3,6 +3,7 @@
 #include "PlayerClass.h"
 #include "GameManager.h"
 #include "MapClass.h"
+#include "SoundSystem.h"
 
 #include<commdlg.h>
 
@@ -14,6 +15,7 @@
 #define dGameManager GameManager::GetInstance()
 #define dPlayer Player::GetInstance()
 #define dMap Map::GetInstance()
+#define dSoundSys SoundSystem::GetInstance()
 
 using namespace std;
 
@@ -29,7 +31,7 @@ Explode::Explode()
 		temp.curFrame = 1;
 		temp.maxFrame = dMaxFrame;
 
-		temp.hAniImg = (HBITMAP)LoadImage(NULL, TEXT("../Image/explode.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+		temp.hAniImg = (HBITMAP)LoadImage(NULL, TEXT("Image/explode.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 		GetObject(temp.hAniImg, sizeof(BITMAP), &temp.bitAni);
 
 		explodeList.push_back(temp);
@@ -147,6 +149,8 @@ void Explode::StartExplode(POINT bulletPos)
 			explodeList[i].explodeRect.bottom = explodeList[i].centerPos.y + 32;
 			// 폭발범위 설정
 			// >> set
+
+			dSoundSys->PlayExplodeSound();
 			break;
 		}
 	}

@@ -2,6 +2,7 @@
 #include "FocusGame.h"
 #include "PlayerClass.h"
 #include "MapClass.h"
+#include "SoundSystem.h"
 
 #include <time.h>
 
@@ -15,18 +16,19 @@
 
 #define dgameManager GameManager::GetInstance()
 #define dMap Map::GetInstance()
+#define dSoundSys SoundSystem::GetInstance()
 
 Player::Player()
 {
 	// Reset();
 
-	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hFocusBitmap, sizeof(BITMAP), &focusBitmap);
 
-	hSpotBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focusSpot.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	hSpotBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/focusSpot.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hSpotBitmap, sizeof(BITMAP), &spotBitmap);
 
-	hPlayerBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/player.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	hPlayerBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/player.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hPlayerBitmap, sizeof(BITMAP), &playerBitmap);
 }
 
@@ -50,7 +52,8 @@ void Player::Update()
 		CanMovePlayer();
 	else
 	{
-		if(isEndAni)
+		dSoundSys->SetIsPause(true);
+		if (isEndAni)
 			dgameManager->SetIsPlayerLive(false);
 	}
 }
@@ -59,7 +62,7 @@ void Player::Gravity()
 {
 	int diffNum = 0;
 
-	if (playerState != eFocus)
+	if (playerState != eFocus && playerState != eDead) // >> 포커스 모드일 때 죽으면 승천(?) 하는거 방지
 		CheckOut(playerPos, eMoveDown);	// >> 맵 밖으로 떨어지지 않게 보정 
 
 	if (playerState != eFocus || playerState != eJump)
@@ -120,7 +123,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				playerState = eDead;
+				SetIsPlayerDead(true);
 				return true;
 			}
 		}
@@ -138,7 +141,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				playerState = eDead;
+				SetIsPlayerDead(true);
 				return true;
 			}
 		}
@@ -156,7 +159,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				playerState = eDead;
+				SetIsPlayerDead(true);
 				return true;
 			}
 
@@ -175,7 +178,7 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			}
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
-				playerState = eDead;
+				SetIsPlayerDead(true);
 				return true;
 			}
 		}
@@ -727,6 +730,7 @@ void Player::CanMovePlayer()
 			// 운동량 계산을 위한 변수 값 저장
 
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+			dSoundSys->PlayFocusSound();
 		}
 
 		else
@@ -1058,9 +1062,14 @@ bool Player::GetIsEndAni()
 void Player::SetIsPlayerDead(bool set)
 {
 	if (set == true)
+	{
+		dSoundSys->PlayDeadSound();
 		playerState = eDead;
+	}
 	else 
 		playerState = eIdle;
+
+	dSoundSys->SetIsPause(set);
 }
 
 bool Player::GetIsPlayerDead()

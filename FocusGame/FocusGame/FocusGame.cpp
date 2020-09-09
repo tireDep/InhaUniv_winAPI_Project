@@ -12,6 +12,7 @@
 #include "BulletClass.h"
 #include "ExplodeClass.h"
 #include "UIClass.h"
+#include "SoundSystem.h"
 
 using namespace std;
 // << --------------------------
@@ -142,6 +143,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	Bullet *bulletList = Bullet::GetInstance();
 	Explode *explodeList = Explode::GetInstance();
 	UI *ui = UI::GetInstance();
+	SoundSystem *soundSys = SoundSystem::GetInstance();
 	
 	static vector<Obstacle *>obstacle;
 	static vector<Object *> object;
@@ -158,6 +160,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		gameManager->CalcScreenSize(hWnd);
 		gameManager->SetIsPlayerLive(true);
+
+		// object.push_back(ui);
+		object.push_back(soundSys);
 
 		object.push_back(map);
 		object.push_back(player);
@@ -176,6 +181,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				bulletList->Reset();
 				explodeList->Reset();
 
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->Reset();
+
 				map->SetNextStage();
 				player->Reset();
 
@@ -186,16 +194,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (!gameManager->GetIsPause() && wParam == 100 && !isPlayerLive)
 			{
-				for (int i = 0; i < object.size(); i++)
-					object[i]->Reset();
-
-				for (int i = 0; i < obstacle.size(); i++)
-					obstacle[i]->Reset();
-
-				bulletList->Reset();
-				explodeList->Reset();
-				// >> Reset
-				
 				// >> 화면 전환 타이머
 				time_t nowTime;
 				struct tm *tmTime = localtime(&nowTime);
@@ -214,6 +212,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					if (countDown <= 0)
 					{
+						for (int i = 0; i < object.size(); i++)
+							object[i]->Reset();
+
+						for (int i = 0; i < obstacle.size(); i++)
+							obstacle[i]->Reset();
+
+						bulletList->Reset();
+						explodeList->Reset();
+						// >> Reset
+
+						soundSys->PlaySoundEffect();
+						soundSys->SetIsPause(false);
 						gameManager->SetIsPlayerLive(true);
 						player->SetIsPlayerDead(false);
 					}
@@ -319,12 +329,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				explodeList->DrawObject(memDc);
 				// >> drawObject
 			}
-
 			ui->RenderObject(hWnd, memDc);
 		}
 
-		else if(gameManager->GetSceneNum() == eResultScene)
+		else if (gameManager->GetSceneNum() == eResultScene)
+		{
 			ui->RenderObject(hWnd, memDc);
+		}
 
 		BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDc, 0, 0, SRCCOPY);
 

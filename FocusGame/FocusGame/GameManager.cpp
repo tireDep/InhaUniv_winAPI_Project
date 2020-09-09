@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "GameManager.h"
+#include "SoundSystem.h"
 
 #include <fstream>
+
+#define dSoundSys SoundSystem::GetInstance()
 
 #define dKeyCode 'k'
 
@@ -84,6 +87,8 @@ void GameManager::SetIsPause()
 		isPause = true;
 	else
 		isPause = false;
+
+	dSoundSys->SetIsPause(isPause);
 }
 
 void GameManager::SetIsPlayerLive(bool live)

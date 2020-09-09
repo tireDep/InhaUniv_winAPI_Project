@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "UIClass.h"
+#include "SoundSystem.h"
 
 #define dCountDown 2
 #define dEndDown 1
@@ -11,6 +12,7 @@
 
 #define dMap Map::GetInstance()
 #define dGameManager GameManager::GetInstance()
+#define dSoundSys SoundSystem::GetInstance()
 
 UI::UI()
 {
@@ -25,7 +27,7 @@ UI::UI()
 	isGoMain = true;
 	isEndScene = false;
 
-	hUIBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/ui.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	hUIBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/ui.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hUIBitmap, sizeof(BITMAP), &uiBitmap);
 }
 
@@ -94,6 +96,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 
 		if (nowFrame.x >= dChangeFrameMax)
 		{
+			dSoundSys->PlaySoundEffect();
 			dMap->SetIsNextStage(true);
 			dGameManager->SetNowScene(eGameScene);
 		}
@@ -124,6 +127,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 	{
 		if (!isEndScene)
 		{
+			dSoundSys->SetIsStop(true);
 			isEndScene = true;
 			nowFrame = { 0,eTrueWinHeight * 4 }; // >> 맨 처음 들어왔을 때
 		}
@@ -148,7 +152,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 		}
 		else if (nowFrame.y == eTrueWinHeight * 5)
 		{
-			for (double i = 0; i < dForTimer; i++) {} // >> 창 전환 카운트, 타이머로 원하는 속도가 나오지 않음
+			for (double i = 0; i < dForTimer * 2; i++) {} // >> 창 전환 카운트, 타이머로 원하는 속도가 나오지 않음
 			nowFrame.x += eTrueWinWidth;
 		}
 		// >> timer
@@ -163,6 +167,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 			countDownSec = dCountDown;
 			nowFrame = { 0,0 };
 			dMap->SetIsNextStage(true);
+			dSoundSys->SetIsStop(false);
 			dGameManager->SetSceneNum(eMainScene);
 		}
 	}
@@ -178,6 +183,7 @@ void UI::CheckPushBtn(POINT pos)
 		isGoMain = true;
 		dGameManager->SetIsPause();
 		dGameManager->SetNowScene(eMainScene);
+		dSoundSys->SetIsStop(false);
 	}
 
 	else if (PtInRect(&playBtn, pos))
