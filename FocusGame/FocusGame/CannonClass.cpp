@@ -2,20 +2,19 @@
 #include "PlayerClass.h"
 #include "BulletClass.h"
 #include "CannonClass.h"
+#include "MapClass.h"
 
-#define hitRange 5
-#define countDown 3
+#define hitRange 7
+#define countDown 2
 #define shootedDown 2
-#define hitRangeDown 1
-#define tShotSpeed 10
+#define hitRangeDown 0
+#define tShotSpeed 20
 // todo : savedata?
 
+#define dMap Map::GetInstance()
 #define dPlayer Player::GetInstance()
 #define dGameManager GameManager::GetInstance()
 #define dBulletList Bullet::GetInstance()
-
-#define dMapPos dGameManager->GetNowMap()
-#define dPlayerPos dGameManager->GetNowPlayerPos()
 
 Cannon::Cannon()
 {
@@ -137,10 +136,10 @@ void Cannon::CheckInPlayer()
 {
 	RECT area;
 	POINT playerCenter;
-	playerCenter.x = (dPlayerPos.left + dPlayerPos.right) * 0.5;
-	playerCenter.y = (dPlayerPos.top + dPlayerPos.bottom) * 0.5;
+	playerCenter.x = (dPlayer->GetPlayerPos().left + dPlayer->GetPlayerPos().right) * 0.5;
+	playerCenter.y = (dPlayer->GetPlayerPos().top + dPlayer->GetPlayerPos().bottom) * 0.5;
 
-	if (IntersectRect(&area, &hitRect, &dPlayerPos) && isCanShoot)
+	if (IntersectRect(&area, &hitRect, &dPlayer->GetPlayerPos()) && isCanShoot)
 	{
 		POINT tempPlayerCenter;
 		if (tempCenter.x == -1 && tempCenter.y == -1)
@@ -249,16 +248,16 @@ void Cannon::MoveTestShot()
 void Cannon::CheckHit()
 {
 	RECT area;
-	for (int i = 0; i < dMapPos.size(); i++)
+	for (int i = 0; i < dMap->GetMapPos().size(); i++)
 	{
-		if (IntersectRect(&area, &dMapPos[i].pos, &testShot) && CheckTileMap(dMapPos[i]))
+		if (IntersectRect(&area, &dMap->GetMapPos()[i].pos, &testShot) && CheckTileMap(dMap->GetMapPos()[i]))
 		{
 			// >> ¸Ê¿¡ ºÎµúÈû
 			isCanShoot = false;
 			break;
 		}
 
-		if (IntersectRect(&area, &dPlayerPos, &testShot))
+		if (IntersectRect(&area, &dPlayer->GetPlayerPos(), &testShot))
 		{
 			// >> ÇÃ·¹ÀÌ¾î¿¡ ºÎµúÈû
 			isCanShoot = false;
@@ -270,7 +269,7 @@ void Cannon::CheckHit()
 
 bool Cannon::CheckTileMap(TileMap mapTile)
 {
-	if (mapTile.type == eMapBlock || mapTile.type == eMapSpike || 
+	if (mapTile.type == eMapBlock || mapTile.type == eMapHalfBlock || mapTile.type == eMapSpike || 
 		mapTile.type == eMapGate_0 || mapTile.type == eMapGate_1 || mapTile.type == eMapGate_2 || mapTile.type == eMapGate_3 ||
 		mapTile.type == eMapBtn_0 || mapTile.type == eMapBtn_1 || mapTile.type == eMapBtn_2 || mapTile.type == eMapBtn_3 || 
 		mapTile.type == eMapGateCloseVertical || mapTile.type == eMapGateCloseHorizen )

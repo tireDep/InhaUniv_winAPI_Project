@@ -14,14 +14,12 @@
 
 #define dCountDown 1
 
-#define dgameManager GameManager::GetInstance()
+#define dGameManager GameManager::GetInstance()
 #define dMap Map::GetInstance()
 #define dSoundSys SoundSystem::GetInstance()
 
 Player::Player()
 {
-	// Reset();
-
 	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hFocusBitmap, sizeof(BITMAP), &focusBitmap);
 
@@ -54,7 +52,7 @@ void Player::Update()
 	{
 		dSoundSys->SetIsPause(true);
 		if (isEndAni)
-			dgameManager->SetIsPlayerLive(false);
+			dGameManager->SetIsPlayerLive(false);
 	}
 }
 
@@ -86,7 +84,7 @@ void Player::Gravity()
 bool Player::CheckBtmGround(int &lengthDiff)
 {
 	RECT temp;
-	vector<TileMap> checkBtm = dgameManager->GetNowMap();
+	vector<TileMap> checkBtm = dMap->GetMapPos();
 	RECT checkRect = ConversionRect(playerPos);
 
 	for (int i = 0; i < checkBtm.size(); i++)
@@ -109,7 +107,7 @@ bool Player::CheckBtmGround(int &lengthDiff)
 bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 {
 	RECT areaRect;
-	vector<TileMap> checkBtm = dgameManager->GetNowMap();
+	vector<TileMap> checkBtm = dMap->GetMapPos();
 	RECT checkRect = ConversionRect(pos);
 
 	if (direction == eMoveRight)
@@ -204,9 +202,8 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 {
 	RECT area;
 	RECT checkRect = ConversionRect(pos);
-	vector<TileMap> mapPos = dgameManager->GetNowMap();
+	vector<TileMap> mapPos = dMap->GetMapPos();
 
-	// todo : 해당 위치가 벽이 아니면 지나갈 수 있어야 함!!(스테이지 클리어 후)
 	if (direction == eMoveLeft)
 	{
 		if (checkRect.left <= eLimitL)
@@ -283,7 +280,7 @@ bool Player::CheckOutMap(POINT pos[], int direction, int &lengthDiff)
 bool Player::CheckBlockMap()
 {
 	RECT area;
-	vector<TileMap> tempMap = dgameManager->GetNowMap();
+	vector<TileMap> tempMap = dMap->GetMapPos();
 	RECT conRect = ConversionRect(fMovePos);
 	RECT conRect2 = ConversionRect(playerPos);
 	// ※ : 포커스 좌표로 잡아야 맨 위 블럭도 판정 가능
@@ -320,7 +317,7 @@ bool Player::CheckBlockMap()
 
 void Player::DrawObject(HDC hdc)
 {
-	if (dgameManager->GetDrawRect())
+	if (dGameManager->GetDrawRect())
 	{
 		Polygon(hdc, focusPos, 4);
 		Polygon(hdc, playerPos, 4);
@@ -470,7 +467,7 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 		}
 	}
 
-	if (!dgameManager->GetIsPause())
+	if (!dGameManager->GetIsPause())
 	{
 		if (playerState == eIdle)
 			aniPos = { 0,0 };
@@ -649,7 +646,7 @@ void Player::CanMovePlayer()
 		// 플레이어 이동
 
 		// 점프
-		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
+		if (!isJump && (GetAsyncKeyState(VK_SPACE) & 0x8000) // || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
 			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;
@@ -696,16 +693,15 @@ void Player::CanMovePlayer()
 		}
 		else // 점프 후 바닥에 닿음
 		{
-			//// 점프 하는 동안에 점프 못하게 막아야 함
-			//// 바닥에 닿았을 경우 리셋 & 바로 점프 x
-			if (((GetKeyState(VK_SPACE) < 0) || (GetKeyState(VK_UP) < 0)))
+			// 점프 하는 동안에 점프 못하게 막아야 함
+			// 바닥에 닿았을 경우 리셋 & 바로 점프 x
+			if (GetKeyState(VK_SPACE) < 0) //  || (GetKeyState(VK_UP) < 0)))
 				isJump = true;	// jump키를 누르고 있는 상황
 
 			else if (isBtmGround)
 			{
 				// jump키를 누르고 있지 x, 지면에 닿음 -> 변수 초기화, n번 점프 방지
 				isJump = false;
-				// playerState = eIdle;
 				jumpPower = eJumpPower;
 			}
 		}	// else_jump
@@ -729,7 +725,7 @@ void Player::CanMovePlayer()
 			lastPlayerPos[3] = playerPos[3];
 			// 운동량 계산을 위한 변수 값 저장
 
-			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+			SetPos(fMovePos, centerPos.x, centerPos.y, ePlayerSize);
 			dSoundSys->PlayFocusSound();
 		}
 
@@ -738,7 +734,7 @@ void Player::CanMovePlayer()
 			moveSpeed = eMoveSpeed;
 			gravity = eGravity;
 
-			if (focusGauge < focusLv)
+			if (focusGauge < maxFocusGauge)
 				focusGauge += dAddFocusP;
 
 			if (focusGauge <= eSmallFocus || GetKeyState(0x41) < 0)	// 계속 누르고 있으면 포커스 모드 실행 x
@@ -791,7 +787,7 @@ void Player::CanMovePlayer()
 			|| !IntersectRect(&area, &rcMovepos, &rcFPos) )	// ※ : 영역 밖으로 나가게 되면 리셋
 		{
 			//  키가 눌리고 있지 않을 경우 플레이어 위치로 초기화
-			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+			SetPos(fMovePos, centerPos.x, centerPos.y, ePlayerSize);
 			fCenterPos.x = centerPos.x;
 			fCenterPos.y = centerPos.y;
 		}
@@ -881,7 +877,6 @@ int Player::CheckFocusRange(int direction, int mulNum)
 	RECT calcRect = ConversionRect(fMovePos);
 	int num = 0;
 
-	// todo : 판정 추가
 	if (direction == eMoveUp || direction == eMoveDown)
 	{
 		for (int i = 1; i < eMoveSpeed; i++)
@@ -919,7 +914,10 @@ int Player::CheckFocusRange(int direction, int mulNum)
 
 bool Player::CheckTileMap(TileMap tile)
 {
-	if (tile.type == eMapBlock
+	if (moveDirection == eMoveDown && tile.type == eMapHalfBlock)
+		return false;
+
+	if (tile.type == eMapBlock || tile.type == eMapHalfBlock
 		|| tile.type == eMapGate_0 || tile.type == eMapGate_1 || tile.type == eMapGate_2 || tile.type == eMapGate_3 || tile.type == eMapBtn_2 || tile.type == eMapBtn_3
 		|| tile.type == eMapGateCloseHorizen || tile.type == eMapGateCloseVertical)	// 블록과 충돌할 경우 정지
 		return true;
@@ -1000,7 +998,6 @@ void Player::ReturnLastPos()
 
 void Player::Reset()
 {
-	// todo : 플레이어 정보가 파싱된 위치로 이동해야 함
 	SetPos(playerPos, dMap->GetResenSpot().x, dMap->GetResenSpot().y, ePlayerSize);
 
 	playerState = eIdle;
@@ -1014,16 +1011,16 @@ void Player::Reset()
 	gravity = eGravity;
 	
 	isCharging = false;
-	focusGauge = dgameManager->GetFocusLv();
-	focusLv = dgameManager->GetFocusLv();
+	focusLv = dGameManager->GetFocusLv();
+	SetFocusGauge();
 	
 	CalcCenterPos();
 	
 	SetPos(focusPos, centerPos.x, centerPos.y, focusGauge);
-	SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+	SetPos(fMovePos, centerPos.x, centerPos.y, ePlayerSize);
 	CalcFCenterPos();
 	
-	SetPos(lastPlayerPos, centerPos.x, centerPos.y, efMoveSize);
+	SetPos(lastPlayerPos, centerPos.x, centerPos.y, ePlayerSize);
 	lastMoveCenter.x = 0;
 	lastMoveCenter.y = 0;
 
@@ -1078,4 +1075,29 @@ bool Player::GetIsPlayerDead()
 		return true;
 	else
 		return false;
+}
+
+void Player::SetFocusLv()
+{
+	focusLv++;
+	SetFocusGauge();
+}
+
+int Player::GetFocusLv()
+{
+	return focusLv;
+}
+
+void Player::SetFocusGauge()
+{
+	focusGauge = 0;
+
+	if (focusLv == 0)
+		focusGauge = 0;
+	else
+	{
+		for (int i = 0; i < focusLv; i++)
+			focusGauge += 75;
+	}
+	maxFocusGauge = focusGauge;
 }

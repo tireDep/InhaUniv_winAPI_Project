@@ -1,5 +1,7 @@
 #pragma once
 #include "stdafx.h"
+// >> stdafx.hø° include ¿÷¿Ω
+
 #include "ObjectClass.h"
 #pragma comment(lib, "winmm.lib")
 

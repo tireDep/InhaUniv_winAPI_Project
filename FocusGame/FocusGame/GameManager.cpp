@@ -55,8 +55,7 @@ void GameManager::ReadSaveData()
 	else
 	{
 		nowStage = -1;
-		nowFocusLv = 50;
-		// focusLv ==> ÀÓ½Ã°ª
+		nowFocusLv = 0;
 	}
 	readFile.close();
 }
@@ -96,15 +95,6 @@ void GameManager::SetIsPlayerLive(bool live)
 	isPlayerLive = live;
 }
 
-void GameManager::SetNowPlayerPos(RECT set)
-{
-	nowPlayerPos = set;
-}
-
-void GameManager::SetNowMap(vector<TileMap> map)
-{
-	nowMap = map;
-}
 
 void GameManager::SetNowScene(int scene)
 {
@@ -134,16 +124,6 @@ int GameManager::GetNowScene()
 RECT GameManager::GetScreenSize()
 {
 	return screenSize;
-}
-
-vector<TileMap> GameManager::GetNowMap()
-{
-	return nowMap;
-}
-
-RECT GameManager::GetNowPlayerPos()
-{
-	return nowPlayerPos;
 }
 
 void GameManager::SetDrawRect(bool set)
