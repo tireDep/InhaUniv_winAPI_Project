@@ -269,7 +269,7 @@ void Cannon::CheckHit()
 
 bool Cannon::CheckTileMap(TileMap mapTile)
 {
-	if (mapTile.type == eMapBlock || mapTile.type == eMapSpike || 
+	if (mapTile.type == eMapBlock || mapTile.type == eMapHalfBlock || mapTile.type == eMapSpike || 
 		mapTile.type == eMapGate_0 || mapTile.type == eMapGate_1 || mapTile.type == eMapGate_2 || mapTile.type == eMapGate_3 ||
 		mapTile.type == eMapBtn_0 || mapTile.type == eMapBtn_1 || mapTile.type == eMapBtn_2 || mapTile.type == eMapBtn_3 || 
 		mapTile.type == eMapGateCloseVertical || mapTile.type == eMapGateCloseHorizen )

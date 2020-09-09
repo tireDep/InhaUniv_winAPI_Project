@@ -300,6 +300,9 @@ void Map::RenderObject(HWND hWnd, HDC hdc)
 		if (mapPos[i].type == eMapBlock)
 			pos = { 0,0 };
 
+		else if (mapPos[i].type == eMapHalfBlock)
+			pos = { 16,0 };
+
 		else if (mapPos[i].type == eMapSpike)
 			pos = { 0,16 };
 
@@ -445,13 +448,17 @@ void Map::ReadMapData()
 		tileMap.pos = { 500, 548, 516, 564 };
 		mapPos.push_back(tileMap);
 
-		// string temp;
-		// mapFile.seekg(0, std::ios::end);
-		// int size = mapFile.tellg();
-		// 
-		// temp.resize(size);
-		// mapFile.seekg(0, std::ios::beg);
-		// mapFile.read(&temp[0], size);
+		tileMap.type = eMapHalfBlock;
+		tileMap.pos = { 480, 496, 496, 512 };
+		mapPos.push_back(tileMap);
+
+		tileMap.type = eMapHalfBlock;
+		tileMap.pos = { 464, 496, 480, 512 };
+		mapPos.push_back(tileMap);
+
+		tileMap.type = eMapHalfBlock;
+		tileMap.pos = { 448, 496, 464, 512 };
+		mapPos.push_back(tileMap);
 
 		dSoundSys->PlaySoundEffect();
 	}

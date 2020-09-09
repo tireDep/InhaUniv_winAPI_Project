@@ -9,7 +9,7 @@ enum BasicNum
 
 enum MapType
 {
-	eMapBlock = 50, eMapSpike = 100,
+	eMapBlock = 50, eMapHalfBlock = 75, eMapSpike = 100,
 	eMapCannon_0 = 150, eMapCannon_1 = 151, eMapCannon_2 = 152, eMapCannon_3 = 153,	// 일반
 	eMapCannon_4 = 154, eMapCannon_5 = 155, eMapCannon_6 = 156, eMapCannon_7 = 157,	// 유도
 
