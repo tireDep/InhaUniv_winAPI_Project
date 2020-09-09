@@ -3,6 +3,7 @@
 #include "BulletClass.h"
 #include "ExplodeClass.h"
 #include "MapClass.h"
+#include "SoundSystem.h"
 
 #include<commdlg.h>
 #pragma comment(lib, "msimg32.lib")
@@ -21,6 +22,8 @@
 
 #define dExplode Explode::GetInstance()
 
+#define dSoundSys SoundSystem::GetInstance()
+
 Bullet::Bullet()
 {
 	BulletSctruct nBullet;
@@ -34,7 +37,7 @@ Bullet::Bullet()
 		nBullet.isShot = false;
 		nBullet.type = dNormal;
 		nBullet.speed = dShotSpeed;
-		nBullet.hbitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/bullet.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+		nBullet.hbitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/bullet.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 		GetObject(nBullet.hbitmap, sizeof(BITMAP), &nBullet.bitmap);
 		nBulletList.push_back(nBullet);
 
@@ -44,7 +47,7 @@ Bullet::Bullet()
 		hBullet.isShot = false;
 		hBullet.type = dHoming;
 		hBullet.speed = dShotSpeed;
-		hBullet.hbitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/bullet2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+		hBullet.hbitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/bullet2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 		GetObject(hBullet.hbitmap, sizeof(BITMAP), &hBullet.bitmap);
 		hBulletList.push_back(hBullet);
 	}
@@ -134,6 +137,7 @@ void Bullet::Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bul
 		if (nBulletList[i].isShot == false && bulletType == nBulletList[i].type)
 		{
 			nBulletList[i].isShot = true;
+			dSoundSys->PlayShotSound();
 			CalcBullet(nBulletList[i], cannonCenter, playerCenter, bulletType);
 			break;
 		}
@@ -141,6 +145,7 @@ void Bullet::Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bul
 		if (hBulletList[i].isShot == false && bulletType == hBulletList[i].type)
 		{
 			hBulletList[i].isShot = true;
+			dSoundSys->PlayShotSound();
 			CalcBullet(hBulletList[i], cannonCenter, playerCenter, bulletType);
 			break;
 		}

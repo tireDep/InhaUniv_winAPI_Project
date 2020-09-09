@@ -3,6 +3,7 @@
 #include "PlayerClass.h"
 #include "GameManager.h"
 #include "UIClass.h"
+#include "SoundSystem.h"
 
 #include <fstream>
 #include <string>
@@ -10,12 +11,13 @@
 #define dGameManager GameManager::GetInstance()
 #define dPlayer Player::GetInstance()
 #define dUI UI::GetInstance()
+#define dSoundSys SoundSystem::GetInstance()
 
 using namespace std;
 
 Map::Map()
 {
-	hMapBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/tile.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	hMapBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/tile.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hMapBitmap, sizeof(BITMAP), &mapBitmap);
 
 	// isNextStage = false;
@@ -218,6 +220,8 @@ void Map::Update()
 						mapPos[j].type = eMapBtn_3;
 				}
 				// >> 바로 밑에 있는 버튼이 꺼지도록 판정 변경
+
+				dSoundSys->PlayBtnOff();
 			}
 
 			// >> 다음 스테이지 불러오기
@@ -230,7 +234,10 @@ void Map::Update()
 			for (int i = 0; i < mapPos.size(); i++)
 			{
 				if (mapPos[i].type == eMapGate_0 || mapPos[i].type == eMapGate_1 || mapPos[i].type == eMapGate_2 || mapPos[i].type == eMapGate_3)
+				{
+					if(mapPos[i].type==eMapGate_0) dSoundSys->PlayGateBreak();	// 사운드 겹침 방지
 					mapPos[i].type = eMapGateOpen;
+				}
 				// todo : 애니메이션 추가?
 			}
 		}
@@ -446,7 +453,7 @@ void Map::ReadMapData()
 		// mapFile.seekg(0, std::ios::beg);
 		// mapFile.read(&temp[0], size);
 
-
+		dSoundSys->PlaySoundEffect();
 	}
 	else
 	{

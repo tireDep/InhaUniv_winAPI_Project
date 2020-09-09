@@ -22,13 +22,13 @@ Player::Player()
 {
 	// Reset();
 
-	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	hFocusBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/focus.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hFocusBitmap, sizeof(BITMAP), &focusBitmap);
 
-	hSpotBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/focusSpot.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	hSpotBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/focusSpot.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hSpotBitmap, sizeof(BITMAP), &spotBitmap);
 
-	hPlayerBitmap = (HBITMAP)LoadImage(NULL, TEXT("../Image/player.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+	hPlayerBitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/player.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hPlayerBitmap, sizeof(BITMAP), &playerBitmap);
 }
 
@@ -52,7 +52,8 @@ void Player::Update()
 		CanMovePlayer();
 	else
 	{
-		if(isEndAni)
+		dSoundSys->SetIsPause(true);
+		if (isEndAni)
 			dgameManager->SetIsPlayerLive(false);
 	}
 }
@@ -729,6 +730,7 @@ void Player::CanMovePlayer()
 			// 운동량 계산을 위한 변수 값 저장
 
 			SetPos(fMovePos, centerPos.x, centerPos.y, efMoveSize);
+			dSoundSys->PlayFocusSound();
 		}
 
 		else
@@ -1060,7 +1062,10 @@ bool Player::GetIsEndAni()
 void Player::SetIsPlayerDead(bool set)
 {
 	if (set == true)
+	{
+		dSoundSys->PlayDeadSound();
 		playerState = eDead;
+	}
 	else 
 		playerState = eIdle;
 

@@ -222,6 +222,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						explodeList->Reset();
 						// >> Reset
 
+						soundSys->PlaySoundEffect();
+						soundSys->SetIsPause(false);
 						gameManager->SetIsPlayerLive(true);
 						player->SetIsPlayerDead(false);
 					}

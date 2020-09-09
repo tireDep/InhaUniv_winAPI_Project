@@ -6,19 +6,20 @@
 #include <mmsystem.h>
 #include <Digitalv.h>
 
-// >> sound
-// >> mci_xx 변수 밑줄 제거
+using namespace std;
 
 class SoundSystem : public Object
 {
 private:
-	MCI_OPEN_PARMS mOpenParms;
-	MCI_PLAY_PARMS mPlayParms;
-	DWORD dDeviceID;
 	MCI_OPEN_PARMS mciOpen;
-	MCI_PLAY_PARMS mciPlay;
+	MCI_OPEN_PARMS mciGame;
+	MCI_OPEN_PARMS mciEnd;
 
-	int dwID;
+	MCI_PLAY_PARMS mciPlay;
+	DWORD dDeviceID;
+
+	vector<int> dwID;
+	int nowID;
 
 	SoundSystem();
 
@@ -29,6 +30,18 @@ public:
 
 	void Update();
 
+	void PlaySoundEffect();
+	void PlayDeadSound();
+	void PlayShotSound();
+	void PlayExplodeSound();
+	void PlayFocusSound();
+	void PlayGateBreak();
+	void PlayBtnOff();
+
+	void PlayResultBgm();
+
 	void SetIsPause(bool set);
 	void SetIsStop(bool set);
+
+	void SetFirstPos();
 };
