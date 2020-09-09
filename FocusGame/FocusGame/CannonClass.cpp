@@ -4,11 +4,11 @@
 #include "CannonClass.h"
 #include "MapClass.h"
 
-#define hitRange 5
-#define countDown 3
+#define hitRange 7
+#define countDown 2
 #define shootedDown 2
-#define hitRangeDown 1
-#define tShotSpeed 15
+#define hitRangeDown 0
+#define tShotSpeed 20
 // todo : savedata?
 
 #define dMap Map::GetInstance()

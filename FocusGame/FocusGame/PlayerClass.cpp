@@ -693,8 +693,8 @@ void Player::CanMovePlayer()
 		}
 		else // 점프 후 바닥에 닿음
 		{
-			//// 점프 하는 동안에 점프 못하게 막아야 함
-			//// 바닥에 닿았을 경우 리셋 & 바로 점프 x
+			// 점프 하는 동안에 점프 못하게 막아야 함
+			// 바닥에 닿았을 경우 리셋 & 바로 점프 x
 			if (GetKeyState(VK_SPACE) < 0) //  || (GetKeyState(VK_UP) < 0)))
 				isJump = true;	// jump키를 누르고 있는 상황
 
@@ -702,7 +702,6 @@ void Player::CanMovePlayer()
 			{
 				// jump키를 누르고 있지 x, 지면에 닿음 -> 변수 초기화, n번 점프 방지
 				isJump = false;
-				// playerState = eIdle;
 				jumpPower = eJumpPower;
 			}
 		}	// else_jump
