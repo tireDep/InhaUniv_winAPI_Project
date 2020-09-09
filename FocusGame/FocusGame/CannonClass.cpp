@@ -4,11 +4,11 @@
 #include "CannonClass.h"
 #include "MapClass.h"
 
-#define hitRange 5
-#define countDown 3
+#define hitRange 7
+#define countDown 2
 #define shootedDown 2
-#define hitRangeDown 1
-#define tShotSpeed 10
+#define hitRangeDown 0
+#define tShotSpeed 20
 // todo : savedata?
 
 #define dMap Map::GetInstance()
@@ -269,7 +269,7 @@ void Cannon::CheckHit()
 
 bool Cannon::CheckTileMap(TileMap mapTile)
 {
-	if (mapTile.type == eMapBlock || mapTile.type == eMapSpike || 
+	if (mapTile.type == eMapBlock || mapTile.type == eMapHalfBlock || mapTile.type == eMapSpike || 
 		mapTile.type == eMapGate_0 || mapTile.type == eMapGate_1 || mapTile.type == eMapGate_2 || mapTile.type == eMapGate_3 ||
 		mapTile.type == eMapBtn_0 || mapTile.type == eMapBtn_1 || mapTile.type == eMapBtn_2 || mapTile.type == eMapBtn_3 || 
 		mapTile.type == eMapGateCloseVertical || mapTile.type == eMapGateCloseHorizen )

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "UIClass.h"
 #include "SoundSystem.h"
+#include "PlayerClass.h"
 
 #define dCountDown 2
 #define dEndDown 1
@@ -13,6 +14,7 @@
 #define dMap Map::GetInstance()
 #define dGameManager GameManager::GetInstance()
 #define dSoundSys SoundSystem::GetInstance()
+#define dPlayer Player::GetInstance()
 
 UI::UI()
 {
@@ -109,7 +111,12 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 			TransparentBlt(hdc, 0, 0, pos.x, pos.y, uiDc, nowFrame.x, nowFrame.y, pos.x, pos.y, RGB(255, 0, 255));
 		}
 
-		// todo : 아이템 처음 획득 시 안내 UI 추가
+		if (dPlayer->GetFocusLv() == 1 && dGameManager->GetFocusLv() == 0)
+		{
+			// >> 처음 아이템 먹을 때 UI
+			nowFrame = { eTrueWinWidth * 2, eTrueWinHeight * 2 };
+			TransparentBlt(hdc, 0, 0, pos.x, pos.y, uiDc, nowFrame.x, nowFrame.y, pos.x, pos.y, RGB(255, 0, 255));
+		}
 
 		if (!dGameManager->GetIsPlayerLive())
 		{
@@ -168,6 +175,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 			nowFrame = { 0,0 };
 			dMap->SetIsNextStage(true);
 			dSoundSys->SetIsStop(false);
+			dGameManager->SetFocusLv(0);
 			dGameManager->SetSceneNum(eMainScene);
 		}
 	}

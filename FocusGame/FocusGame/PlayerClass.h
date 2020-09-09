@@ -15,8 +15,7 @@ enum state
 
 enum playerSet
 {
-	ePlayerSize = 8, eMoveSpeed = 15, eFouceGauge = 0,
-	eFocusLv0 = 0, eFocusLv1 = 50, eFocusLv2 = 150, eFocusLv3 = 250,
+	ePlayerSize = 8, eMoveSpeed = 15,
 
 	eGravity = 160, eJumpPower = 70
 	// ※ : 수치는 조정 가능..
@@ -46,6 +45,8 @@ private:
 
 	bool isCharging;
 	int playerState;	// 현재 상태 플래그
+
+	int maxFocusGauge;
 	int focusGauge;
 	int focusLv;
 
@@ -118,5 +119,10 @@ public:
 
 	void SetIsPlayerDead(bool set);
 	bool GetIsPlayerDead();
+
+	void SetFocusLv();
+	int GetFocusLv();
+
+	void SetFocusGauge();
 };
 

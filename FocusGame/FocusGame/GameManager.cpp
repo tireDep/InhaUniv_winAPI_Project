@@ -55,8 +55,7 @@ void GameManager::ReadSaveData()
 	else
 	{
 		nowStage = -1;
-		nowFocusLv = 50;
-		// focusLv ==> юс╫ц╟╙
+		nowFocusLv = 0;
 	}
 	readFile.close();
 }

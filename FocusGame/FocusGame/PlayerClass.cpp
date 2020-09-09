@@ -646,7 +646,7 @@ void Player::CanMovePlayer()
 		// 플레이어 이동
 
 		// 점프
-		if (!isJump && ((GetAsyncKeyState(VK_SPACE) & 0x8000) || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
+		if (!isJump && (GetAsyncKeyState(VK_SPACE) & 0x8000) // || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
 			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;
@@ -693,16 +693,15 @@ void Player::CanMovePlayer()
 		}
 		else // 점프 후 바닥에 닿음
 		{
-			//// 점프 하는 동안에 점프 못하게 막아야 함
-			//// 바닥에 닿았을 경우 리셋 & 바로 점프 x
-			if (((GetKeyState(VK_SPACE) < 0) || (GetKeyState(VK_UP) < 0)))
+			// 점프 하는 동안에 점프 못하게 막아야 함
+			// 바닥에 닿았을 경우 리셋 & 바로 점프 x
+			if (GetKeyState(VK_SPACE) < 0) //  || (GetKeyState(VK_UP) < 0)))
 				isJump = true;	// jump키를 누르고 있는 상황
 
 			else if (isBtmGround)
 			{
 				// jump키를 누르고 있지 x, 지면에 닿음 -> 변수 초기화, n번 점프 방지
 				isJump = false;
-				// playerState = eIdle;
 				jumpPower = eJumpPower;
 			}
 		}	// else_jump
@@ -735,7 +734,7 @@ void Player::CanMovePlayer()
 			moveSpeed = eMoveSpeed;
 			gravity = eGravity;
 
-			if (focusGauge < focusLv)
+			if (focusGauge < maxFocusGauge)
 				focusGauge += dAddFocusP;
 
 			if (focusGauge <= eSmallFocus || GetKeyState(0x41) < 0)	// 계속 누르고 있으면 포커스 모드 실행 x
@@ -915,7 +914,10 @@ int Player::CheckFocusRange(int direction, int mulNum)
 
 bool Player::CheckTileMap(TileMap tile)
 {
-	if (tile.type == eMapBlock
+	if (moveDirection == eMoveDown && tile.type == eMapHalfBlock)
+		return false;
+
+	if (tile.type == eMapBlock || tile.type == eMapHalfBlock
 		|| tile.type == eMapGate_0 || tile.type == eMapGate_1 || tile.type == eMapGate_2 || tile.type == eMapGate_3 || tile.type == eMapBtn_2 || tile.type == eMapBtn_3
 		|| tile.type == eMapGateCloseHorizen || tile.type == eMapGateCloseVertical)	// 블록과 충돌할 경우 정지
 		return true;
@@ -1009,8 +1011,8 @@ void Player::Reset()
 	gravity = eGravity;
 	
 	isCharging = false;
-	focusGauge = dGameManager->GetFocusLv();
 	focusLv = dGameManager->GetFocusLv();
+	SetFocusGauge();
 	
 	CalcCenterPos();
 	
@@ -1073,4 +1075,29 @@ bool Player::GetIsPlayerDead()
 		return true;
 	else
 		return false;
+}
+
+void Player::SetFocusLv()
+{
+	focusLv++;
+	SetFocusGauge();
+}
+
+int Player::GetFocusLv()
+{
+	return focusLv;
+}
+
+void Player::SetFocusGauge()
+{
+	focusGauge = 0;
+
+	if (focusLv == 0)
+		focusGauge = 0;
+	else
+	{
+		for (int i = 0; i < focusLv; i++)
+			focusGauge += 75;
+	}
+	maxFocusGauge = focusGauge;
 }

@@ -151,8 +151,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
 	case WM_CREATE:
-		AllocConsole();
-		freopen("CONOUT$", "wt", stdout);
+		// AllocConsole();
+		// freopen("CONOUT$", "wt", stdout);
 
 		SetTimer(hWnd, 0, 25, NULL);	// playeGame
 		SetTimer(hWnd, 50, 50, NULL);	// animationFrame 
@@ -177,6 +177,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if (!gameManager->GetIsPause() && map->GetIsNextStage())
 			{
+				if (!ui->GetIsGoMain()) 
+					gameManager->SetFocusLv(player->GetFocusLv());
+
 				bulletList->Reset();
 				explodeList->Reset();
 
@@ -361,7 +364,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
    
     case WM_DESTROY:
-		FreeConsole();
+		// FreeConsole();
 
 		Obstacle::DeleteAllData(obstacle);
 
