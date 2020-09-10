@@ -36,7 +36,8 @@ Map::Map()
 	openFileBtn = { 840, 400, 946, 450 };
 	saveFileBtn = { 840, 480, 946, 530 };
 
-	nowTypeRect = { 840, 15, 946, 35 };
+	// nowTypeRect = { 840, 15, 946, 35 };
+	nowTypeRect = { 820, 12, 966, 32 };
 
 	nowType = -1;
 
@@ -59,13 +60,13 @@ void Map::DrawMap(HDC hdc)
 {
 	HBRUSH hBrush, oldBrush;
 
-	hBrush = CreateSolidBrush(RGB(36, 36, 36));
-	oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-
-	PatBlt(hdc, 0, 0, eWindowWidth, eWindowWidth, PATCOPY);
-
-	SelectObject(hdc, oldBrush);
-	DeleteObject(hBrush);
+	// hBrush = CreateSolidBrush(RGB(36, 36, 36));
+	// oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+	// 
+	// PatBlt(hdc, 0, 0, eWindowWidth, eWindowWidth, WHITENESS);
+	// 
+	// SelectObject(hdc, oldBrush);
+	// DeleteObject(hBrush);
 
 	for (int i = 0; i < eWindowWidth; i += 16)
 	{
@@ -122,13 +123,13 @@ void Map::DrawMap(HDC hdc)
 	DrawText(hdc, TEXT("Save File"), _tcslen(TEXT("Save File")), &saveFileBtn, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
 	DrawBtn(hdc, nowTypeRect);
-	// todo : 타입에 따른 이름 변경
-	DrawText(hdc, TEXT("type : bCannon1"), _tcslen(TEXT("type : bCannon1")), &nowTypeRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	SetShowType(nowType);
+	DrawText(hdc, typeName, _tcslen(typeName), &nowTypeRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 	
-	for (int i = 0; i < tileMap.size(); i++)
-	{
-		Rectangle(hdc, tileMap[i].pos.left, tileMap[i].pos.top, tileMap[i].pos.right, tileMap[i].pos.bottom);
-	}
+	// for (int i = 0; i < tileMap.size(); i++)
+	// {
+	// 	Rectangle(hdc, tileMap[i].pos.left, tileMap[i].pos.top, tileMap[i].pos.right, tileMap[i].pos.bottom);
+	// }
 }
 
 void Map::RenderMap(HWND hWnd, HDC hdc)
@@ -168,6 +169,9 @@ void Map::RenderMap(HWND hWnd, HDC hdc)
 	TransparentBlt(hdc, homingCannon3.left, homingCannon3.top, 16, 16, hmemDc, 32, 16 * 6, 16, 16, RGB(255, 0, 255));
 	TransparentBlt(hdc, homingCannon4.left, homingCannon4.top, 16, 16, hmemDc, 48, 16 * 6, 16, 16, RGB(255, 0, 255));
 	// << btn Image
+
+	for (int i = 0; i < tileMap.size(); i++)
+		TransparentBlt(hdc, tileMap[i].pos.left, tileMap[i].pos.top, 16, 16, hmemDc, tileMap[i].showPos.x, tileMap[i].showPos.y, 16, 16, RGB(255, 0, 255));
 
 	SelectObject(hmemDc, hOldBitmap);
 	DeleteDC(hmemDc);
@@ -251,6 +255,7 @@ void Map::PushBack(RECT addRect)
 
 	temp.pos = addRect;
 	temp.type = nowType;
+	temp.showPos = SetShowType(temp.type);
 
 	CheckIsDoublePos(temp.pos);
 	tileMap.push_back(temp);
@@ -451,3 +456,120 @@ void Map::SetNowType(POINT pos)
 		nowType = -1;
 
 }
+
+POINT Map::SetShowType(int type)
+{
+	if (nowType == eMapBlock)
+	{
+		_tcscpy(typeName, L"type : Block");
+		return { 0,0 };
+	}
+	else if (nowType == eMapHalfBlock)
+	{
+		_tcscpy(typeName, L"type : HalfBlock");
+		return { 16,0 };
+	}
+	else if (nowType == eMapSpike)
+	{
+		_tcscpy(typeName, L"type : Spike");
+		return { 0,16 };
+	}
+	else if (nowType == eMapItem)
+	{
+		_tcscpy(typeName, L"type : Item");
+		return { 0, 16 * 8 };
+	}
+
+	else if (nowType == eMapGateCloseVertical)
+	{
+		_tcscpy(typeName, L"type : Vert_CloseDoor");
+		return { 0, 16 * 7 };
+	}
+	else if (nowType == eMapGateCloseHorizen)
+	{
+		_tcscpy(typeName, L"type : Hori_CloseDoor");
+		return { 16, 16 * 7 };
+	}
+	else if (nowType == eMapBtn_0)
+	{
+		_tcscpy(typeName, L"type : SwitchOn");
+		return { 0, 16 * 2 };
+	}
+	else if (nowType == eMapBtn_2)
+	{
+		_tcscpy(typeName, L"type : BtnOn");
+		return { 0, 16 * 3 };
+	}
+
+	else if (nowType == eMapGate_0)
+	{
+		_tcscpy(typeName, L"type : Gate_1");
+		return { 0, 16 * 4 };
+	}
+	else if (nowType == eMapGate_1)
+	{
+		_tcscpy(typeName, L"type : Gate_2");
+		return { 16, 16 * 4 };
+	}
+	else if (nowType == eMapGate_2)
+	{
+		_tcscpy(typeName, L"type : Gate_3");
+		return { 32, 16 * 4 };
+	}
+	else if (nowType == eMapGate_3)
+	{
+		_tcscpy(typeName, L"type : Gate_4");
+		return { 48, 16 * 4 };
+	}
+
+	else if (nowType == eMapCannon_0)
+	{
+		_tcscpy(typeName, L"type : Basic_C_1");
+		return { 0, 16 * 5 };
+	}
+	else if (nowType == eMapCannon_1)
+	{
+		_tcscpy(typeName, L"type : Basic_C_2");
+		return{ 16, 16 * 5 };
+	}
+	else if (nowType == eMapCannon_2)
+	{
+		_tcscpy(typeName, L"type : Basic_C_3");
+		return{ 32, 16 * 5 };
+	}
+	else if (nowType == eMapCannon_3)
+	{
+		_tcscpy(typeName, L"type : Basic_C_4");
+		return{ 48, 16 * 5 };
+	}
+
+	else if (nowType == eMapCannon_4)
+	{
+		_tcscpy(typeName, L"type : Homing_C_1");
+		return{ 0, 16 * 6 };
+	}
+	else if (nowType == eMapCannon_5)
+	{
+		_tcscpy(typeName, L"type : Homing_C_2");
+		return{ 16, 16 * 6 };
+	}
+	else if (nowType == eMapCannon_6)
+	{
+		_tcscpy(typeName, L"type : Homing_C_3");
+		return{ 32, 16 * 6 };
+	}
+	else if (nowType == eMapCannon_7)
+	{
+		_tcscpy(typeName, L"type : Homing_C_4");
+		return{ 48, 16 * 6 };
+	}
+
+	else if (nowType == ePlayerResen)
+	{
+		_tcscpy(typeName, L"type : PlayerResen");
+		return{ 16, 16 * 8 };
+	}
+
+	else _tcscpy(typeName, L"type : ");
+}
+

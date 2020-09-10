@@ -32,6 +32,8 @@ struct TileMap
 {
 	RECT pos;
 	int type;
+
+	POINT showPos;
 };
 
 class Map
@@ -76,6 +78,9 @@ private:
 	vector<TileMap> tileMap;
 	int nowType;
 
+	TCHAR typeName[128];
+	POINT typePos;
+
 	Map();
 
 public:
@@ -103,4 +108,6 @@ public:
 	void CheckIsDoublePos(RECT rect);
 
 	void SetNowType(POINT pos);
+
+	POINT SetShowType(int type);
 };

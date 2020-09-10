@@ -128,10 +128,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static RECT rectView;
-	static bool isDrag = false;
 
 	static POINT pos;
 	static POINT lastPos;
+
 	Map *map = Map::GetInstance();
 
     switch (message)
@@ -203,6 +203,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			memDC = CreateCompatibleDC(hdc);
 			hBit = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
 			hOldBit = (HBITMAP)SelectObject(memDC, hBit);
+
+			HBRUSH hBrush, oldBrush;
+
+			hBrush = CreateSolidBrush(RGB(36, 36, 36));
+			oldBrush = (HBRUSH)SelectObject(memDC, hBrush);
+
+			PatBlt(memDC, 0, 0, eWindowWidth, eWindowWidth, PATCOPY);
+
+			SelectObject(memDC, oldBrush);
+			DeleteObject(hBrush);
 
 			map->RenderMap(hWnd, memDC);
 
