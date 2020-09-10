@@ -137,8 +137,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
 	case WM_CREATE:
-		AllocConsole();
-		freopen("CONOUT$", "wt", stdout);
+		// AllocConsole();
+		// freopen("CONOUT$", "wt", stdout);
 
 		GetClientRect(hWnd, &rectView);
 		break;
@@ -247,7 +247,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 
     case WM_DESTROY:
-		FreeConsole();
+		// FreeConsole();
 
         PostQuitMessage(0);
         break;
