@@ -268,8 +268,13 @@ void Map::Reset()
 
 void Map::ReadMapData()
 {
-	string fileName = "map_0";
+	string fileName;
 	ifstream mapFile;
+
+	if (dGameManager->GetNowStage() < 10)
+		fileName = "map_0";
+	else
+		fileName = "map_";
 
 	fileName += to_string(dGameManager->GetNowStage()) + ".dat";
 	fileName = "./Map/" + fileName;
@@ -290,27 +295,6 @@ void Map::ReadMapData()
 			mapPos.push_back(tileMap);
 		}
 		// >> °£´ÜÇÑ ÆÄ½Ì
-
-		// tileMap.type = eMapSpike;
-		// tileMap.pos = { 500, 548, 516, 564 };
-		// mapPos.push_back(tileMap);
-
-		tileMap.type = eMapHalfBlock;
-		tileMap.pos = { 480, 496, 496, 512 };
-		mapPos.push_back(tileMap);
-
-		tileMap.type = eMapHalfBlock;
-		tileMap.pos = { 464, 496, 480, 512 };
-		mapPos.push_back(tileMap);
-
-		tileMap.type = eMapHalfBlock;
-		tileMap.pos = { 448, 496, 464, 512 };
-		mapPos.push_back(tileMap);
-
-		tileMap.type = eMapItem;
-		tileMap.pos = { 368, 496, 384, 512 };
-		mapPos.push_back(tileMap);
-
 		dSoundSys->PlaySoundEffect();
 	}
 	else
