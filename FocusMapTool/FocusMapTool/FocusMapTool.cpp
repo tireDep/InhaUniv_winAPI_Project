@@ -147,7 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		pos.x = LOWORD(lParam);
 		pos.y = HIWORD(lParam);
-
+		
 		InvalidateRect(hWnd, &rectView, false);
 	}
 		break;
@@ -172,7 +172,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		pos.y = HIWORD(lParam);
 
 		if (pos.x >= eTrueWinWidth)
-			map->SetNowType(pos);
+			map->SetNowType(hWnd, pos);
 
 		InvalidateRect(hWnd, &rectView, false);
 	}
@@ -235,9 +235,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
+
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
+
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}

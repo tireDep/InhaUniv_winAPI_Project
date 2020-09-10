@@ -72,6 +72,8 @@ private:
 
 	RECT nowTypeRect;
 
+	RECT resetBtn;
+
 	HBITMAP hMapBitmap;
 	BITMAP mapBitmap;
 
@@ -107,7 +109,15 @@ public:
 
 	void CheckIsDoublePos(RECT rect);
 
-	void SetNowType(POINT pos);
+	void SetNowType(HWND hWnd, POINT pos);
 
 	POINT SetShowType(int type);
+
+	void FileOpen(HWND hWnd);
+	void ReadData(HWND hWnd, TCHAR *OpenFileName);
+
+	void FileSave(HWND hWnd);
+	void SaveData(HWND hWnd, TCHAR *SaveFileName);
+
+	void Reset();
 };

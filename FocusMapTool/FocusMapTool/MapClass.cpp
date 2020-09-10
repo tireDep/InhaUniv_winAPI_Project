@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "MapClass.h"
-#include<commdlg.h>
+
+#include <fstream>
+#include <string>
+#include <cstring>
+#include <commdlg.h>
 
 #pragma comment (lib, "msimg32.lib")
 
@@ -36,8 +40,9 @@ Map::Map()
 	openFileBtn = { 840, 400, 946, 450 };
 	saveFileBtn = { 840, 480, 946, 530 };
 
-	// nowTypeRect = { 840, 15, 946, 35 };
 	nowTypeRect = { 820, 12, 966, 32 };
+
+	resetBtn = { 840, 560, 946, 580};
 
 	nowType = -1;
 
@@ -125,11 +130,35 @@ void Map::DrawMap(HDC hdc)
 	DrawBtn(hdc, nowTypeRect);
 	SetShowType(nowType);
 	DrawText(hdc, typeName, _tcslen(typeName), &nowTypeRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+
+	DrawBtn(hdc,resetBtn);
+	DrawText(hdc, TEXT("Reset"), _tcslen(TEXT("Reset")), &resetBtn, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	
 	// for (int i = 0; i < tileMap.size(); i++)
 	// {
 	// 	Rectangle(hdc, tileMap[i].pos.left, tileMap[i].pos.top, tileMap[i].pos.right, tileMap[i].pos.bottom);
 	// }
+
+	// >> 중심 표시선
+	HPEN hPen, oldPen;
+	hPen = CreatePen(BS_SOLID, 1, RGB(110, 160, 207));
+	oldPen = (HPEN)SelectObject(hdc, hPen);
+
+	MoveToEx(hdc, 0, eTrueWinHeight * 0.5, NULL);
+	LineTo(hdc, eTrueWinWidth, eTrueWinHeight * 0.5);
+
+	MoveToEx(hdc, eTrueWinWidth*0.5, 0, NULL);
+	LineTo(hdc, eTrueWinWidth * 0.5, eTrueWinHeight);
+
+	MoveToEx(hdc, 0, 0, NULL);
+	LineTo(hdc, eTrueWinWidth, eTrueWinHeight);
+
+	MoveToEx(hdc, eTrueWinWidth, 0, NULL);
+	LineTo(hdc, 0, eTrueWinHeight);
+
+	SelectObject(hdc, oldPen);
+	DeleteObject(hPen);
+	// << 중심 표시선
 }
 
 void Map::RenderMap(HWND hWnd, HDC hdc)
@@ -396,7 +425,7 @@ void Map::CheckIsDoublePos(RECT rect)
 	}
 }
 
-void Map::SetNowType(POINT pos)
+void Map::SetNowType(HWND hWnd, POINT pos)
 {
 	if (PtInRect(&CalcBtn(basicBlock), pos))
 		nowType = eMapBlock;
@@ -447,10 +476,13 @@ void Map::SetNowType(POINT pos)
 		nowType = ePlayerResen;
 
 	else if (PtInRect(&CalcBtn(openFileBtn), pos))
-		int a; // todo : fileOpen
+		FileOpen(hWnd);
 
 	else if (PtInRect(&CalcBtn(saveFileBtn), pos))
-		int a;// todo : saveOpen
+		FileSave(hWnd);
+
+	else if (PtInRect(&CalcBtn(resetBtn), pos))
+		Reset();
 
 	else
 		nowType = -1;
@@ -459,117 +491,292 @@ void Map::SetNowType(POINT pos)
 
 POINT Map::SetShowType(int type)
 {
-	if (nowType == eMapBlock)
+	if (type == eMapBlock)
 	{
 		_tcscpy(typeName, L"type : Block");
 		return { 0,0 };
 	}
-	else if (nowType == eMapHalfBlock)
+	else if (type == eMapHalfBlock)
 	{
 		_tcscpy(typeName, L"type : HalfBlock");
 		return { 16,0 };
 	}
-	else if (nowType == eMapSpike)
+	else if (type == eMapSpike)
 	{
 		_tcscpy(typeName, L"type : Spike");
 		return { 0,16 };
 	}
-	else if (nowType == eMapItem)
+	else if (type == eMapItem)
 	{
 		_tcscpy(typeName, L"type : Item");
 		return { 0, 16 * 8 };
 	}
 
-	else if (nowType == eMapGateCloseVertical)
+	else if (type == eMapGateCloseVertical)
 	{
 		_tcscpy(typeName, L"type : Vert_CloseDoor");
 		return { 0, 16 * 7 };
 	}
-	else if (nowType == eMapGateCloseHorizen)
+	else if (type == eMapGateCloseHorizen)
 	{
 		_tcscpy(typeName, L"type : Hori_CloseDoor");
 		return { 16, 16 * 7 };
 	}
-	else if (nowType == eMapBtn_0)
+	else if (type == eMapBtn_0)
 	{
 		_tcscpy(typeName, L"type : SwitchOn");
 		return { 0, 16 * 2 };
 	}
-	else if (nowType == eMapBtn_2)
+	else if (type == eMapBtn_2)
 	{
 		_tcscpy(typeName, L"type : BtnOn");
 		return { 0, 16 * 3 };
 	}
 
-	else if (nowType == eMapGate_0)
+	else if (type == eMapGate_0)
 	{
 		_tcscpy(typeName, L"type : Gate_1");
 		return { 0, 16 * 4 };
 	}
-	else if (nowType == eMapGate_1)
+	else if (type == eMapGate_1)
 	{
 		_tcscpy(typeName, L"type : Gate_2");
 		return { 16, 16 * 4 };
 	}
-	else if (nowType == eMapGate_2)
+	else if (type == eMapGate_2)
 	{
 		_tcscpy(typeName, L"type : Gate_3");
 		return { 32, 16 * 4 };
 	}
-	else if (nowType == eMapGate_3)
+	else if (type == eMapGate_3)
 	{
 		_tcscpy(typeName, L"type : Gate_4");
 		return { 48, 16 * 4 };
 	}
 
-	else if (nowType == eMapCannon_0)
+	else if (type == eMapCannon_0)
 	{
 		_tcscpy(typeName, L"type : Basic_C_1");
 		return { 0, 16 * 5 };
 	}
-	else if (nowType == eMapCannon_1)
+	else if (type == eMapCannon_1)
 	{
 		_tcscpy(typeName, L"type : Basic_C_2");
 		return{ 16, 16 * 5 };
 	}
-	else if (nowType == eMapCannon_2)
+	else if (type == eMapCannon_2)
 	{
 		_tcscpy(typeName, L"type : Basic_C_3");
 		return{ 32, 16 * 5 };
 	}
-	else if (nowType == eMapCannon_3)
+	else if (type == eMapCannon_3)
 	{
 		_tcscpy(typeName, L"type : Basic_C_4");
 		return{ 48, 16 * 5 };
 	}
 
-	else if (nowType == eMapCannon_4)
+	else if (type == eMapCannon_4)
 	{
 		_tcscpy(typeName, L"type : Homing_C_1");
 		return{ 0, 16 * 6 };
 	}
-	else if (nowType == eMapCannon_5)
+	else if (type == eMapCannon_5)
 	{
 		_tcscpy(typeName, L"type : Homing_C_2");
 		return{ 16, 16 * 6 };
 	}
-	else if (nowType == eMapCannon_6)
+	else if (type == eMapCannon_6)
 	{
 		_tcscpy(typeName, L"type : Homing_C_3");
 		return{ 32, 16 * 6 };
 	}
-	else if (nowType == eMapCannon_7)
+	else if (type == eMapCannon_7)
 	{
 		_tcscpy(typeName, L"type : Homing_C_4");
 		return{ 48, 16 * 6 };
 	}
 
-	else if (nowType == ePlayerResen)
+	else if (type == ePlayerResen)
 	{
 		_tcscpy(typeName, L"type : PlayerResen");
 		return{ 16, 16 * 8 };
 	}
 
 	else _tcscpy(typeName, L"type : ");
+}
+
+void Map::FileOpen(HWND hWnd)
+{
+	OPENFILENAME ofn;
+	TCHAR strBuffer[128];	// 현재 위치 경로 버퍼
+	TCHAR fileName[128] = L"\0";	// 경로 및 파일 이름 버퍼
+	TCHAR sFilter[] = L"모든 파일\0*.*\0맵 파일\0*.dat\0텍스트 파일\0*.txt\0";
+
+	memset(&ofn, 0, sizeof(OPENFILENAME));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd;
+	ofn.lpstrFilter = sFilter;
+	ofn.lpstrFile = fileName;
+	ofn.nMaxFile = 128;
+	ofn.lpstrInitialDir = _tgetcwd(strBuffer, 128);	// 현재 경로 불러오기
+	if (GetOpenFileName(&ofn) != 0)
+	{
+		wsprintf(fileName, L"%s", ofn.lpstrFile);
+		MessageBox(hWnd, fileName, L"불러오기 선택", MB_OKCANCEL);
+
+		ReadData(hWnd, fileName);
+	}
+	else
+	{
+		MessageBox(hWnd, L"불러오기를 취소하였습니다.", L"불러오기 취소", MB_OKCANCEL);
+	}
+}
+
+void Map::ReadData(HWND hWnd, TCHAR *OpenFileName)
+{
+	string readDataFile;
+	ifstream mapFile;
+
+	std::wstring wStr = OpenFileName;
+	readDataFile = string(wStr.begin(), wStr.end());
+	// >> TCHAR -> string
+
+	char *changeFile;
+	changeFile = strtok(&readDataFile[0], "\\");
+
+	while (1)
+	{
+		changeFile= strtok(NULL, "\\");
+		if (changeFile == NULL)
+		{
+			MessageBox(hWnd, L"해당 파일을 지원하지 않습니다.", L"파일 열기 실패", MB_OKCANCEL);
+			return;
+		}
+		if (strstr(changeFile, ".dat"))
+			break;
+	}
+
+	mapFile.open(changeFile, ios::in | ios::binary);
+	if (mapFile.is_open())
+	{
+		tileMap.clear();	
+		// >> 새로 읽어오기 전 초기화
+
+		POINT pos = { 0,0 };
+		TileMap temp;
+
+		temp.pos = { 0,0,0,0 };
+		temp.type = 0;
+
+		// >> 플레이어
+		mapFile >> pos.x >> pos.y;
+
+		temp.pos.left = pos.x - 8;
+		temp.pos.top = pos.y - 8;
+		temp.pos.right = pos.x + 8;
+		temp.pos.bottom = pos.y + 8;
+		temp.type = ePlayerResen;
+		temp.showPos = SetShowType(temp.type);
+
+		tileMap.push_back(temp);
+
+		// >> 맵 정보
+		while (!mapFile.eof())
+		{
+			mapFile >> temp.type >> temp.pos.left >> temp.pos.top >> temp.pos.right >> temp.pos.bottom;
+			temp.showPos = SetShowType(temp.type);
+			tileMap.push_back(temp);
+		}
+	}
+
+	mapFile.close();
+}
+
+void Map::FileSave(HWND hWnd)
+{
+	OPENFILENAME ofn;
+	TCHAR strBuffer[128];	// 현재 위치 경로 버퍼
+	TCHAR fileName[128] = L"\0";	// 경로 및 파일 이름 버퍼
+	TCHAR sFilter[] = L"모든 파일\0*.*\0맵 파일\0*.dat\0텍스트 파일\0*.txt\0";
+
+	memset(&ofn, 0, sizeof(OPENFILENAME));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd;
+	ofn.lpstrFilter = sFilter;
+	ofn.lpstrFile = fileName;
+	ofn.nMaxFile = 128;
+	ofn.lpstrInitialDir = _tgetcwd(strBuffer, 128);	// 현재 경로 불러오기
+	if (GetSaveFileName(&ofn) != 0)
+	{
+		wsprintf(fileName, L"%s", ofn.lpstrFile);
+		MessageBox(hWnd, fileName, L"파일 저장", MB_OKCANCEL);
+		
+		SaveData(hWnd, fileName);
+	}
+	else
+	{
+		MessageBox(hWnd, L"파일 저장을 취소하였습니다.", L"파일 저장 취소", MB_OKCANCEL);
+	}
+}
+
+void Map::SaveData(HWND hWnd, TCHAR *SaveFileName)
+{
+	string writeDataFile;
+	ofstream mapFile;
+
+	std::wstring wStr = SaveFileName;
+	writeDataFile = string(wStr.begin(), wStr.end());
+	// >> TCHAR -> string
+
+	char *changeFile;
+	changeFile = strtok(&writeDataFile[0], "\\");
+
+	while (1)
+	{
+		changeFile = strtok(NULL, "\\");
+		if (changeFile == NULL)
+		{
+			MessageBox(hWnd, L"해당 파일을 지원하지 않습니다.", L"파일 열기 실패", MB_OKCANCEL);
+			return;
+		}
+		if (strstr(changeFile, ".dat"))
+			break;
+	}
+
+	POINT playerPos;
+	bool isPlayerIn = false;
+	for (int i = 0; i < tileMap.size(); i++)
+	{
+		if (tileMap[i].type == ePlayerResen)
+		{
+			isPlayerIn = true;
+
+			playerPos.x = (tileMap[i].pos.left + tileMap[i].pos.right) * 0.5;
+			playerPos.y = (tileMap[i].pos.top + tileMap[i].pos.bottom) * 0.5;
+		}
+	}
+
+	if (!isPlayerIn)
+	{
+		MessageBox(hWnd, L"플레이어 위치가 존재하지 않습니다.", L"파일 저장 실패", MB_OKCANCEL);
+		return;
+	}
+
+	mapFile.open(changeFile);
+
+	mapFile << playerPos.x << "\t" << playerPos.y << endl;
+
+	for (int i = 0; i < tileMap.size(); i++)
+	{
+		if(tileMap[i].type != ePlayerResen)
+			mapFile << tileMap[i].type << "\t" << tileMap[i].pos.left << "\t" << tileMap[i].pos.top << "\t" << tileMap[i].pos.right << "\t" << tileMap[i].pos.bottom << endl;
+	}
+
+	mapFile.close();
+}
+
+void Map::Reset()
+{
+	tileMap.clear();
 }
 
