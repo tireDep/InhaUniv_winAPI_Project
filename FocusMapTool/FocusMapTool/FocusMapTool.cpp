@@ -127,27 +127,30 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static RECT rectView;
 	Map *map = Map::GetInstance();
 
     switch (message)
     {
-    case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
+	case WM_CREATE:
+		AllocConsole();
+		freopen("CONOUT$", "wt", stdout);
+
+		GetClientRect(hWnd, &rectView);
+		break;
+
+	case WM_LBUTTONDOWN:
+	{
+		POINT pos;
+		pos.x = LOWORD(lParam);
+		pos.y = HIWORD(lParam);
+
+		map->AddTile(pos);
+
+		InvalidateRect(hWnd, &rectView, true);
+	}
+		break;
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -158,7 +161,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EndPaint(hWnd, &ps);
         }
         break;
+
+	case WM_COMMAND:
+	{
+		int wmId = LOWORD(wParam);
+		// Parse the menu selections:
+		switch (wmId)
+		{
+		case IDM_ABOUT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			break;
+		case IDM_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+	}
+	break;
+
     case WM_DESTROY:
+		FreeConsole();
+
         PostQuitMessage(0);
         break;
     default:

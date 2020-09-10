@@ -1,5 +1,8 @@
 #pragma once
 #include "stdafx.h"
+#include <vector>
+
+using namespace std;
 
 enum TileType
 {
@@ -13,7 +16,7 @@ enum TileType
 	eMapBtn_0 = 250, eMapBtn_1 = 251,	// 버튼(스위치)
 	eMapBtn_2 = 252, eMapBtn_3 = 253,	// 버튼(블럭)
 
-	eMapItem = 300
+	eMapItem = 300, ePlayerResen = 500
 };
 
 enum Value
@@ -34,6 +37,43 @@ struct TileMap
 class Map
 {
 private:
+	RECT basicBlock;
+	RECT halfBlock;
+	RECT spike;
+
+	RECT item;
+	RECT blockVerticalRazer;
+	RECT blockHorizenRazer;
+
+	RECT switchOn;
+	RECT btnOn;
+
+	RECT gate1;
+	RECT gate2;
+	RECT gate3;
+	RECT gate4;
+
+	RECT basicCannon1;
+	RECT basicCannon2;
+	RECT basicCannon3;
+	RECT basicCannon4;
+
+	RECT homingCannon1;
+	RECT homingCannon2;
+	RECT homingCannon3;
+	RECT homingCannon4;
+
+	RECT playerResenBtn;
+
+	RECT openFileBtn;
+	RECT saveFileBtn;
+
+	HBITMAP hMapBitmap;
+	BITMAP mapBitmap;
+
+	vector<TileMap> tileMap;
+	int nowType;
+
 	Map();
 
 public:
@@ -44,4 +84,8 @@ public:
 	void DrawMap(HDC hdc);
 	void RenderMap(HWND hWnd, HDC hdc);
 
+	void DrawBtn(HDC hdc, RECT rect);
+
+	void AddTile(POINT pos);
+	void SetNowType(POINT pos);
 };
