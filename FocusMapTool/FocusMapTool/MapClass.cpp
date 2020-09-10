@@ -19,7 +19,7 @@ Map::Map()
 	gate1 = { 840, 150, 856, 166 };
 	gate2 = { 870, 150, 886, 166 };
 	gate3 = { 930, 150, 946, 166 };
-	gate4 = { 900, 150, 916, 166 }; 
+	gate4 = { 900, 150, 916, 166 };
 
 	basicCannon1 = { 840, 200, 856, 216 };
 	basicCannon2 = { 870, 200, 886, 216 };
@@ -35,6 +35,10 @@ Map::Map()
 
 	openFileBtn = { 840, 400, 946, 450 };
 	saveFileBtn = { 840, 480, 946, 530 };
+
+	nowTypeRect = { 840, 15, 946, 35 };
+
+	nowType = -1;
 
 	hMapBitmap = (HBITMAP)LoadImage((NULL), TEXT("Image/tile.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 	GetObject(hMapBitmap, sizeof(BITMAP), &mapBitmap);
@@ -117,6 +121,10 @@ void Map::DrawMap(HDC hdc)
 	DrawBtn(hdc, saveFileBtn);
 	DrawText(hdc, TEXT("Save File"), _tcslen(TEXT("Save File")), &saveFileBtn, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
+	DrawBtn(hdc, nowTypeRect);
+	// todo : 타입에 따른 이름 변경
+	DrawText(hdc, TEXT("type : bCannon1"), _tcslen(TEXT("type : bCannon1")), &nowTypeRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	
 	for (int i = 0; i < tileMap.size(); i++)
 	{
 		Rectangle(hdc, tileMap[i].pos.left, tileMap[i].pos.top, tileMap[i].pos.right, tileMap[i].pos.bottom);
@@ -172,8 +180,154 @@ void Map::DrawBtn(HDC hdc, RECT rect)
 
 void Map::AddTile(POINT pos)
 {
-	SetNowType(pos);
+	RECT tempRect = CalcTileRange(pos);
 
+	if (nowType == ePlayerResen)
+	{
+		vector<TileMap>::iterator it;
+		for (it = tileMap.begin(); it < tileMap.end();)
+		{
+			if (it->type == ePlayerResen)
+				it = tileMap.erase(it);
+			else
+				it++;
+		}
+	}
+
+	if (nowType != -1 && tempRect.left != -1 && tempRect.top != -1 && tempRect.right&&tempRect.bottom)
+		PushBack(tempRect);
+}
+
+void Map::AddTile(POINT startPos, POINT lastPos)
+{
+	if (nowType == ePlayerResen)
+	{
+		AddTile(startPos);
+		return;
+	}
+
+	RECT tempRect1 = CalcTileRange(startPos);
+	RECT tempRect2 = CalcTileRange(lastPos);
+
+	if (nowType != -1 && tempRect1.left != -1 && tempRect1.top != -1 && tempRect1.right != -1 && tempRect1.bottom != -1
+		&& tempRect2.left != -1 && tempRect2.top != -1 && tempRect2.right != -1 && tempRect2.bottom != -1)
+	{
+		TileMap temp;
+
+		int horizontalMove = tempRect2.left - tempRect1.left;
+		int verticalMove = tempRect2.top - tempRect1.top;
+
+		int mulHorizontalNum = 1;
+		int mulVerticalNum = 1;
+		CalcMulNum(horizontalMove, verticalMove, mulHorizontalNum, mulVerticalNum);
+
+		PushBack(tempRect1);
+		PushBack(tempRect2);
+
+		RECT addRect = tempRect1;
+		while (1)
+		{
+			addRect.left += 16 * mulHorizontalNum;
+			addRect.top += 16 * mulVerticalNum;
+			addRect.right += 16 * mulHorizontalNum;
+			addRect.bottom += 16 * mulVerticalNum;
+
+			if (addRect.left == tempRect2.left && addRect.top == tempRect2.top&&addRect.right == tempRect2.right&&addRect.bottom == tempRect2.bottom)
+				break;
+
+			PushBack(addRect);
+
+			horizontalMove = tempRect2.left - addRect.left;
+			verticalMove = tempRect2.top - addRect.top;
+			CalcMulNum(horizontalMove, verticalMove, mulHorizontalNum, mulVerticalNum);
+		}
+	}
+
+}
+
+void Map::PushBack(RECT addRect)
+{
+	TileMap temp;
+
+	temp.pos = addRect;
+	temp.type = nowType;
+
+	CheckIsDoublePos(temp.pos);
+	tileMap.push_back(temp);
+}
+
+void Map::DeleteTile(POINT pos)
+{
+	RECT tempRect = CalcTileRange(pos);
+
+	for (int i = 0; i < tileMap.size(); i++)
+	{
+		if (tileMap[i].pos.left == tempRect.left 
+			&& tileMap[i].pos.top == tempRect.top 
+			&& tileMap[i].pos.right == tempRect.right 
+			&& tileMap[i].pos.bottom == tempRect.bottom)
+
+			tileMap.erase(tileMap.begin() + i);
+	}
+}
+
+void Map::DeleteTile(POINT startPos, POINT lastPos)
+{
+	RECT tempRect1 = CalcTileRange(startPos);
+	RECT tempRect2 = CalcTileRange(lastPos);
+
+	if (nowType != -1 && tempRect1.left != -1 && tempRect1.top != -1 && tempRect1.right != -1 && tempRect1.bottom != -1
+		&& tempRect2.left != -1 && tempRect2.top != -1 && tempRect2.right != -1 && tempRect2.bottom != -1)
+	{
+		int horizontalMove = tempRect2.left - tempRect1.left;
+		int verticalMove = tempRect2.top - tempRect1.top;
+
+		int mulHorizontalNum = 1;
+		int mulVerticalNum = 1;
+		CalcMulNum(horizontalMove, verticalMove, mulHorizontalNum, mulVerticalNum);
+
+		int index = CheckIsSameRect(tempRect1);
+		if (index != -1)
+			tileMap.erase(tileMap.begin() + index);
+		else
+			return;
+
+		RECT addRect = tempRect1;
+		while (1)
+		{
+			addRect.left += 16 * mulHorizontalNum;
+			addRect.top += 16 * mulVerticalNum;
+			addRect.right += 16 * mulHorizontalNum;
+			addRect.bottom += 16 * mulVerticalNum;
+
+			index = CheckIsSameRect(addRect);
+
+			if (index == -1 || (tempRect2.left == addRect.left && tempRect2.top == addRect.top && tempRect2.right == addRect.right && tempRect2.bottom == addRect.bottom))
+				break;
+
+			tileMap.erase(tileMap.begin() + index);
+
+			horizontalMove = tempRect2.left - addRect.left;
+			verticalMove = tempRect2.top - addRect.top;
+			CalcMulNum(horizontalMove, verticalMove, mulHorizontalNum, mulVerticalNum);
+		}
+
+	}
+}
+
+RECT Map::CalcBtn(RECT rect)
+{
+	RECT result;
+	result.left = rect.left - 5;
+	result.top = rect.top - 5;
+	result.right = rect.right + 5;
+	result.bottom = rect.bottom + 5;
+
+	return result;
+}
+
+RECT Map::CalcTileRange(POINT pos)
+{
 	RECT tempRect = { -1,-1,-1,-1 };
 
 	for (int i = 0; i < eTrueWinWidth; i += 16)
@@ -196,70 +350,101 @@ void Map::AddTile(POINT pos)
 		}
 	}
 
-	//if (nowType != -1 && tempRect.left != -1 && tempRect.top != -1 && tempRect.right&&tempRect.bottom)
-	{
-		TileMap temp;
-		temp.pos = tempRect;
-		temp.type = nowType;
+	return tempRect;
+}
 
-		tileMap.push_back(temp);
+void Map::CalcMulNum(int moveX, int moveY, int &mulX, int &mulY)
+{
+	if (moveX > 0)
+		mulX = 1;
+	else if (moveX < 0)
+		mulX = -1;
+	else
+		mulX = 0;
+
+	if (moveY > 0)
+		mulY = 1;
+	else if (moveY < 0)
+		mulY = -1;
+	else
+		mulY = 0;
+}
+
+int Map::CheckIsSameRect(RECT rect)
+{
+	for (int i = 0; i < tileMap.size(); i++)
+	{
+		if (tileMap[i].pos.left == rect.left && tileMap[i].pos.top == rect.top 
+			&& tileMap[i].pos.right == rect.right && tileMap[i].pos.bottom == rect.bottom)
+			return i;
+	}
+	return -1;
+}
+
+void Map::CheckIsDoublePos(RECT rect)
+{
+	for (int i = 0; i < tileMap.size(); i++)
+	{
+		if (tileMap[i].pos.left == rect.left && tileMap[i].pos.top == rect.top
+			&& tileMap[i].pos.right == rect.right && tileMap[i].pos.bottom == rect.bottom)
+			tileMap.erase(tileMap.begin() + i);
 	}
 }
 
 void Map::SetNowType(POINT pos)
 {
-	if (PtInRect(&basicBlock, pos))
+	if (PtInRect(&CalcBtn(basicBlock), pos))
 		nowType = eMapBlock;
-	else if (PtInRect(&halfBlock, pos))
+	else if (PtInRect(&CalcBtn(halfBlock), pos))
 		nowType = eMapHalfBlock;
-	else if (PtInRect(&spike, pos))
+	else if (PtInRect(&CalcBtn(spike), pos))
 		nowType = eMapSpike;
-	else if (PtInRect(&item, pos))
+	else if (PtInRect(&CalcBtn(item), pos))
 		nowType = eMapItem;
 
-	else if (PtInRect(&blockVerticalRazer, pos))
+	else if (PtInRect(&CalcBtn(blockVerticalRazer), pos))
 		nowType = eMapGateCloseVertical;
-	else if (PtInRect(&blockHorizenRazer, pos))
+	else if (PtInRect(&CalcBtn(blockHorizenRazer), pos))
 		nowType = eMapGateCloseHorizen;
-	else if (PtInRect(&switchOn, pos))
+	else if (PtInRect(&CalcBtn(switchOn), pos))
 		nowType = eMapBtn_0;
-	else if (PtInRect(&btnOn, pos))
+	else if (PtInRect(&CalcBtn(btnOn), pos))
 		nowType = eMapBtn_2;
 
-	else if (PtInRect(&gate1, pos))
+	else if (PtInRect(&CalcBtn(gate1), pos))
 		nowType = eMapGate_0;
-	else if (PtInRect(&gate2, pos))
+	else if (PtInRect(&CalcBtn(gate2), pos))
 		nowType = eMapGate_1;
-	else if (PtInRect(&gate3, pos))
+	else if (PtInRect(&CalcBtn(gate3), pos))
 		nowType = eMapGate_2;
-	else if (PtInRect(&gate4, pos))
+	else if (PtInRect(&CalcBtn(gate4), pos))
 		nowType = eMapGate_3;
 
-	else if (PtInRect(&basicCannon1, pos))
+	else if (PtInRect(&CalcBtn(basicCannon1), pos))
 		nowType = eMapCannon_0;
-	else if (PtInRect(&basicCannon2, pos))
+	else if (PtInRect(&CalcBtn(basicCannon2), pos))
 		nowType = eMapCannon_1;
-	else if (PtInRect(&basicCannon3, pos))
+	else if (PtInRect(&CalcBtn(basicCannon3), pos))
 		nowType = eMapCannon_2;
-	else if (PtInRect(&basicCannon4, pos))
+	else if (PtInRect(&CalcBtn(basicCannon4), pos))
 		nowType = eMapCannon_3;
 
-	else if (PtInRect(&homingCannon1, pos))
+	else if (PtInRect(&CalcBtn(homingCannon1), pos))
 		nowType = eMapCannon_4;
-	else if (PtInRect(&homingCannon2, pos))
+	else if (PtInRect(&CalcBtn(homingCannon2), pos))
 		nowType = eMapCannon_5;
-	else if (PtInRect(&homingCannon3, pos))
+	else if (PtInRect(&CalcBtn(homingCannon3), pos))
 		nowType = eMapCannon_6;
-	else if (PtInRect(&homingCannon4, pos))
+	else if (PtInRect(&CalcBtn(homingCannon4), pos))
 		nowType = eMapCannon_7;
 
-	else if (PtInRect(&playerResenBtn, pos))
+	else if (PtInRect(&CalcBtn(playerResenBtn), pos))
 		nowType = ePlayerResen;
 
-	else if (PtInRect(&openFileBtn, pos))
+	else if (PtInRect(&CalcBtn(openFileBtn), pos))
 		int a; // todo : fileOpen
 
-	else if (PtInRect(&saveFileBtn, pos))
+	else if (PtInRect(&CalcBtn(saveFileBtn), pos))
 		int a;// todo : saveOpen
 
 	else

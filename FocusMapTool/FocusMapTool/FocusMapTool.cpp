@@ -128,6 +128,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static RECT rectView;
+	static bool isDrag = false;
+
+	static POINT pos;
+	static POINT lastPos;
 	Map *map = Map::GetInstance();
 
     switch (message)
@@ -139,13 +143,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hWnd, &rectView);
 		break;
 
-	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
 	{
-		POINT pos;
 		pos.x = LOWORD(lParam);
 		pos.y = HIWORD(lParam);
 
-		map->AddTile(pos);
+		InvalidateRect(hWnd, &rectView, false);
+	}
+		break;
+
+	case WM_RBUTTONUP:
+	{
+		lastPos.x = LOWORD(lParam);
+		lastPos.y = HIWORD(lParam);
+
+		if (lastPos.x != pos.x || lastPos.y != pos.y)
+			map->DeleteTile(pos, lastPos);
+		else
+			map->DeleteTile(pos);
+
+		InvalidateRect(hWnd, &rectView, true);
+	}
+		break;
+
+	case WM_LBUTTONDOWN:
+	{
+		pos.x = LOWORD(lParam);
+		pos.y = HIWORD(lParam);
+
+		if (pos.x >= eTrueWinWidth)
+			map->SetNowType(pos);
+
+		InvalidateRect(hWnd, &rectView, false);
+	}
+		break;
+
+	case WM_LBUTTONUP:
+	{
+		lastPos.x = LOWORD(lParam);
+		lastPos.y = HIWORD(lParam);
+
+		if (lastPos.x != pos.x || lastPos.y != pos.y)
+			map->AddTile(pos, lastPos);
+		else
+			map->AddTile(pos);
 
 		InvalidateRect(hWnd, &rectView, true);
 	}
@@ -156,7 +197,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
 
-			map->RenderMap(hWnd, hdc);
+			HDC memDC;
+			HBITMAP hBit, hOldBit;
+
+			memDC = CreateCompatibleDC(hdc);
+			hBit = CreateCompatibleBitmap(hdc, rectView.right, rectView.bottom);
+			hOldBit = (HBITMAP)SelectObject(memDC, hBit);
+
+			map->RenderMap(hWnd, memDC);
+
+			BitBlt(hdc, 0, 0, rectView.right, rectView.bottom, memDC, 0, 0, SRCCOPY);
+
+			SelectObject(memDC, hOldBit);
+			DeleteObject(hBit);
+			DeleteDC(memDC);
 
             EndPaint(hWnd, &ps);
         }

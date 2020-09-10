@@ -68,6 +68,8 @@ private:
 	RECT openFileBtn;
 	RECT saveFileBtn;
 
+	RECT nowTypeRect;
+
 	HBITMAP hMapBitmap;
 	BITMAP mapBitmap;
 
@@ -87,5 +89,18 @@ public:
 	void DrawBtn(HDC hdc, RECT rect);
 
 	void AddTile(POINT pos);
+	void AddTile(POINT startPos, POINT lastPos);
+	void PushBack(RECT addRect);
+
+	void DeleteTile(POINT pos);
+	void DeleteTile(POINT startPos, POINT lastPos);
+
+	RECT CalcBtn(RECT rect);
+	RECT CalcTileRange(POINT pos);
+	void CalcMulNum(int moveX, int moveY, int &mulX, int &mulY);
+	int CheckIsSameRect(RECT rect);
+
+	void CheckIsDoublePos(RECT rect);
+
 	void SetNowType(POINT pos);
 };
