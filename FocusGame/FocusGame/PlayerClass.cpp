@@ -598,7 +598,7 @@ void Player::CanMovePlayer()
 	if (playerState != eFocus)
 	{
 		// 플레이어 이동
-		if (!isJump && (GetAsyncKeyState(VK_DOWN) & 0x8000))
+		if (!isJump && (GetAsyncKeyState(VK_DOWN) & 0x8000 || GetAsyncKeyState(VK_DOWN) & 0x8001))
 		{
 			moveDirection = eMoveDown;
 			playerState = eFall;
@@ -612,7 +612,7 @@ void Player::CanMovePlayer()
 
 			CheckOut(playerPos, moveDirection);
 		}
-		if (GetAsyncKeyState(VK_RIGHT) & 0x8000) // && !isJump 
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8000 || GetAsyncKeyState(VK_RIGHT) & 0x8001) 
 		{
 			moveDirection = eMoveRight;
 			playerState = eMoveRight;
@@ -627,7 +627,7 @@ void Player::CanMovePlayer()
 
 			CheckOut(playerPos, moveDirection);
 		}
-		if (GetAsyncKeyState(VK_LEFT) & 0x8000)	// && !isJump 
+		if (GetAsyncKeyState(VK_LEFT) & 0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8001)
 		{
 			moveDirection = eMoveLeft;
 			playerState = eMoveLeft;
@@ -646,7 +646,7 @@ void Player::CanMovePlayer()
 		// 플레이어 이동
 
 		// 점프
-		if (!isJump && (GetAsyncKeyState(VK_SPACE) & 0x8000) // || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
+		if (!isJump && (GetAsyncKeyState(VK_SPACE) & 0x8000 || GetAsyncKeyState(VK_SPACE) & 0x8001) // || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
 			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;
@@ -708,7 +708,7 @@ void Player::CanMovePlayer()
 		// 점프
 
 		// 포커스
-		if (((GetAsyncKeyState(0x41) & 0x8000)) && !isCharging)
+		if (((GetAsyncKeyState(0x41) & 0x8000 || GetAsyncKeyState(0x41) & 0x8001)) && !isCharging)
 		{
 			moveSpeed = 0;
 			jumpPower = 0;
@@ -1060,6 +1060,13 @@ void Player::SetIsPlayerDead(bool set)
 {
 	if (set == true)
 	{
+		gravity = eGravity;	
+		// >> focus 모드에서 죽으면 중력 x이므로 설정
+
+		for (int i = 0; i < 4; i++)
+			focusPos[i] = { 0,0 };
+		// >> 죽으면 영역 안보이게
+
 		dSoundSys->PlayDeadSound();
 		playerState = eDead;
 	}

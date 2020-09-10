@@ -49,5 +49,7 @@ public:
 	void CheckHit();
 	bool CheckTileMap(TileMap mapTile);
 
+	RECT GetHitRect();
+
 	void Reset();
 };

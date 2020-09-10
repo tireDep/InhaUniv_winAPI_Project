@@ -203,7 +203,7 @@ void Cannon::CheckInPlayer()
 		if (shottedDownSec == 0)
 		{
 			shottedDownSec = shootedDown;
-			dBulletList->Shoot(centerPos, playerCenter, type);
+			dBulletList->Shoot(hitRect, centerPos, playerCenter, type);
 			isShooted = false;
 			// 발사 경고 후 발사
 		}
@@ -276,6 +276,11 @@ bool Cannon::CheckTileMap(TileMap mapTile)
 		return true;
 	else
 		return false;
+}
+
+RECT Cannon::GetHitRect()
+{
+	return hitRect;
 }
 
 void Cannon::Reset()

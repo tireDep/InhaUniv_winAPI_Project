@@ -124,12 +124,13 @@ void Bullet::RenderObject(HWND hWnd, HDC hdc)
 	}
 }
 
-void Bullet::Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bulletType)
+void Bullet::Shoot(const RECT &hitRect, const POINT &cannonCenter, const POINT &playerCenter, int bulletType)
 {
-	//>> 타입확인 및 off인 총알 탐색
+	// >> 타입확인 및 off인 총알 탐색
+	// >> 탐지 범위 밖일 경우 발사 되면 x
 	for (int i = 0; i < dMaxCnt; i++)
 	{
-		if (nBulletList[i].isShot == false && bulletType == nBulletList[i].type)
+		if (nBulletList[i].isShot == false && bulletType == nBulletList[i].type && PtInRect(&hitRect, playerCenter))
 		{
 			nBulletList[i].isShot = true;
 			dSoundSys->PlayShotSound();
@@ -137,7 +138,7 @@ void Bullet::Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bul
 			break;
 		}
 
-		if (hBulletList[i].isShot == false && bulletType == hBulletList[i].type)
+		if (hBulletList[i].isShot == false && bulletType == hBulletList[i].type && PtInRect(&hitRect, playerCenter))
 		{
 			hBulletList[i].isShot = true;
 			dSoundSys->PlayShotSound();
