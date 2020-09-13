@@ -42,12 +42,8 @@ void Map::Update()
 		for (int i = 0; i < mapPos.size(); i++)
 		{
 			// >> 아이템 충돌 판정
-			if (mapPos[i].type == eMapItem && IntersectRect(&area, &mapPos[i].pos, &playerPos))
-			{
-				dPlayer->SetFocusLv();
-				mapPos.erase(mapPos.begin() + i);
+			if (PlayerGetItem())
 				break;
-			}
 
 			// >> 가시 충돌 판정
 			if (mapPos[i].type == eMapSpike && IntersectRect(&area, &mapPos[i].pos, &playerPos))
@@ -330,4 +326,22 @@ void Map::SetIsNextStage(bool set)
 bool Map::GetIsNextStage()
 {
 	return isNextStage;
+}
+
+bool Map::PlayerGetItem()
+{
+	RECT area;
+
+	for (int i = 0; i < mapPos.size(); i++)
+	{
+		if (mapPos[i].type == eMapItem && IntersectRect(&area, &mapPos[i].pos, &dPlayer->GetPlayerPos()))
+		{
+			dSoundSys->PlayGetItem();
+			dPlayer->SetFocusLv();
+			mapPos.erase(mapPos.begin() + i);
+			return true;
+		}
+	}
+
+	return false;
 }

@@ -73,6 +73,8 @@ private:
 	int timer;
 	int countDownSec;
 
+	bool isGetItem;
+
 	Player();
 
 public:

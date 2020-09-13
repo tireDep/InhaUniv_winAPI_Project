@@ -46,4 +46,6 @@ public:
 
 	void SetIsNextStage(bool set);
 	bool GetIsNextStage();
+
+	bool PlayerGetItem();
 };
