@@ -454,7 +454,6 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	HDC playerDc;
 	HBITMAP hPlayerBit;
 	int posX, posY;
-	POINT aniPos = { 0,0 };
 
 	playerDc = CreateCompatibleDC(hdc);
 	hPlayerBit = (HBITMAP)SelectObject(playerDc, hPlayerBitmap);
@@ -462,35 +461,34 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	posX = 16;
 	posY = 16;
 
-	if(playerState==eDead)
-	{
-		aniPos = { nowFrame, 96 };
-		
-		time(&nowTime);
-		tmTime = localtime(&nowTime);
-
-		if (timer != tmTime->tm_sec)
-		{
-			timer = tmTime->tm_sec;
-			countDownSec--;
-		}
-
-		if (countDownSec <= 0)
-		{
-			countDownSec = dCountDown;
-			nowFrame += 16;
-		}
-
-		if (nowFrame == dDeadMax * 16)
-		{
-			nowFrame = 0;
-			isEndAni = true;
-		}
-	}
-
 	if (!dGameManager->GetIsPause())
 	{
-		if (moveDirection == eMoveDown)
+		if (playerState == eDead)
+		{
+			aniPos = { nowFrame, 96 };
+
+			time(&nowTime);
+			tmTime = localtime(&nowTime);
+
+			if (timer != tmTime->tm_sec)
+			{
+				timer = tmTime->tm_sec;
+				countDownSec--;
+			}
+
+			if (countDownSec <= 0)
+			{
+				countDownSec = dCountDown;
+				nowFrame += 16;
+			}
+
+			if (nowFrame == dDeadMax * 16)
+			{
+				nowFrame = 0;
+				isEndAni = true;
+			}
+		}
+		else if (moveDirection == eMoveDown)
 			aniPos = { 0,0 };
 		else if (moveDirection == eMoveLeft || moveDirection == eMoveRight)
 		{
@@ -505,14 +503,12 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 			aniPos = { 16,64 };
 		else if (playerState == eFocus)
 			aniPos = { 0,128 };
-		else
+		else if (playerState == eIdle)
 			aniPos = { 0,0 };
-	}
-	else
-		aniPos = { 0,0 };
 
-	if (isRightSight == false)
-		aniPos.y += 16;	// 좌우방향 확인
+		if (isRightSight == false)
+			aniPos.y += 16;	// 좌우방향 확인
+	}
 
 	TransparentBlt(hdc, playerRect.left, playerRect.top, posX, posY, playerDc, aniPos.x, aniPos.y, posX, posY, RGB(255, 0, 255));
 
@@ -1064,6 +1060,7 @@ void Player::Reset()
 	countDownSec = dCountDown;
 
 	isGetItem = false;
+	aniPos = { 0,0 };
 }
 
 

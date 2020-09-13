@@ -74,6 +74,7 @@ private:
 	int countDownSec;
 
 	bool isGetItem;
+	POINT aniPos;
 
 	Player();
 
