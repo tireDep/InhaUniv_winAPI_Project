@@ -33,4 +33,5 @@ public:
 	void ResetBullet(BulletSctruct &bullet);
 
 	RECT ConversionRect(POINT pos);
+	int CalcSpeed();
 };

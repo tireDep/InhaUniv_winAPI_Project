@@ -35,6 +35,12 @@ private:
 	int hitRangeSec;
 	bool isPlayer; 
 
+	int hitRange;
+	int countDownTime;
+	int shootedDownTime;
+	int hitRangeDownTime;
+	int tShotSpeed;
+
 public:
 	Cannon();
 	Cannon(parceCannon set);
@@ -52,4 +58,6 @@ public:
 	RECT GetHitRect();
 
 	void Reset();
+
+	int CalcSetValue(int set);
 };

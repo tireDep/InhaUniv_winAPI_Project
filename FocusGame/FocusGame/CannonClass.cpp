@@ -4,12 +4,12 @@
 #include "CannonClass.h"
 #include "MapClass.h"
 
-#define hitRange 7
-#define countDown 2
-#define shootedDown 2
-#define hitRangeDown 0
-#define tShotSpeed 20
-// todo : savedata?
+#define dHitRange 5
+#define dShootedDown 2
+#define dHitRangeDown 1
+#define dTShotSpeed 15
+
+#define dCalcLv 10
 
 #define dMap Map::GetInstance()
 #define dPlayer Player::GetInstance()
@@ -33,15 +33,16 @@ Cannon::Cannon()
 	type = 0;
 	isShooted = false;
 	shootedTimer = 0;
-	shottedDownSec = shootedDown;
+	shottedDownSec = dShootedDown;
 
 	isPlayer = false;
 	checkTimer = 0;
-	hitRangeSec = hitRangeDown;
+	hitRangeSec = CalcSetValue(dHitRangeDown);
 }
 
 Cannon::Cannon(parceCannon set)
 {
+	hitRange = CalcSetValue(dHitRange);
 	hitRect.left = set.pos.x - eBlockSize * hitRange;
 	hitRect.top = 0;
 	hitRect.right = set.pos.x + eBlockSize * hitRange;
@@ -53,7 +54,8 @@ Cannon::Cannon(parceCannon set)
 	shotCd = { centerPos.x - 16, centerPos.y - 30, centerPos.x + 16, centerPos.y - 20 };
 
 	timer = tmTime->tm_sec;
-	countDownSec = countDown;
+	countDownSec = dShootedDown;
+	// countDownSec = CalcSetValue(dShootedDown);
 	isCanShoot = false;
 
 	testShot.left = set.pos.x - eBlockSize * 0.5;
@@ -70,7 +72,10 @@ Cannon::Cannon(parceCannon set)
 
 	isShooted = false;
 	shootedTimer = 0;
-	shottedDownSec = shootedDown;
+	shottedDownSec = dShootedDown;
+	// shottedDownSec = CalcSetValue(dShootedDown);
+
+	tShotSpeed = CalcSetValue(dTShotSpeed);
 }
 
 Cannon::~Cannon()
@@ -183,7 +188,7 @@ void Cannon::CheckInPlayer()
 
 		if (hitRangeSec == 0)
 		{
-			hitRangeSec = hitRangeDown;
+			hitRangeSec = CalcSetValue(dHitRangeDown);
 			isPlayer = false;
 		}
 	}
@@ -202,7 +207,7 @@ void Cannon::CheckInPlayer()
 
 		if (shottedDownSec == 0)
 		{
-			shottedDownSec = shootedDown;
+			shottedDownSec = dShootedDown;
 			dBulletList->Shoot(hitRect, centerPos, playerCenter, type);
 			isShooted = false;
 			// 발사 경고 후 발사
@@ -223,7 +228,7 @@ void Cannon::CheckInPlayer()
 
 		if (countDownSec == 0)
 		{
-			countDownSec = countDown;
+			countDownSec = dShootedDown;
 			isCanShoot = true;
 		}
 	}
@@ -302,5 +307,46 @@ void Cannon::Reset()
 
 	if (dPlayer->GetIsPlayerDead() && !dGameManager->GetIsPlayerLive())
 		isShooted = false;
+
+	countDownTime = dShootedDown;
+	shootedDownTime = dShootedDown;
+	hitRange = CalcSetValue(dHitRange);
+	hitRangeDownTime = CalcSetValue(dHitRangeDown);
+	tShotSpeed = CalcSetValue(dTShotSpeed);
+}
+
+int Cannon::CalcSetValue(int set)
+{
+	int calcNum = dGameManager->GetNowStage();
+
+	int result = 0;
+	bool isMinus = false;
+	switch (set)
+	{
+	case dTShotSpeed:
+		result = dTShotSpeed;
+		break;
+
+	case dHitRange:
+		result = dHitRange;
+		break;
+		
+	case dHitRangeDown:
+		result = dHitRangeDown;
+		isMinus = true;
+		break;
+	}
+
+	while (calcNum / dCalcLv > 0)
+	{
+		if (calcNum % dCalcLv > 0 && !isMinus)
+			result += 5;
+		else if (calcNum % dCalcLv > 0 && isMinus && result > 0)
+			result -= 1;
+
+		calcNum = calcNum / dCalcLv;
+	}
+
+	return result;
 }
 

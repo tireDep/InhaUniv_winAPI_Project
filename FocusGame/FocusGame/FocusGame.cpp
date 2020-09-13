@@ -151,8 +151,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
 	case WM_CREATE:
-		AllocConsole();
-		freopen("CONOUT$", "wt", stdout);
+		// AllocConsole();
+		// freopen("CONOUT$", "wt", stdout);
 
 		SetTimer(hWnd, 0, 25, NULL);	// playeGame
 		SetTimer(hWnd, 50, 50, NULL);	// animationFrame 
@@ -183,13 +183,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				bulletList->Reset();
 				explodeList->Reset();
 
-				for (int i = 0; i < obstacle.size(); i++)
-					obstacle[i]->Reset();
-
 				map->SetNextStage();
 				player->Reset();
 
 				Obstacle::AddWeapon(obstacle, map->CheckInCannon());
+
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->Reset();
 
 				map->SetIsNextStage(false);
 			}
@@ -364,7 +364,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
    
     case WM_DESTROY:
-		FreeConsole();
+		// FreeConsole();
 
 		Obstacle::DeleteAllData(obstacle);
 
