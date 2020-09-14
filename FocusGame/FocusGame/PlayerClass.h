@@ -73,6 +73,9 @@ private:
 	int timer;
 	int countDownSec;
 
+	bool isGetItem;
+	POINT aniPos;
+
 	Player();
 
 public:

@@ -134,6 +134,11 @@ void SoundSystem::PlayBtnOff()
 	sndPlaySoundA(".\\sound\\SEF\\btnOff.wav", SND_ASYNC | SND_NODEFAULT);
 }
 
+void SoundSystem::PlayGetItem()
+{
+	sndPlaySoundA(".\\sound\\SEF\\getItem.wav", SND_ASYNC | SND_NODEFAULT);
+}
+
 void SoundSystem::PlayResultBgm()
 {
 	mciSendCommandW(nowID, MCI_PAUSE, MCI_NOTIFY, (DWORD)(LPVOID)&mciPlay);

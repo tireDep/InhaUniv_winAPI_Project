@@ -39,6 +39,7 @@ public:
 	void PlayFocusSound();
 	void PlayGateBreak();
 	void PlayBtnOff();
+	void PlayGetItem();
 
 	void PlayResultBgm();
 

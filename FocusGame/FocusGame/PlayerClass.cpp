@@ -70,6 +70,7 @@ void Player::Gravity()
 
 		if (CheckBtmGround(diffNum))
 		{
+			isJump = true;
 			for (int i = 0; i < 4; i++)
 				playerPos[i].y += diffNum + dTimeSec;
 		}
@@ -124,6 +125,11 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				SetIsPlayerDead(true);
 				return true;
 			}
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapItem)
+			{
+				isGetItem = true;
+				return false;
+			}
 		}
 		return true;
 	}
@@ -142,6 +148,11 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 				SetIsPlayerDead(true);
 				return true;
 			}
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapItem)
+			{
+				isGetItem = true;
+				return false;
+			}
 		}
 		return true;
 	}
@@ -158,6 +169,11 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapSpike)
 			{
 				SetIsPlayerDead(true);
+				return true;
+			}
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapItem)
+			{
+				isGetItem = true;
 				return true;
 			}
 
@@ -178,6 +194,11 @@ bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
 			{
 				SetIsPlayerDead(true);
 				return true;
+			}
+			else if (IntersectRect(&areaRect, &checkBtm[i].pos, &checkRect) && checkBtm[i].type == eMapItem)
+			{
+				isGetItem = true;
+				return false;
 			}
 		}
 		return true;
@@ -433,7 +454,6 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	HDC playerDc;
 	HBITMAP hPlayerBit;
 	int posX, posY;
-	POINT aniPos = { 0,0 };
 
 	playerDc = CreateCompatibleDC(hdc);
 	hPlayerBit = (HBITMAP)SelectObject(playerDc, hPlayerBitmap);
@@ -441,37 +461,36 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	posX = 16;
 	posY = 16;
 
-	if(playerState==eDead)
-	{
-		aniPos = { nowFrame, 96 };
-		
-		time(&nowTime);
-		tmTime = localtime(&nowTime);
-
-		if (timer != tmTime->tm_sec)
-		{
-			timer = tmTime->tm_sec;
-			countDownSec--;
-		}
-
-		if (countDownSec <= 0)
-		{
-			countDownSec = dCountDown;
-			nowFrame += 16;
-		}
-
-		if (nowFrame == dDeadMax * 16)
-		{
-			nowFrame = 0;
-			isEndAni = true;
-		}
-	}
-
 	if (!dGameManager->GetIsPause())
 	{
-		if (playerState == eIdle)
+		if (playerState == eDead)
+		{
+			aniPos = { nowFrame, 96 };
+
+			time(&nowTime);
+			tmTime = localtime(&nowTime);
+
+			if (timer != tmTime->tm_sec)
+			{
+				timer = tmTime->tm_sec;
+				countDownSec--;
+			}
+
+			if (countDownSec <= 0)
+			{
+				countDownSec = dCountDown;
+				nowFrame += 16;
+			}
+
+			if (nowFrame == dDeadMax * 16)
+			{
+				nowFrame = 0;
+				isEndAni = true;
+			}
+		}
+		else if (moveDirection == eMoveDown)
 			aniPos = { 0,0 };
-		else if (playerState == eMoveLeft || playerState == eMoveRight)
+		else if (moveDirection == eMoveLeft || moveDirection == eMoveRight)
 		{
 			aniPos = { nowFrame, 32 };
 			nowFrame += 16;
@@ -484,12 +503,12 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 			aniPos = { 16,64 };
 		else if (playerState == eFocus)
 			aniPos = { 0,128 };
-	}
-	else
-		aniPos = { 0,0 };
+		else if (playerState == eIdle)
+			aniPos = { 0,0 };
 
-	if (isRightSight == false)
-		aniPos.y += 16;	// 좌우방향 확인
+		if (isRightSight == false)
+			aniPos.y += 16;	// 좌우방향 확인
+	}
 
 	TransparentBlt(hdc, playerRect.left, playerRect.top, posX, posY, playerDc, aniPos.x, aniPos.y, posX, posY, RGB(255, 0, 255));
 
@@ -592,13 +611,14 @@ void Player::CanMovePlayer()
 	{
 		// 키가 다 떨어져 있을 경우 IDLE 상태(애니메이션 실행 X)
 		playerState = eIdle;
+		moveDirection = eIdle;
 		nowFrame = 0;
 	}
 
 	if (playerState != eFocus)
 	{
 		// 플레이어 이동
-		if (!isJump && (GetAsyncKeyState(VK_DOWN) & 0x8000))
+		if (!isJump && (GetAsyncKeyState(VK_DOWN) & 0x8000 || GetAsyncKeyState(VK_DOWN) & 0x8001))
 		{
 			moveDirection = eMoveDown;
 			playerState = eFall;
@@ -612,10 +632,10 @@ void Player::CanMovePlayer()
 
 			CheckOut(playerPos, moveDirection);
 		}
-		if (GetAsyncKeyState(VK_RIGHT) & 0x8000) // && !isJump 
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8000 || GetAsyncKeyState(VK_RIGHT) & 0x8001)
 		{
 			moveDirection = eMoveRight;
-			playerState = eMoveRight;
+			// playerState = eMoveRight;
 			isRightSight = true;
 			MovePlayer(playerPos, moveDirection, eMoveSpeed, 1, 0);
 
@@ -627,10 +647,10 @@ void Player::CanMovePlayer()
 
 			CheckOut(playerPos, moveDirection);
 		}
-		if (GetAsyncKeyState(VK_LEFT) & 0x8000)	// && !isJump 
+		if (GetAsyncKeyState(VK_LEFT) & 0x8000 || GetAsyncKeyState(VK_LEFT) & 0x8001)
 		{
 			moveDirection = eMoveLeft;
-			playerState = eMoveLeft;
+			// playerState = eMoveLeft;
 			isRightSight = false;
 			MovePlayer(playerPos, moveDirection, eMoveSpeed, -1, 0);
 
@@ -646,7 +666,7 @@ void Player::CanMovePlayer()
 		// 플레이어 이동
 
 		// 점프
-		if (!isJump && (GetAsyncKeyState(VK_SPACE) & 0x8000) // || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
+		if (!isJump && (GetAsyncKeyState(VK_SPACE) & 0x8000 || GetAsyncKeyState(VK_SPACE) & 0x8001) // || GetAsyncKeyState(VK_UP) & 0x8000)	// 점프 시작
 			&& GetKeyState(0x41) >= 0)	// 포커스 풀리자마자 뛰는 것 방지
 		{
 			isJump = true;
@@ -671,8 +691,16 @@ void Player::CanMovePlayer()
 			{
 				MovePlayer(checkRect, playerState, 1, -1, 0);
 
-				if (CollisionMap(checkRect, playerState, diffNum))
+				if (CollisionMap(checkRect, playerState, diffNum))\
+				{
 					underLineNum++;
+					if (isGetItem == true)
+					{
+						dMap->PlayerGetItem();
+						isGetItem = false;
+						break;
+					}
+				}
 				else
 					underLineNum--;
 
@@ -708,7 +736,7 @@ void Player::CanMovePlayer()
 		// 점프
 
 		// 포커스
-		if (((GetAsyncKeyState(0x41) & 0x8000)) && !isCharging)
+		if (((GetAsyncKeyState(0x41) & 0x8000 || GetAsyncKeyState(0x41) & 0x8001)) && !isCharging)
 		{
 			moveSpeed = 0;
 			jumpPower = 0;
@@ -1030,6 +1058,9 @@ void Player::Reset()
 
 	timer = 0;
 	countDownSec = dCountDown;
+
+	isGetItem = false;
+	aniPos = { 0,0 };
 }
 
 
@@ -1060,6 +1091,13 @@ void Player::SetIsPlayerDead(bool set)
 {
 	if (set == true)
 	{
+		gravity = eGravity;	
+		// >> focus 모드에서 죽으면 중력 x이므로 설정
+
+		for (int i = 0; i < 4; i++)
+			focusPos[i] = { 0,0 };
+		// >> 죽으면 영역 안보이게
+
 		dSoundSys->PlayDeadSound();
 		playerState = eDead;
 	}

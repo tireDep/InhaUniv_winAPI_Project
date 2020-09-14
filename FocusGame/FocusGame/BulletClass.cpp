@@ -8,8 +8,8 @@
 #include<commdlg.h>
 #pragma comment(lib, "msimg32.lib")
 
-#define dShotSpeed 12
-// todo : savedata?
+#define dShotSpeed 13
+#define dCalcLv 4
 
 #define dMaxCnt 100
 
@@ -31,7 +31,7 @@ Bullet::Bullet()
 		nBullet.shotBullet = { 0, 0 };
 		nBullet.isShot = false;
 		nBullet.type = dNormal;
-		nBullet.speed = dShotSpeed;
+		nBullet.speed = CalcSpeed();
 		nBullet.hbitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/bullet.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 		GetObject(nBullet.hbitmap, sizeof(BITMAP), &nBullet.bitmap);
 		nBulletList.push_back(nBullet);
@@ -41,7 +41,7 @@ Bullet::Bullet()
 		hBullet.shotBullet = { 0, 0 };
 		hBullet.isShot = false;
 		hBullet.type = dHoming;
-		hBullet.speed = dShotSpeed;
+		hBullet.speed = CalcSpeed();
 		hBullet.hbitmap = (HBITMAP)LoadImage(NULL, TEXT("Image/bullet2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 		GetObject(hBullet.hbitmap, sizeof(BITMAP), &hBullet.bitmap);
 		hBulletList.push_back(hBullet);
@@ -124,12 +124,13 @@ void Bullet::RenderObject(HWND hWnd, HDC hdc)
 	}
 }
 
-void Bullet::Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bulletType)
+void Bullet::Shoot(const RECT &hitRect, const POINT &cannonCenter, const POINT &playerCenter, int bulletType)
 {
-	//>> 타입확인 및 off인 총알 탐색
+	// >> 타입확인 및 off인 총알 탐색
+	// >> 탐지 범위 밖일 경우 발사 되면 x
 	for (int i = 0; i < dMaxCnt; i++)
 	{
-		if (nBulletList[i].isShot == false && bulletType == nBulletList[i].type)
+		if (nBulletList[i].isShot == false && bulletType == nBulletList[i].type && PtInRect(&hitRect, playerCenter))
 		{
 			nBulletList[i].isShot = true;
 			dSoundSys->PlayShotSound();
@@ -137,7 +138,7 @@ void Bullet::Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bul
 			break;
 		}
 
-		if (hBulletList[i].isShot == false && bulletType == hBulletList[i].type)
+		if (hBulletList[i].isShot == false && bulletType == hBulletList[i].type && PtInRect(&hitRect, playerCenter))
 		{
 			hBulletList[i].isShot = true;
 			dSoundSys->PlayShotSound();
@@ -275,7 +276,7 @@ void Bullet::ResetBullet(BulletSctruct & bullet)
 	bullet.nextSpot = { 0, 0 };
 	bullet.shotBullet = { 0, 0 };
 	bullet.isShot = false;
-	bullet.speed = dShotSpeed;
+	bullet.speed = CalcSpeed();
 }
 
 RECT Bullet::ConversionRect(POINT pos)
@@ -288,4 +289,20 @@ RECT Bullet::ConversionRect(POINT pos)
 	conversion.bottom = pos.y + eBlockSize * 0.5;
 
 	return conversion;
+}
+
+int Bullet::CalcSpeed()
+{
+	int calcNum = dGameManager->GetNowStage();
+	int nowSpeed = dShotSpeed;
+
+	while (calcNum / dCalcLv > 0)
+	{
+		if (calcNum % dCalcLv > 0)
+			nowSpeed += 2;
+
+		calcNum = calcNum / dCalcLv;
+	}
+
+	return nowSpeed;
 }

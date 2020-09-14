@@ -185,7 +185,8 @@
     <ResourceCompile Include="FocusGame.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="FocusGame.ico" />
+    <Image Include="icon1.ico" />
+    <Image Include="mainFrame.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

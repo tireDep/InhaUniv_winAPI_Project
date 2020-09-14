@@ -42,12 +42,8 @@ void Map::Update()
 		for (int i = 0; i < mapPos.size(); i++)
 		{
 			// >> 아이템 충돌 판정
-			if (mapPos[i].type == eMapItem && IntersectRect(&area, &mapPos[i].pos, &playerPos))
-			{
-				dPlayer->SetFocusLv();
-				mapPos.erase(mapPos.begin() + i);
+			if (PlayerGetItem())
 				break;
-			}
 
 			// >> 가시 충돌 판정
 			if (mapPos[i].type == eMapSpike && IntersectRect(&area, &mapPos[i].pos, &playerPos))
@@ -268,8 +264,13 @@ void Map::Reset()
 
 void Map::ReadMapData()
 {
-	string fileName = "map_0";
+	string fileName;
 	ifstream mapFile;
+
+	if (dGameManager->GetNowStage() < 10)
+		fileName = "map_0";
+	else
+		fileName = "map_";
 
 	fileName += to_string(dGameManager->GetNowStage()) + ".dat";
 	fileName = "./Map/" + fileName;
@@ -290,27 +291,6 @@ void Map::ReadMapData()
 			mapPos.push_back(tileMap);
 		}
 		// >> 간단한 파싱
-
-		// tileMap.type = eMapSpike;
-		// tileMap.pos = { 500, 548, 516, 564 };
-		// mapPos.push_back(tileMap);
-
-		tileMap.type = eMapHalfBlock;
-		tileMap.pos = { 480, 496, 496, 512 };
-		mapPos.push_back(tileMap);
-
-		tileMap.type = eMapHalfBlock;
-		tileMap.pos = { 464, 496, 480, 512 };
-		mapPos.push_back(tileMap);
-
-		tileMap.type = eMapHalfBlock;
-		tileMap.pos = { 448, 496, 464, 512 };
-		mapPos.push_back(tileMap);
-
-		tileMap.type = eMapItem;
-		tileMap.pos = { 368, 496, 384, 512 };
-		mapPos.push_back(tileMap);
-
 		dSoundSys->PlaySoundEffect();
 	}
 	else
@@ -346,4 +326,22 @@ void Map::SetIsNextStage(bool set)
 bool Map::GetIsNextStage()
 {
 	return isNextStage;
+}
+
+bool Map::PlayerGetItem()
+{
+	RECT area;
+
+	for (int i = 0; i < mapPos.size(); i++)
+	{
+		if (mapPos[i].type == eMapItem && IntersectRect(&area, &mapPos[i].pos, &dPlayer->GetPlayerPos()))
+		{
+			dSoundSys->PlayGetItem();
+			dPlayer->SetFocusLv();
+			mapPos.erase(mapPos.begin() + i);
+			return true;
+		}
+	}
+
+	return false;
 }

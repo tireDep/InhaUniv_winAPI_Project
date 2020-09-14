@@ -86,12 +86,14 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FOCUSGAME));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDR_MAINFRAME));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_FOCUSGAME);
+    // wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_FOCUSGAME);
+	// >> 메뉴 제거 
+	wcex.lpszMenuName = NULL;
     wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.hIconSm        = LoadIcon(hInstance, MAKEINTRESOURCE(IDR_MAINFRAME));
 
     return RegisterClassExW(&wcex);
 }
@@ -110,8 +112,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, eWindowWidth, eWindowHeight, nullptr, nullptr, hInstance, nullptr);
+   // HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   //    CW_USEDEFAULT, 0, eWindowWidth, eWindowHeight, nullptr, nullptr, hInstance, nullptr);
+
+   _tcscpy(szTitle, L"Focus"); 
+   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME,
+	   CW_USEDEFAULT, 0, eWindowWidth, eWindowHeight, nullptr, nullptr, hInstance, nullptr);
+   // >> 최소화, 최대화 버튼 제거
 
    if (!hWnd)
    {
@@ -183,13 +190,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				bulletList->Reset();
 				explodeList->Reset();
 
-				for (int i = 0; i < obstacle.size(); i++)
-					obstacle[i]->Reset();
-
 				map->SetNextStage();
 				player->Reset();
 
 				Obstacle::AddWeapon(obstacle, map->CheckInCannon());
+
+				for (int i = 0; i < obstacle.size(); i++)
+					obstacle[i]->Reset();
 
 				map->SetIsNextStage(false);
 			}

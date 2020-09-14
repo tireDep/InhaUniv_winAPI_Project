@@ -22,7 +22,7 @@ public:
 	void DrawObject(HDC hdc);
 	void RenderObject(HWND hWnd, HDC hdc);
 
-	void Shoot(const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
+	void Shoot(const RECT &hitRect, const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
 	void CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
 	void CheckShot();
 	void MoveShot(BulletSctruct &bullet);
@@ -33,4 +33,5 @@ public:
 	void ResetBullet(BulletSctruct &bullet);
 
 	RECT ConversionRect(POINT pos);
+	int CalcSpeed();
 };
