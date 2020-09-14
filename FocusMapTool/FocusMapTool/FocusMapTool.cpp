@@ -80,7 +80,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FOCUSMAPTOOL));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_FOCUSMAPTOOL);
+    // wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_FOCUSMAPTOOL);
+	wcex.lpszMenuName = NULL;
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -101,8 +102,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      100, 100, eWindowWidth, eWindowHeight, nullptr, nullptr, hInstance, nullptr);
+   // HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   //    100, 100, eWindowWidth, eWindowHeight, nullptr, nullptr, hInstance, nullptr);
+
+   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME,
+	   100, 100, eWindowWidth, eWindowHeight, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {

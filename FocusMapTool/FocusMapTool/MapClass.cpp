@@ -736,7 +736,7 @@ void Map::SaveData(HWND hWnd, TCHAR *SaveFileName)
 		changeFile = strtok(NULL, "\\");
 		if (changeFile == NULL)
 		{
-			MessageBox(hWnd, L"해당 파일을 지원하지 않습니다.", L"파일 열기 실패", MB_OKCANCEL);
+			MessageBox(hWnd, L"해당 파일을 지원하지 않습니다.", L"파일 저장 실패", MB_OKCANCEL);
 			return;
 		}
 		if (strstr(changeFile, ".dat"))

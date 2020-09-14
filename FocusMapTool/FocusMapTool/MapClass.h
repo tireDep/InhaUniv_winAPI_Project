@@ -21,7 +21,7 @@ enum TileType
 
 enum Value
 {
-	eWindowWidth = 1000, eWindowHeight = 651,
+	eWindowWidth = 1000, eWindowHeight = 631,
 	eTrueWinWidth = 800, eTrueWinHeight = 592,
 
 	eBlockSize = 16
