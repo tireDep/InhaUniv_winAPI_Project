@@ -9,8 +9,6 @@ using namespace std;
 class Map : public Object
 {
 private:
-	GameManager *gameManager = GameManager::GetInstance();
-	
 	vector<TileMap> mapPos;
 	vector<TileMap> resetPos;
 	POINT resenSpot;
