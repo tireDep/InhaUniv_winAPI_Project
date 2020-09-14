@@ -6,7 +6,7 @@ using namespace std;
 
 enum BaicsWindowSize
 {
-	eWindowWidth = 816, eWindowHeight = 651,
+	eWindowWidth = 816, eWindowHeight = 631,
 	eTrueWinWidth = 800, eTrueWinHeight = 592
 };
 
