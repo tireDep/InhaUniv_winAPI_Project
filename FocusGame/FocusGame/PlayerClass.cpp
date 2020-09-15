@@ -32,7 +32,9 @@ Player::Player()
 
 Player::~Player()
 {
-
+	DeleteObject(hFocusBitmap);
+	DeleteObject(hSpotBitmap);
+	DeleteObject(hPlayerBitmap);
 }
 
 Player* Player::GetInstance()
@@ -393,6 +395,7 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 		DeleteObject(hFocusBit2);
 
 		SelectObject(focusStartDc, hFocusStartBit);
+		DeleteObject(hFocusStartBit);
 		DeleteDC(focusStartDc);
 	}
 	else
@@ -444,9 +447,11 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 		DeleteObject(hFocusBit2);
 
 		SelectObject(focusStartDc, hFocusStartBit);
+		DeleteObject(hFocusStartBit);
 		DeleteDC(focusStartDc);
 
 		SelectObject(spotDc, hSpotBit);
+		DeleteObject(hSpotBit);
 		DeleteDC(spotDc);
 	}
 
@@ -513,6 +518,7 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 	TransparentBlt(hdc, playerRect.left, playerRect.top, posX, posY, playerDc, aniPos.x, aniPos.y, posX, posY, RGB(255, 0, 255));
 
 	SelectObject(playerDc, hPlayerBit);
+	DeleteObject(hPlayerBit);
 	DeleteDC(playerDc);
 }
 

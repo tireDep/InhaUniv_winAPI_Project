@@ -108,6 +108,7 @@ void Explode::RenderObject(HWND hWnd, HDC hdc)
 
 			TransparentBlt(hdc, explodeList[i].explodeRect.left, explodeList[i].explodeRect.top, bx, by, hMemDC, xStart, yStart, bx, by, RGB(255, 0, 255));
 			SelectObject(hMemDC, hOldBitmap);
+			DeleteObject(hOldBitmap);
 			DeleteDC(hMemDC);
 		}
 	}

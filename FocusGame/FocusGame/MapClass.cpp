@@ -201,6 +201,7 @@ void Map::RenderObject(HWND hWnd, HDC hdc)
 	}
 
 	SelectObject(hMapDc, hMapBit);
+	DeleteObject(hMapBit);
 	DeleteDC(hMapDc);
 }
 

@@ -52,7 +52,7 @@ Map::Map()
 
 Map::~Map()
 {
-
+	DeleteObject(hMapBitmap);
 }
 
 Map * Map::GetInstance()
@@ -203,6 +203,7 @@ void Map::RenderMap(HWND hWnd, HDC hdc)
 		TransparentBlt(hdc, tileMap[i].pos.left, tileMap[i].pos.top, 16, 16, hmemDc, tileMap[i].showPos.x, tileMap[i].showPos.y, 16, 16, RGB(255, 0, 255));
 
 	SelectObject(hmemDc, hOldBitmap);
+	DeleteObject(hOldBitmap);
 	DeleteDC(hmemDc);
 }
 

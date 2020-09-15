@@ -105,6 +105,7 @@ void Bullet::RenderObject(HWND hWnd, HDC hdc)
 			TransparentBlt(hdc, nBulletList[i].shotBullet.left, nBulletList[i].shotBullet.top, bx, by, hmemDc, 0, 0, bx, by, RGB(255, 0, 255));
 
 			SelectObject(hmemDc, hOldBitMap);
+			DeleteObject(hOldBitMap);
 			DeleteDC(hmemDc);
 		}
 
@@ -119,6 +120,7 @@ void Bullet::RenderObject(HWND hWnd, HDC hdc)
 			TransparentBlt(hdc, hBulletList[i].shotBullet.left, hBulletList[i].shotBullet.top, bx, by, hmemDc2, 0, 0, bx, by, RGB(255, 0, 255));
 
 			SelectObject(hmemDc2, hOldBitMap2);
+			DeleteObject(hOldBitMap2);
 			DeleteDC(hmemDc2);
 		}
 	}

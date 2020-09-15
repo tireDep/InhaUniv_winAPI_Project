@@ -166,7 +166,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else
 			map->DeleteTile(pos);
 
-		InvalidateRect(hWnd, &rectView, true);
+		InvalidateRect(hWnd, &rectView, false);
 	}
 		break;
 
@@ -192,7 +192,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else
 			map->AddTile(pos);
 
-		InvalidateRect(hWnd, &rectView, true);
+		InvalidateRect(hWnd, &rectView, false);
 	}
 		break;
 
