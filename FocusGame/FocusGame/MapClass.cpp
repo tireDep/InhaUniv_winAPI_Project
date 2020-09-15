@@ -13,6 +13,8 @@
 #define dUI UI::GetInstance()
 #define dSoundSys SoundSystem::GetInstance()
 
+#define dKeyCode 'k'
+
 using namespace std;
 
 Map::Map()
@@ -283,15 +285,31 @@ void Map::ReadMapData()
 		tileMap.pos = { 0,0,0,0 };
 		tileMap.type = 0;
 
-		// >> 간단한 파싱
-		mapFile >> resenSpot.x >> resenSpot.y; // 플레이어 리젠 위치 
+		mapFile.read((char*)&resenSpot.x, sizeof(int));
+		mapFile.read((char*)&resenSpot.y, sizeof(int));
+
+		resenSpot.x = (resenSpot.x / dKeyCode) - dKeyCode;
+		resenSpot.y = (resenSpot.y / dKeyCode) - dKeyCode;
 
 		while (!mapFile.eof())
 		{
-			mapFile >> tileMap.type >> tileMap.pos.left >> tileMap.pos.top >> tileMap.pos.right >> tileMap.pos.bottom;
+			mapFile.read((char*)&tileMap.type, sizeof(int));
+			mapFile.read((char*)&tileMap.pos.left, sizeof(int));
+			mapFile.read((char*)&tileMap.pos.top, sizeof(int));
+			mapFile.read((char*)&tileMap.pos.right, sizeof(int));
+			mapFile.read((char*)&tileMap.pos.bottom, sizeof(int));
+
+			tileMap.type = (tileMap.type / dKeyCode) - dKeyCode;
+			tileMap.pos.left = (tileMap.pos.left / dKeyCode) - dKeyCode;
+			tileMap.pos.top = (tileMap.pos.top / dKeyCode) - dKeyCode;
+			tileMap.pos.right = (tileMap.pos.right / dKeyCode) - dKeyCode;
+			tileMap.pos.bottom = (tileMap.pos.bottom / dKeyCode) - dKeyCode;
+
+			if (tileMap.type <= 0)
+				break;	// >> 무한루프 처리
+
 			mapPos.push_back(tileMap);
 		}
-		// >> 간단한 파싱
 		dSoundSys->PlaySoundEffect();
 	}
 	else

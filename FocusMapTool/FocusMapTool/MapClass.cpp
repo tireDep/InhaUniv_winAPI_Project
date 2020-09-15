@@ -8,6 +8,8 @@
 
 #pragma comment (lib, "msimg32.lib")
 
+#define dKeyCode 'k'
+
 Map::Map()
 {
 	basicBlock = { 840, 50, 856, 66 };
@@ -670,7 +672,11 @@ void Map::ReadData(HWND hWnd, TCHAR *OpenFileName)
 		temp.type = 0;
 
 		// >> 플레이어
-		mapFile >> pos.x >> pos.y;
+		mapFile.read((char*)&pos.x , sizeof(int));
+		mapFile.read((char*)&pos.y, sizeof(int));
+
+		pos.x = (pos.x / dKeyCode) - dKeyCode;
+		pos.y = (pos.y / dKeyCode) - dKeyCode;
 
 		temp.pos.left = pos.x - 8;
 		temp.pos.top = pos.y - 8;
@@ -684,7 +690,21 @@ void Map::ReadData(HWND hWnd, TCHAR *OpenFileName)
 		// >> 맵 정보
 		while (!mapFile.eof())
 		{
-			mapFile >> temp.type >> temp.pos.left >> temp.pos.top >> temp.pos.right >> temp.pos.bottom;
+			mapFile.read((char*)&temp.type, sizeof(int));
+			mapFile.read((char*)&temp.pos.left, sizeof(int));
+			mapFile.read((char*)&temp.pos.top, sizeof(int));
+			mapFile.read((char*)&temp.pos.right, sizeof(int));
+			mapFile.read((char*)&temp.pos.bottom, sizeof(int));
+
+			temp.type = (temp.type / dKeyCode) - dKeyCode;
+			temp.pos.left = (temp.pos.left / dKeyCode) - dKeyCode;
+			temp.pos.top = (temp.pos.top / dKeyCode) - dKeyCode;
+			temp.pos.right = (temp.pos.right / dKeyCode) - dKeyCode;
+			temp.pos.bottom = (temp.pos.bottom / dKeyCode) - dKeyCode;
+			
+			if (temp.type < 0)
+				break;	// >> 무한루프 처리
+
 			temp.showPos = SetShowType(temp.type);
 			tileMap.push_back(temp);
 		}
@@ -765,12 +785,31 @@ void Map::SaveData(HWND hWnd, TCHAR *SaveFileName)
 
 	mapFile.open(changeFile);
 
-	mapFile << playerPos.x << "\t" << playerPos.y << endl;
+	// mapFile << playerPos.x << "\t" << playerPos.y << endl;
+	playerPos.x = (playerPos.x + dKeyCode) * dKeyCode;
+	playerPos.y = (playerPos.y + dKeyCode) * dKeyCode;
 
+	mapFile.write((char*)&playerPos.x, sizeof(int));
+	mapFile.write((char*)&playerPos.y, sizeof(int));
+
+	TileMap tempMap;
 	for (int i = 0; i < tileMap.size(); i++)
 	{
-		if(tileMap[i].type != ePlayerResen)
-			mapFile << tileMap[i].type << "\t" << tileMap[i].pos.left << "\t" << tileMap[i].pos.top << "\t" << tileMap[i].pos.right << "\t" << tileMap[i].pos.bottom << endl;
+		if (tileMap[i].type != ePlayerResen)
+		{
+			tempMap.type = (tileMap[i].type + dKeyCode) * dKeyCode;
+			tempMap.pos.left = (tileMap[i].pos.left + dKeyCode) * dKeyCode;
+			tempMap.pos.top = (tileMap[i].pos.top + dKeyCode) * dKeyCode;
+			tempMap.pos.right = (tileMap[i].pos.right + dKeyCode) * dKeyCode;
+			tempMap.pos.bottom = (tileMap[i].pos.bottom + dKeyCode) * dKeyCode;
+
+			mapFile.write((char*)&tempMap.type, sizeof(int));
+			mapFile.write((char*)&tempMap.pos.left, sizeof(int));
+			mapFile.write((char*)&tempMap.pos.top, sizeof(int));
+			mapFile.write((char*)&tempMap.pos.right, sizeof(int));
+			mapFile.write((char*)&tempMap.pos.bottom, sizeof(int));
+		}
+			// mapFile << tileMap[i].type << "\t" << tileMap[i].pos.left << "\t" << tileMap[i].pos.top << "\t" << tileMap[i].pos.right << "\t" << tileMap[i].pos.bottom << endl;
 	}
 
 	mapFile.close();
