@@ -179,3 +179,15 @@ void SoundSystem::SetFirstPos()
 {
 	mciSendCommand(nowID, MCI_SEEK, MCI_SEEK_TO_END, (DWORD)(LPVOID)NULL);	// >> 맨 처음 위치로 이동
 }
+
+void SoundSystem::DrawObject(HDC hdc)
+{
+}
+
+void SoundSystem::RenderObject(HWND hWnd, HDC hdc)
+{
+}
+
+void SoundSystem::Reset()
+{
+}

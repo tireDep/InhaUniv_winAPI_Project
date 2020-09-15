@@ -307,14 +307,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		PatBlt(memDc, rectView.left, rectView.top, rectView.right, rectView.bottom, PATCOPY);
 		// PATCOPY : dc에 있는 브러시 색상 그대로 출력
+
+		SelectObject(memDc, oldBrush);
+		DeleteObject(hBrush);
+
 		if (gameManager->GetNowScene() == eMainScene || gameManager->GetNowScene() == eChangeScene)
 			ui->RenderObject(hWnd, memDc);
 
 		else if (gameManager->GetNowScene() == eGameScene)
 		{
-			SelectObject(memDc, oldBrush);
-			DeleteObject(hBrush);
-
 			if (gameManager->GetIsPlayerLive())
 			{
 				for (int i = 0; i<object.size(); i++)

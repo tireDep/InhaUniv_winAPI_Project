@@ -181,7 +181,8 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 	}
 
 	SelectObject(uiDc, hUIBit);
-	DeleteObject(uiDc);
+	DeleteObject(hUIBit);
+	DeleteDC(uiDc);
 }
 
 void UI::CheckPushBtn(POINT pos)

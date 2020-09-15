@@ -47,4 +47,9 @@ public:
 	void SetIsStop(bool set);
 
 	void SetFirstPos();
+
+	void DrawObject(HDC hdc);
+	void RenderObject(HWND hWnd, HDC hdc);
+
+	void Reset();
 };

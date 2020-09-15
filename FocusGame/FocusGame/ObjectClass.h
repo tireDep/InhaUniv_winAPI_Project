@@ -7,12 +7,12 @@ private:
 
 public:
 	Object();
-	virtual ~Object();
+	virtual ~Object() = 0;
 
-	virtual void Update();
-	virtual void DrawObject(HDC hdc);
-	virtual void RenderObject(HWND hWnd, HDC hdc);
+	virtual void Update() = 0;
+	virtual void DrawObject(HDC hdc) = 0;
+	virtual void RenderObject(HWND hWnd, HDC hdc) = 0;
 
-	virtual void Reset();
+	virtual void Reset() = 0;
 };
 
