@@ -107,11 +107,11 @@ bool Player::CheckBtmGround(int &lengthDiff)
 	 return true;
 }
 
-bool Player::CollisionMap(POINT pos[], int direction, int & lengthDiff)
+bool Player::CollisionMap(int direction, int & lengthDiff)
 {
 	RECT areaRect;
 	vector<TileMap> checkBtm = dMap->GetMapPos();
-	RECT checkRect = ConversionRect(pos);
+	RECT checkRect = ConversionRect(playerPos);
 
 	if (direction == eMoveRight)
 	{
@@ -493,9 +493,9 @@ void Player::RenderObject(HWND hWnd, HDC hdc)
 				isEndAni = true;
 			}
 		}
-		else if (moveDirection == eMoveDown)
+		else if (moveDirection == eMoveDown && playerState !=eFocus)
 			aniPos = { 0,0 };
-		else if (moveDirection == eMoveLeft || moveDirection == eMoveRight)
+		else if ((moveDirection == eMoveLeft || moveDirection == eMoveRight) && playerState != eFocus)
 		{
 			aniPos = { nowFrame, 32 };
 			nowFrame += 16;
@@ -646,7 +646,7 @@ void Player::CanMovePlayer()
 			MovePlayer(playerPos, moveDirection, eMoveSpeed, 1, 0);
 
 			int diffNum = 0;
-			if (CollisionMap(playerPos, eMoveRight, diffNum))
+			if (CollisionMap(eMoveRight, diffNum))
 				MovePlayer(playerPos, moveDirection, diffNum, -1, -dCorrection);
 			else
 				MovePlayer(playerPos, moveDirection, diffNum, 1, -dCorrection);
@@ -661,7 +661,7 @@ void Player::CanMovePlayer()
 			MovePlayer(playerPos, moveDirection, eMoveSpeed, -1, 0);
 
 			int diffNum = 0;
-			if (CollisionMap(playerPos, eMoveLeft, diffNum))
+			if (CollisionMap(eMoveLeft, diffNum))
 				MovePlayer(playerPos, moveDirection, diffNum, -1, 0);
 			else
 				MovePlayer(playerPos, moveDirection, diffNum, 1, 0);
@@ -697,7 +697,7 @@ void Player::CanMovePlayer()
 			{
 				MovePlayer(checkRect, playerState, 1, -1, 0);
 
-				if (CollisionMap(checkRect, playerState, diffNum))\
+				if (CollisionMap(playerState, diffNum))
 				{
 					underLineNum++;
 					if (isGetItem == true)

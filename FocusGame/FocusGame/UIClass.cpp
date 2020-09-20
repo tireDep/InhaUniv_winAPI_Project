@@ -98,7 +98,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 
 		if (nowFrame.x >= dChangeFrameMax)
 		{
-			dSoundSys->PlaySoundEffect();
+			dSoundSys->PlayChangeStageSound();
 			dMap->SetIsNextStage(true);
 			dGameManager->SetNowScene(eGameScene);
 		}
@@ -176,7 +176,7 @@ void UI::RenderObject(HWND hWnd, HDC hdc)
 			dMap->SetIsNextStage(true);
 			dSoundSys->SetIsStop(false);
 			dGameManager->SetFocusLv(0);
-			dGameManager->SetSceneNum(eMainScene);
+			dGameManager->SetNowScene(eMainScene);
 		}
 	}
 

@@ -21,8 +21,8 @@
 
 Bullet::Bullet()
 {
-	BulletSctruct nBullet;
-	BulletSctruct hBullet;
+	BulletStruct nBullet;
+	BulletStruct hBullet;
 
 	for (int i = 0; i < dMaxCnt; i++)
 	{
@@ -150,7 +150,7 @@ void Bullet::Shoot(const RECT &hitRect, const POINT &cannonCenter, const POINT &
 	}
 }
 
-void Bullet::CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType)
+void Bullet::CalcBullet(BulletStruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType)
 {
 	if (bulletType == dHoming || (bullet.centerPos.x == -1 && bullet.centerPos.y == -1))
 	{
@@ -198,7 +198,7 @@ void Bullet::CheckShot()
 	}
 }
 
-void Bullet::MoveShot(BulletSctruct &bullet)
+void Bullet::MoveShot(BulletStruct &bullet)
 {
 	// >> 포커스 내부 판정
 	float mulNum = 0;
@@ -222,7 +222,7 @@ void Bullet::MoveShot(BulletSctruct &bullet)
 	CheckHit(bullet);
 }
 
-void Bullet::CheckHit(BulletSctruct &bullet)
+void Bullet::CheckHit(BulletStruct &bullet)
 {
 	RECT area;
 
@@ -272,7 +272,7 @@ void Bullet::Reset()
 	}
 }
 
-void Bullet::ResetBullet(BulletSctruct & bullet)
+void Bullet::ResetBullet(BulletStruct &bullet)
 {
 	bullet.centerPos = { -1, -1 };
 	bullet.nextSpot = { 0, 0 };

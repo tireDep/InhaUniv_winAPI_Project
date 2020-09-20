@@ -66,7 +66,7 @@ void Map::Update()
 				}
 				// >> 바로 밑에 있는 버튼이 꺼지도록 판정 변경
 
-				dSoundSys->PlayBtnOff();
+				dSoundSys->PlayBtnOffSound();
 			}
 
 			// >> 다음 스테이지 불러오기
@@ -80,7 +80,7 @@ void Map::Update()
 			{
 				if (mapPos[i].type == eMapGate_0 || mapPos[i].type == eMapGate_1 || mapPos[i].type == eMapGate_2 || mapPos[i].type == eMapGate_3)
 				{
-					if(mapPos[i].type==eMapGate_0) dSoundSys->PlayGateBreak();	// 사운드 겹침 방지
+					if(mapPos[i].type==eMapGate_0) dSoundSys->PlayGateBreakSound();	// 사운드 겹침 방지
 					mapPos[i].type = eMapGateOpen;
 				}
 				// todo : 애니메이션 추가?
@@ -232,10 +232,10 @@ vector<TileMap> Map::GetMapPos()
 	return mapPos;
 }
 
-vector<parceCannon> Map::CheckInCannon()
+vector<ParceCannonStruct> Map::CheckInCannon()
 {
-	parceCannon tempVal;
-	vector<parceCannon> result;
+	ParceCannonStruct tempVal;
+	vector<ParceCannonStruct> result;
 
 	vector<TileMap>::iterator it;
 	for (it = mapPos.begin(); it < mapPos.end(); it++)
@@ -310,7 +310,7 @@ void Map::ReadMapData()
 
 			mapPos.push_back(tileMap);
 		}
-		dSoundSys->PlaySoundEffect();
+		dSoundSys->PlayChangeStageSound();
 	}
 	else
 	{
@@ -355,7 +355,7 @@ bool Map::PlayerGetItem()
 	{
 		if (mapPos[i].type == eMapItem && IntersectRect(&area, &mapPos[i].pos, &dPlayer->GetPlayerPos()))
 		{
-			dSoundSys->PlayGetItem();
+			dSoundSys->PlayGetItemSound();
 			dPlayer->SetFocusLv();
 			mapPos.erase(mapPos.begin() + i);
 			return true;

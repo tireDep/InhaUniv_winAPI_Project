@@ -10,23 +10,3 @@ Object::~Object()
 {
 
 }
-
-// void Object::Update()
-// {
-// 
-// }
-// 
-// void Object::DrawObject(HDC hdc)
-// {
-// 
-// }
-// 
-// void Object::Reset()
-// {
-// 
-// }
-// 
-// void Object::RenderObject(HWND hWnd, HDC hdc)
-// {
-//
-// } 

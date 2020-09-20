@@ -27,7 +27,7 @@ void Obstacle::RenderObject(HWND hWnd, HDC hdc)
 
 }
 
-void Obstacle::AddWeapon(vector<Obstacle *> &obstacle, vector<parceCannon> cannonSet)
+void Obstacle::AddWeapon(vector<Obstacle *> &obstacle, vector<ParceCannonStruct> cannonSet)
 {
 	DeleteAllData(obstacle);
 

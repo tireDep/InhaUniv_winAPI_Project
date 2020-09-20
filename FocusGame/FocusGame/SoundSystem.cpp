@@ -91,7 +91,7 @@ SoundSystem * SoundSystem::GetInstance()
 
 void SoundSystem::Update()
 {
-	if (dGameManager->GetNowScene() != eMainScene)
+	if (dGameManager->GetNowScene() == eGameScene)
 	{
 		mciSendCommandW(nowID, MCI_PAUSE, MCI_NOTIFY, (DWORD)(LPVOID)&mciPlay);
 		nowID = dwID[1];
@@ -99,7 +99,7 @@ void SoundSystem::Update()
 	}
 }
 
-void SoundSystem::PlaySoundEffect()
+void SoundSystem::PlayChangeStageSound()
 {
 	sndPlaySoundA(".\\sound\\SEF\\tone.wav", SND_ASYNC | SND_NODEFAULT);
 }
@@ -124,17 +124,17 @@ void SoundSystem::PlayFocusSound()
 	sndPlaySoundA(".\\sound\\SEF\\focus.wav", SND_ASYNC | SND_NODEFAULT);
 }
 
-void SoundSystem::PlayGateBreak()
+void SoundSystem::PlayGateBreakSound()
 {
 	sndPlaySoundA(".\\sound\\SEF\\gateBreak.wav", SND_ASYNC | SND_NODEFAULT);
 }
 
-void SoundSystem::PlayBtnOff()
+void SoundSystem::PlayBtnOffSound()
 {
 	sndPlaySoundA(".\\sound\\SEF\\btnOff.wav", SND_ASYNC | SND_NODEFAULT);
 }
 
-void SoundSystem::PlayGetItem()
+void SoundSystem::PlayGetItemSound()
 {
 	sndPlaySoundA(".\\sound\\SEF\\getItem.wav", SND_ASYNC | SND_NODEFAULT);
 }

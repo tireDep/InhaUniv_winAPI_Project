@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include "stdafx.h"
 #include "GameManager.h"
 #include "FocusGame.h"
@@ -9,8 +9,8 @@ using namespace std;
 class Bullet : public Obstacle
 {
 private:
-	vector<BulletSctruct> nBulletList;
-	vector<BulletSctruct> hBulletList;
+	vector<BulletStruct> nBulletList;
+	vector<BulletStruct> hBulletList;
 
 	Bullet();
 
@@ -23,14 +23,14 @@ public:
 	void RenderObject(HWND hWnd, HDC hdc);
 
 	void Shoot(const RECT &hitRect, const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
-	void CalcBullet(BulletSctruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
+	void CalcBullet(BulletStruct &bullet, const POINT &cannonCenter, const POINT &playerCenter, int bulletType);
 	void CheckShot();
-	void MoveShot(BulletSctruct &bullet);
-	void CheckHit(BulletSctruct &bullet);
+	void MoveShot(BulletStruct &bullet);
+	void CheckHit(BulletStruct &bullet);
 	bool CheckTileMap(TileMap mapTile);
 	
 	void Reset();
-	void ResetBullet(BulletSctruct &bullet);
+	void ResetBullet(BulletStruct &bullet);
 
 	RECT ConversionRect(POINT pos);
 	int CalcSpeed();

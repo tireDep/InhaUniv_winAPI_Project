@@ -28,7 +28,7 @@ struct TileMap
 	int type;
 };
 
-struct BulletSctruct
+struct BulletStruct
 {
 	POINT centerPos;
 	POINT nextSpot;
@@ -42,13 +42,13 @@ struct BulletSctruct
 	float speed;
 };
 
-struct parceCannon
+struct ParceCannonStruct
 {
 	POINT pos;
 	int type;
 };
 
-struct explodStruct
+struct ExplodeStruct
 {
 	POINT centerPos;
 	RECT explodeRect;

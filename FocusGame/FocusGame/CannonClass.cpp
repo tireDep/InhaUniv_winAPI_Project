@@ -40,7 +40,7 @@ Cannon::Cannon()
 	hitRangeSec = CalcSetValue(dHitRangeDown);
 }
 
-Cannon::Cannon(parceCannon set)
+Cannon::Cannon(ParceCannonStruct set)
 {
 	hitRange = CalcSetValue(dHitRange);
 	hitRect.left = set.pos.x - eBlockSize * hitRange;

@@ -86,7 +86,7 @@ public:
 	void Gravity();
 	
 	bool CheckBtmGround(int &lengthDiff);
-	bool CollisionMap(POINT pos[], int direction, int &lengthDiff);
+	bool CollisionMap(int direction, int &lengthDiff);
 
 	void CheckOut(POINT pos[], int direction);
 	bool CheckOutMap(POINT pos[], int direction, int &lengthDiff);

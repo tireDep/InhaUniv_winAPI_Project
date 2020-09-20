@@ -17,7 +17,7 @@ public:
 	virtual void DrawObject(HDC hdc);
 	virtual void RenderObject(HWND hWnd, HDC hdc);
 
-	static void AddWeapon(vector<Obstacle *> &obstacle, vector<parceCannon> cannonSet);
+	static void AddWeapon(vector<Obstacle *> &obstacle, vector<ParceCannonStruct> cannonSet);
 
 	virtual void Reset();
 

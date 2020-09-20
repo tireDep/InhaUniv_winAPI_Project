@@ -178,7 +178,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_TIMER:
-		if (gameManager->GetSceneNum() == eGameScene)
+		if (gameManager->GetNowScene() == eGameScene)
 		{
 			bool isPlayerLive = gameManager->GetIsPlayerLive();
 
@@ -231,7 +231,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						explodeList->Reset();
 						// >> Reset
 
-						soundSys->PlaySoundEffect();
+						soundSys->PlayChangeStageSound();
 						soundSys->SetIsPause(false);
 						gameManager->SetIsPlayerLive(true);
 						player->SetIsPlayerDead(false);
@@ -268,15 +268,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_KEYDOWN:
-		if (gameManager->GetSceneNum() == eMainScene)
+		if (gameManager->GetNowScene() == eMainScene)
 		{
-			gameManager->SetSceneNum(eChangeScene);
+			gameManager->SetNowScene(eChangeScene);
 			// todo : 키입력이 게임화면까지 넘어감
 		}
 		break;
 
 	case WM_CHAR:
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001 && gameManager->GetSceneNum() == eGameScene)
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001 && gameManager->GetNowScene() == eGameScene)
 			gameManager->SetIsPause();
 
 		if (GetAsyncKeyState(VK_TAB) & 0x0001 && gameManager->GetDrawRect() == false)
@@ -338,7 +338,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ui->RenderObject(hWnd, memDc);
 		}
 
-		else if (gameManager->GetSceneNum() == eResultScene)
+		else if (gameManager->GetNowScene() == eResultScene)
 		{
 			ui->RenderObject(hWnd, memDc);
 		}

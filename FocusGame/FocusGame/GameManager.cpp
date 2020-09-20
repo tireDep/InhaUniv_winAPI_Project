@@ -75,11 +75,6 @@ void GameManager::WriteSaveData()
 	saveFile.close();
 }
 
-void GameManager::SetSceneNum(int num)
-{
-	nowScene = num;
-}
-
 void GameManager::SetIsPause()
 {
 	if (isPause == false)
@@ -99,11 +94,6 @@ void GameManager::SetIsPlayerLive(bool live)
 void GameManager::SetNowScene(int scene)
 {
 	nowScene = scene;
-}
-
-int GameManager::GetSceneNum()
-{
-	return nowScene;
 }
 
 bool GameManager::GetIsPause()

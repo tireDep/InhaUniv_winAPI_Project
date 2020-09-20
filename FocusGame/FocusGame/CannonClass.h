@@ -43,7 +43,7 @@ private:
 
 public:
 	Cannon();
-	Cannon(parceCannon set);
+	Cannon(ParceCannonStruct set);
 	~Cannon();
 
 	void Update();

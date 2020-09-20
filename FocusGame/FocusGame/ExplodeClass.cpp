@@ -21,7 +21,7 @@ using namespace std;
 
 Explode::Explode()
 {
-	explodStruct temp;
+	ExplodeStruct temp;
 	for (int i = 0; i < dMaxCnt; i++)
 	{
 		temp.centerPos = { 0,0 };
@@ -62,7 +62,7 @@ void Explode::Update()
 	}
 }
 
-void Explode::CheckHitPlayer(explodStruct &effect)
+void Explode::CheckHitPlayer(ExplodeStruct &effect)
 {
 	RECT area;
 	RECT playerPos = dPlayer->GetPlayerPos();
@@ -163,7 +163,7 @@ void Explode::Reset()
 		ResetExplode(explodeList[i]);
 }
 
-void Explode::ResetExplode(explodStruct &effect)
+void Explode::ResetExplode(ExplodeStruct &effect)
 {
 	effect.centerPos = { 0,0 };
 	effect.explodeRect = { 0,0,0,0 };

@@ -32,14 +32,14 @@ public:
 
 	void Update();
 
-	void PlaySoundEffect();
+	void PlayChangeStageSound();
 	void PlayDeadSound();
 	void PlayShotSound();
 	void PlayExplodeSound();
 	void PlayFocusSound();
-	void PlayGateBreak();
-	void PlayBtnOff();
-	void PlayGetItem();
+	void PlayGateBreakSound();
+	void PlayBtnOffSound();
+	void PlayGetItemSound();
 
 	void PlayResultBgm();
 

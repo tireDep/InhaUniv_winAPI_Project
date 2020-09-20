@@ -42,7 +42,6 @@ public:
 	void ReadSaveData();
 	void WriteSaveData();
 
-	void SetSceneNum(int num);
 	void SetIsPause();
 	void SetIsPlayerLive(bool live);
 
@@ -51,7 +50,6 @@ public:
 	void SetNowStage(int set);
 	void SetFocusLv(int set);
 
-	int GetSceneNum();
 	bool GetIsPause();
 	bool GetIsPlayerLive();
 	int GetNowScene();

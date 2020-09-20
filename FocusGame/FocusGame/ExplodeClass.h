@@ -6,7 +6,7 @@
 class Explode : public Obstacle
 {
 private:
-	vector<explodStruct> explodeList;
+	vector<ExplodeStruct> explodeList;
 
 	Explode();
 
@@ -16,7 +16,7 @@ public:
 	static Explode* GetInstance();
 
 	void Update();
-	void CheckHitPlayer(explodStruct &effect);
+	void CheckHitPlayer(ExplodeStruct &effect);
 
 	void DrawObject(HDC hdc);
 	void RenderObject(HWND hWnd, HDC hdc);
@@ -25,5 +25,5 @@ public:
 	void StartExplode(POINT bulletPos);
 
 	void Reset();
-	void ResetExplode(explodStruct &effect); 
+	void ResetExplode(ExplodeStruct &effect); 
 };

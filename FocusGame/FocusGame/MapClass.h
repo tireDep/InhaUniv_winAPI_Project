@@ -34,7 +34,7 @@ public:
 	void SetNextStage();
 
 	vector<TileMap> GetMapPos();
-	vector<parceCannon> CheckInCannon();
+	vector<ParceCannonStruct> CheckInCannon();
 
 	void Reset();
 
