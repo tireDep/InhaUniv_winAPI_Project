@@ -29,7 +29,6 @@ private:
 
 	int nowStage;
 	int nowFocusLv;
-	// todo : saveData
 
 	GameManager();
 

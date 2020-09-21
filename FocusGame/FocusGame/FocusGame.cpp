@@ -279,10 +279,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001 && gameManager->GetNowScene() == eGameScene)
 			gameManager->SetIsPause();
 
-		if (GetAsyncKeyState(VK_TAB) & 0x0001 && gameManager->GetDrawRect() == false)
-			gameManager->SetDrawRect(true);
-		else
-			gameManager->SetDrawRect(false);
+		//if (GetAsyncKeyState(VK_TAB) & 0x0001 && gameManager->GetDrawRect() == false)
+		//	gameManager->SetDrawRect(true);
+		//else
+		//	gameManager->SetDrawRect(false);
 
 		InvalidateRect(hWnd, NULL, false);
 		break;
